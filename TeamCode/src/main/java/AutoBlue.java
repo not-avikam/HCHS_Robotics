@@ -249,7 +249,7 @@ public class AutoBlue extends OpMode{
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
         telemetry.update();
-        
+
     }
 
     @Override
