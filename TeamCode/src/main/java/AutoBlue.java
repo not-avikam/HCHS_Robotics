@@ -58,27 +58,19 @@ public class AutoBlue extends OpMode{
     private final Pose pickup2ControlPose1 = new Pose(7.662, 32.235, Math.toRadians(0));
     private final Pose pickup2ControlPose2 = new Pose(70.811, 8.983, Math.toRadians(0));
     private final Pose pickup2ControlPose3 = new Pose(55.222, 11.097, Math.toRadians(0));
-    private final Pose pickupWait = new Pose(25.000, 15.000, Math.toRadians(0));
+    private final Pose pickupWait = new Pose(25.000, 15.000, Math.toRadians(180));
     private final Pose parkPose = new Pose(8.983, 19.288, Math.toRadians(90));
     private final Pose parkControlPose = new Pose(12.154, 79.530, Math.toRadians(90));
     private Path scorePreload, park;
-    private PathChain grabPickup1, grabPickup2, score1, score2, scorePickup3, pickup, pickupBackUp;
+    private PathChain grabPickup1, grabPickup2, score1, score2, pickupLast, pickup, pickupBackUp;
 
     public void buildpaths() {
         scorePreload = new Path(new BezierCurve(new Point(startPose), new Point(preloadScoreControlPose), new Point(scorePose)));
-        scorePreload.setTangentHeadingInterpolation();
+        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
 
         grabPickup1 = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(scorePose), new Point(pickup1ControlPose1), new Point(pickup1ControlPose2), new Point(pickupPose)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(),pickupPose.getHeading())
-                .build();
-        pickupBackUp = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickupPose), new Point(pickupWait)))
-                .setLinearHeadingInterpolation(pickupPose.getHeading(), pickupWait.getHeading())
-                .build();
-        pickup = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickupWait), new Point(pickupPose)))
-                .setLinearHeadingInterpolation(pickupWait.getHeading(), pickupPose.getHeading())
                 .build();
         score1 = follower.pathBuilder()
                 .addPath(new BezierLine (new Point(pickupPose), new Point(scorePose)))
@@ -88,9 +80,21 @@ public class AutoBlue extends OpMode{
                 .addPath(new BezierCurve(new Point(scorePose), new Point(pickup2ControlPose1), new Point(pickup2ControlPose2), new Point(pickup2ControlPose3), new Point(pickupPose)))
                 .setTangentHeadingInterpolation()
                 .build();
+        pickupBackUp = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(pickupPose), new Point(pickupWait)))
+                .setLinearHeadingInterpolation(pickupPose.getHeading(), pickupWait.getHeading())
+                .build();
+        pickup = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(pickupWait), new Point(pickupPose)))
+                .setLinearHeadingInterpolation(pickupWait.getHeading(), pickupPose.getHeading())
+                .build();
         score2 = follower.pathBuilder()
                 .addPath(new BezierLine (new Point(pickupPose), new Point(scorePose)))
                 .setLinearHeadingInterpolation(pickupPose.getHeading(), scorePose.getHeading())
+                .build();
+        pickupLast = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(scorePose), new Point(pickupPose)))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), pickupPose.getHeading())
                 .build();
         park = new Path(new BezierCurve(new Point(scorePose), /* Control Point */ new Point(parkControlPose), new Point(parkPose)));
         park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
@@ -188,6 +192,14 @@ public class AutoBlue extends OpMode{
 
             case 4:
                 if(follower.getPose().getX() > (pickupPose.getX() - 1) && follower.getPose().getY() > (pickupPose.getY() - 1)) {
+                }
+
+                follower.followPath(pickupBackUp,true);
+                setPathState(5);
+                break;
+
+            case 5:
+                if(follower.getPose().getX() > (pickupPose.getX() - 1) && follower.getPose().getY() > (pickupPose.getY() - 1)) {
                     /* Grab Sample */
                     vSlideLeft.setTargetPosition(0);
                     vSlideRight.setTargetPosition(0);
@@ -198,10 +210,42 @@ public class AutoBlue extends OpMode{
                     clawRotateRight.setPosition(.7);
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     follower.followPath(score2,true);
-                    setPathState(5);
+                    setPathState(6);
                 } break;
 
-            case 5:
+            case 6:
+                if(follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
+                    /* Grab Sample */
+                    vSlideLeft.setTargetPosition(1);
+                    vSlideRight.setTargetPosition(1);
+                    vSlideLeft.set(1);
+                    vSlideRight.set(1);
+                    vSlideLeft.setTargetPosition(0);
+                    vSlideRight.setTargetPosition(0);
+                    vSlideLeft.set(1);
+                    vSlideRight.set(1);
+                    claw.setPosition(.3);
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
+                    follower.followPath(pickupLast, true);
+                    setPathState(7);
+                }
+
+            case 7:
+                if(follower.getPose().getX() > (pickupPose.getX() - 1) && follower.getPose().getY() > (pickupPose.getY() - 1)) {
+                    /* Grab Sample */
+                    vSlideLeft.setTargetPosition(0);
+                    vSlideRight.setTargetPosition(0);
+                    vSlideLeft.set(1);
+                    vSlideRight.set(1);
+                    claw.setPosition(0);
+                    clawRotateLeft.setPosition(.7);
+                    clawRotateRight.setPosition(.7);
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
+                    follower.followPath(score2,true);
+                    setPathState(8);
+                } break;
+
+            case 8:
                 if(follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
                     /* Score Preload */
                     vSlideLeft.setTargetPosition(1);
@@ -213,7 +257,6 @@ public class AutoBlue extends OpMode{
                     vSlideLeft.set(1);
                     vSlideRight.set(1);
                     claw.setPosition(.3);
-
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
                     follower.followPath(park,true);
