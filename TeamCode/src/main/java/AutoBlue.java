@@ -147,8 +147,6 @@ public class AutoBlue extends OpMode{
                     vSlides.setTargetPosition(5);
                     vSlides.setTargetPosition(0);
                     claw.setPosition(.3);
-
-
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
                     follower.followPath(grabPickup1,true);
                     setPathState(2);
@@ -160,8 +158,6 @@ public class AutoBlue extends OpMode{
                     /* Grab Sample */
                     vSlideLeft.setTargetPosition(0);
                     vSlideRight.setTargetPosition(0);
-                    vSlideLeft.set(1);
-                    vSlideRight.set(1);
                     claw.setPosition(0);
                     clawRotateLeft.setPosition(.7);
                     clawRotateRight.setPosition(.7);
@@ -174,17 +170,9 @@ public class AutoBlue extends OpMode{
             case 3:
                 if(follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
                     /* Score Preload */
-                    vSlideLeft.setTargetPosition(1);
-                    vSlideRight.setTargetPosition(1);
-                    vSlideLeft.set(1);
-                    vSlideRight.set(1);
-                    vSlideLeft.setTargetPosition(0);
-                    vSlideRight.setTargetPosition(0);
-                    vSlideLeft.set(1);
-                    vSlideRight.set(1);
+                    vSlides.setTargetPosition(5);
+                    vSlides.setTargetPosition(0);
                     claw.setPosition(.3);
-
-
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
                     follower.followPath(grabPickup2,true);
                     setPathState(4);
@@ -203,8 +191,6 @@ public class AutoBlue extends OpMode{
                     /* Grab Sample */
                     vSlideLeft.setTargetPosition(0);
                     vSlideRight.setTargetPosition(0);
-                    vSlideLeft.set(1);
-                    vSlideRight.set(1);
                     claw.setPosition(0);
                     clawRotateLeft.setPosition(.7);
                     clawRotateRight.setPosition(.7);
@@ -216,14 +202,8 @@ public class AutoBlue extends OpMode{
             case 6:
                 if(follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
                     /* Grab Sample */
-                    vSlideLeft.setTargetPosition(1);
-                    vSlideRight.setTargetPosition(1);
-                    vSlideLeft.set(1);
-                    vSlideRight.set(1);
-                    vSlideLeft.setTargetPosition(0);
-                    vSlideRight.setTargetPosition(0);
-                    vSlideLeft.set(1);
-                    vSlideRight.set(1);
+                    vSlides.setTargetPosition(5);
+                    vSlides.setTargetPosition(0);
                     claw.setPosition(.3);
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     follower.followPath(pickupLast, true);
@@ -235,8 +215,6 @@ public class AutoBlue extends OpMode{
                     /* Grab Sample */
                     vSlideLeft.setTargetPosition(0);
                     vSlideRight.setTargetPosition(0);
-                    vSlideLeft.set(1);
-                    vSlideRight.set(1);
                     claw.setPosition(0);
                     clawRotateLeft.setPosition(.7);
                     clawRotateRight.setPosition(.7);
@@ -248,14 +226,8 @@ public class AutoBlue extends OpMode{
             case 8:
                 if(follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
                     /* Score Preload */
-                    vSlideLeft.setTargetPosition(1);
-                    vSlideRight.setTargetPosition(1);
-                    vSlideLeft.set(1);
-                    vSlideRight.set(1);
-                    vSlideLeft.setTargetPosition(0);
-                    vSlideRight.setTargetPosition(0);
-                    vSlideLeft.set(1);
-                    vSlideRight.set(1);
+                    vSlides.setTargetPosition(5);
+                    vSlides.setTargetPosition(0);
                     claw.setPosition(.3);
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
