@@ -191,7 +191,7 @@ public class blue extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            if (fieldCentricReader.wasJustPressed()) {
+            if (fieldCentricReader.getState()) {
                 follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
                 follower.update();
             } else {
