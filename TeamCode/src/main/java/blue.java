@@ -144,6 +144,14 @@ public class blue extends LinearOpMode {
                 driverOp, GamepadKeys.Button.LEFT_STICK_BUTTON
         );
 
+        ToggleButtonReader hangModeRight = new ToggleButtonReader(
+                clawOp, GamepadKeys.Button.RIGHT_STICK_BUTTON
+        );
+
+        ToggleButtonReader hangModeLeft = new ToggleButtonReader(
+                clawOp, GamepadKeys.Button.LEFT_STICK_BUTTON
+        );
+
         ButtonReader intakeOnReader = new ButtonReader(
                 driverOp, GamepadKeys.Button.X
         );
@@ -186,11 +194,10 @@ public class blue extends LinearOpMode {
             if (fieldCentricReader.wasJustPressed()) {
                 follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
                 follower.update();
-            } else if (robotCentricReader.getState()){
+            } else {
                 follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
             }
 
-            telemetry.addLine("To use robot centric mode, press right stick.");
             telemetry.addLine("To use field centric mode, press left stick.");
 
             follower.update();
@@ -346,6 +353,13 @@ public class blue extends LinearOpMode {
                     vSlides.set(-1);
                 }
                 telemetry.addLine("Adjusting viper slides automatically");
+            }
+
+            if (hangModeRight.getState() && hangModeLeft.getState()) {
+                while (opModeIsActive()) {
+                    vSlides.setRunMode(Motor.RunMode.RawPower);
+                    vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)-clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
+                }
             }
 
 
