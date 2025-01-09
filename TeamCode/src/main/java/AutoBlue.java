@@ -1,6 +1,3 @@
-import static java.sql.DriverManager.println;
-
-import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.hardware.RevIMU;
 import com.arcrobotics.ftclib.hardware.ServoEx;

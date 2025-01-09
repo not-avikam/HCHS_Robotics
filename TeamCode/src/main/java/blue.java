@@ -256,14 +256,10 @@ public class blue extends LinearOpMode {
 
             if (vSlideUpReader.stateJustChanged()) {
                 vSlides.setTargetPosition(5);
-                while (!vSlides.atTargetPosition()) {
-                    vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)-clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
-                }
+                vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)-clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
             } else if (vSlideDownReader.stateJustChanged()) {
                 vSlides.setTargetPosition(-5);
-                while (!vSlides.atTargetPosition()) {
-                    vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)-clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
-                }
+                vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)-clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
             }
 
             if (clawOp.wasJustPressed(GamepadKeys.Button.Y)) {
@@ -280,7 +276,7 @@ public class blue extends LinearOpMode {
             if (intakeOnReader.isDown()) {
                 intakeRotateLeft.setPosition(.15);
                 intakeRotateRight.setPosition(.15);
-            }  else if (gamepad1.a) {
+            }  else if (clawOp.isDown(GamepadKeys.Button.A)) {
                 intakeLeft.setPower(-1);
                 intakeRight.setPower(-1);
                 intakeRotateLeft.setPosition(.1);
@@ -291,6 +287,16 @@ public class blue extends LinearOpMode {
                 telemetry.addLine("Intake in position for claw pickup");
             }
 
+            if (intakeOnReader.isDown()) {
+                intakeLeft.setPower(1);
+                intakeRight.setPower(1);
+                clawRotateLeft.setPosition(0);
+                clawRotateRight.setPosition(0);
+                clawAdjust.setPosition(.25);
+                claw.setPosition(1);
+            }
+
+            /*
             if (result.closestSwatch == PredominantColorProcessor.Swatch.YELLOW) {
                 intakeLeft.setPower(1);
                 intakeRight.setPower(1);
@@ -315,6 +321,7 @@ public class blue extends LinearOpMode {
                 gamepad2.rumbleBlips(3);
                 SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, Alert);
             }
+             */
 
             if (follower.getPose().getX() < (observationZone.getX() + 25) && follower.getPose().getY() < (observationZone.getY() + 31)) {
                 clawRotateLeft.setPosition(1);
