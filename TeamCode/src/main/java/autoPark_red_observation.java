@@ -28,8 +28,8 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@Autonomous(name = "Blue Autonomous", group = "LM3")
-public class autoPark extends OpMode{
+@Autonomous(name = "Red Autonomous Observation", group = "LM3")
+public class autoPark_red_observation extends OpMode{
     private DcMotorEx leftFront;
     private DcMotorEx leftRear;
     private DcMotorEx rightFront;
@@ -49,24 +49,16 @@ public class autoPark extends OpMode{
     private Timer pathTimer, actionTimer, opmodeTimer;
     private int pathState;
 
-    private final Pose startPose = new Pose(8.983, 100.139, Math.toRadians(0));
-    private final Pose preloadScoreControlPose = new Pose(31.706, 100.404, Math.toRadians(0));
-    private final Pose scorePose = new Pose(37, 72, Math.toRadians(180));
-    private final Pose pickupPose = new Pose(10, 11, Math.toRadians(0));
-    private final Pose pickup1ControlPose1 = new Pose(16.382, 67.640, Math.toRadians(0));
-    private final Pose pickup1ControlPose2 = new Pose(85.343, 10.305, Math.toRadians(0));
-    private final Pose pickup2ControlPose1 = new Pose(7.662, 32.235, Math.toRadians(0));
-    private final Pose pickup2ControlPose2 = new Pose(70.811, 8.983, Math.toRadians(0));
-    private final Pose pickup2ControlPose3 = new Pose(55.222, 11.097, Math.toRadians(0));
-    private final Pose pickupWait = new Pose(25.000, 15.000, Math.toRadians(180));
-    private final Pose parkPose = new Pose(8.983, 19.288, Math.toRadians(90));
-    private final Pose parkControlPose = new Pose(12.154, 79.530, Math.toRadians(90));
+    private final Pose startPose = new Pose(133.431, 87.193, Math.toRadians(180));
+    private final Pose scorePose = new Pose(106, 72, Math.toRadians(0));
+    private final Pose parkPose = new Pose(134, 112, Math.toRadians(90));
+    private final Pose parkControlPose = new Pose(133.6954128440367, 77.15229357798165, Math.toRadians(90));
     private Path park;
     private PathChain scorePreload;
 
     public void buildpaths() {
         scorePreload = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(startPose), new Point(preloadScoreControlPose), new Point(scorePose)))
+                .addPath(new BezierLine(new Point(startPose), new Point(scorePose)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
                 .build();
 
