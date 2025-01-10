@@ -66,7 +66,6 @@ public class autoPark_blue_net extends OpMode{
     }
 
     public void autonomousPathUpdate() {
-
         MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
         MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
         MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
