@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.pathgen.BezierLine;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -47,17 +48,9 @@ public class autoPark_blue_net extends OpMode{
     private int pathState;
 
     private final Pose startPose = new Pose(8.983, 100.139, Math.toRadians(0));
-    private final Pose preloadScoreControlPose = new Pose(31.706, 100.404, Math.toRadians(0));
+    private final Pose preloadScoreControlPose = new Pose(29.856880733944955, 101.72477064220183, Math.toRadians(0));
     private final Pose scorePose = new Pose(37, 72, Math.toRadians(180));
-    private final Pose pickupPose = new Pose(10, 11, Math.toRadians(0));
-    private final Pose pickup1ControlPose1 = new Pose(16.382, 67.640, Math.toRadians(0));
-    private final Pose pickup1ControlPose2 = new Pose(85.343, 10.305, Math.toRadians(0));
-    private final Pose pickup2ControlPose1 = new Pose(7.662, 32.235, Math.toRadians(0));
-    private final Pose pickup2ControlPose2 = new Pose(70.811, 8.983, Math.toRadians(0));
-    private final Pose pickup2ControlPose3 = new Pose(55.222, 11.097, Math.toRadians(0));
-    private final Pose pickupWait = new Pose(25.000, 15.000, Math.toRadians(180));
     private final Pose parkPose = new Pose(8.983, 19.288, Math.toRadians(90));
-    private final Pose parkControlPose = new Pose(12.154, 79.530, Math.toRadians(90));
     private Path park;
     private PathChain scorePreload;
 
@@ -68,7 +61,7 @@ public class autoPark_blue_net extends OpMode{
                 .build();
 
 
-        park = new Path(new BezierCurve(new Point(scorePose), /* Control Point */ new Point(parkControlPose), new Point(parkPose)));
+        park = new Path(new BezierLine(new Point(scorePose), new Point(parkPose)));
         park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
     }
 
