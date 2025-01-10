@@ -47,7 +47,7 @@ public class autoPark_blue_net extends OpMode{
     private Timer pathTimer, actionTimer, opmodeTimer;
     private int pathState;
 
-    private final Pose startPose = new Pose(8.983, 100.139, Math.toRadians(0));
+    private final Pose startPose = new Pose(10, 87, Math.toRadians(0));
     private final Pose preloadScoreControlPose = new Pose(29.856880733944955, 101.72477064220183, Math.toRadians(0));
     private final Pose scorePose = new Pose(37, 72, Math.toRadians(180));
     private final Pose parkPose = new Pose(8.983, 19.288, Math.toRadians(90));
@@ -144,6 +144,8 @@ public class autoPark_blue_net extends OpMode{
 
     @Override
     public void init() {
+        telemetry.addLine("Align the robot near the net, skipping one tile, aligned with the edge closer to the basket");
+        telemetry.addLine("So there should be two tiles to the left of the robot and three tiles to the right");
         pathTimer = new Timer();
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
@@ -152,7 +154,10 @@ public class autoPark_blue_net extends OpMode{
     }
 
     @Override
-    public void init_loop() {}
+    public void init_loop() {
+        telemetry.addLine("Align the robot near the net, aligned with the edge away from  the basket");
+        telemetry.addLine("So there should be one tile to the left of the robot and four tiles to the right");
+    }
 
     @Override
     public void start() {

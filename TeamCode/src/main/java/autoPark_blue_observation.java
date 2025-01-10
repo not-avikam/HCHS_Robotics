@@ -157,7 +157,10 @@ public class autoPark_blue_observation extends OpMode{
     }
 
     @Override
-    public void init_loop() {}
+    public void init_loop() {
+        telemetry.addLine("Align the robot near the observation zone, aligned with the edge towards the observation zone");
+        telemetry.addLine("So there should be three tiles to the left of the robot and two tiles to the right");
+    }
 
     @Override
     public void start() {

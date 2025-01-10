@@ -151,7 +151,10 @@ public class autoPark_red_net extends OpMode{
     }
 
     @Override
-    public void init_loop() {}
+    public void init_loop() {
+        telemetry.addLine("Align the robot near the net, aligned with the edge away from  the basket");
+        telemetry.addLine("So there should be one tile to the left of the robot and four tiles to the right");
+    }
 
     @Override
     public void start() {
