@@ -346,6 +346,8 @@ public class blue extends LinearOpMode {
                 telemetry.addLine("Adjusting viper slides automatically");
             }
 
+            //TODO: Fix hang mode
+            // Try deleting this if it doesn't work
             if (hangModeRight.getState() && hangModeLeft.getState()) {
                 while (opModeIsActive()) {
                     vSlides.setRunMode(Motor.RunMode.RawPower);
@@ -353,6 +355,7 @@ public class blue extends LinearOpMode {
                 }
             }
 
+            //TODO: Try deleting this if the code still doesn't work
             while (!vSlides.atTargetPosition()) {
                 vSlides.set(1);
             }
