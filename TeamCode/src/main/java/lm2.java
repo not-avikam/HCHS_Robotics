@@ -128,10 +128,10 @@ public class lm2 extends LinearOpMode {
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
         follower = new Follower(hardwareMap);
-        leftFront  = hardwareMap.get(DcMotorEx.class, "leftFront");
-        leftRear  = hardwareMap.get(DcMotorEx.class, "leftRear");
-        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
-        rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
+        leftFront  = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        leftRear  = hardwareMap.get(DcMotorEx.class, "backLeft");
+        rightFront = hardwareMap.get(DcMotorEx.class, "frontRight");
+        rightRear = hardwareMap.get(DcMotorEx.class, "backRight");
         vSlideLeft = hardwareMap.get(DcMotorEx.class, "VSL");
         vSlideRight = hardwareMap.get(DcMotorEx.class, "VSR");
         linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
