@@ -64,7 +64,7 @@ import pedroPathing.constants.LConstants;
 
 import java.io.File;
 
-@TeleOp(name="blue", group="LM3")
+@TeleOp(name="blue-experimental", group="League Tournament")
 public class blue extends LinearOpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     private final String soundPath = "/FIRST/blocks/sounds";
