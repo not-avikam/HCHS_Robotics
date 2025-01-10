@@ -117,6 +117,7 @@ public class blue extends LinearOpMode {
 
         imu.init();
 
+        /*
         PredominantColorProcessor colorSensor = new PredominantColorProcessor.Builder()
                 .setRoi(ImageRegion.asUnityCenterCoordinates(-0.1, 0.1, 0.1, -0.1))
                 .setSwatches(
@@ -132,6 +133,8 @@ public class blue extends LinearOpMode {
                 .setCameraResolution(new Size(320, 240))
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .build();
+
+         */
 
         boolean AlertFound   = Alert.exists();
         telemetry.addData("Alert sound",   AlertFound ?   "Found" : "NOT Found \nCopy alert.wav to " + soundPath  );
@@ -191,19 +194,20 @@ public class blue extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            if (fieldCentricReader.getState()) {
+            if (gamepad1.left_stick_button) {
                 follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
                 follower.update();
-            } else {
+            } else if (gamepad1.right_stick_button){
                 follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
             }
 
             telemetry.addLine("To use field centric mode, press left stick.");
+            telemetry.addLine("To use robot centric mode, press right stick.");
 
             follower.update();
 
-            double in = driverOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
-            double out = driverOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);
+            double in = gamepad1.left_trigger;
+            double out = gamepad1.right_trigger;
 
             double max;
 
@@ -223,84 +227,77 @@ public class blue extends LinearOpMode {
             linSlideLeft.setPower(horizontalPower);
             linSlideRight.setPower(horizontalPower);
 
-            if (clawOp.isDown(GamepadKeys.Button.DPAD_UP)){
+            if (gamepad2.dpad_up){
                 claw.setPosition(0);
                 clawRotateLeft.turnToAngle(135);
                 clawRotateRight.turnToAngle(135);
                 clawAdjust.setPosition(.75);
                 telemetry.addLine("Sample scoring");
                 vSlides.setTargetPosition(5);
-                while (!vSlides.atTargetPosition()) {
-                    vSlides.set(1);
-                }
                 telemetry.addLine("Adjusting viper slides automatically");
-            } else if (clawOp.isDown(GamepadKeys.Button.DPAD_DOWN)){
+            } else if (gamepad2.dpad_down){
                 clawRotateLeft.setPosition(0);
                 clawRotateRight.setPosition(0);
                 clawAdjust.setPosition(.25);
                 telemetry.addLine("Resetting claw to intake");
-            } else if (clawOp.isDown(GamepadKeys.Button.DPAD_LEFT)) {
+            } else if (gamepad2.dpad_left) {
                 clawRotateLeft.setPosition(1);
                 clawRotateRight.setPosition(1);
                 clawAdjust.setPosition(1);
                 vSlides.setTargetPosition(1);
-                while (!vSlides.atTargetPosition()) {
-                    vSlides.set(1);
-                }
                 claw.setPosition(1);
                 telemetry.addLine("Specimen pickup");
-            }
-
-            /*
-            else if (clawOp.wasJustReleased(GamepadKeys.Button.DPAD_UP)) {
+            } else if (clawOp.wasJustReleased(GamepadKeys.Button.DPAD_UP)) {
                 vSlides.set(0);
             } else if (clawOp.wasJustReleased(GamepadKeys.Button.DPAD_DOWN)) {
                 vSlides.set(0);
             } else if (clawOp.wasJustReleased(GamepadKeys.Button.DPAD_LEFT)) {
                 vSlides.set(0);
             }
-             */
 
-            if (vSlideUpReader.stateJustChanged()) {
+            if (gamepad2.right_trigger != 0) {
                 vSlides.setTargetPosition(5);
-                vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)-clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
-            } else if (vSlideDownReader.stateJustChanged()) {
+                vSlides.set(gamepad2.right_trigger-gamepad2.left_trigger);
+            } else if (gamepad2.left_trigger != 0) {
                 vSlides.setTargetPosition(-5);
-                vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)-clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
+                vSlides.set(gamepad2.right_trigger-gamepad2.left_trigger);
+            } else if (vSlideUpReader.wasJustReleased()) {
+                vSlides.set(0);
+            } else if (vSlideDownReader.wasJustReleased()) {
+                vSlides.set(0);
             }
 
-            if (clawOp.wasJustPressed(GamepadKeys.Button.Y)) {
+            if (gamepad2.y) {
                 claw.setPosition(1);
                 telemetry.addLine("Claw opened all the way | MANUAL OPERATION OF CLAW");
-            } else if (clawOp.wasJustPressed(GamepadKeys.Button.B)) {
+            } else if (gamepad2.b) {
                 claw.setPosition(0);
                 telemetry.addLine("Claw closed | MANUAL OPERATION OF CLAW");
             }
 
-            PredominantColorProcessor.Result result = colorSensor.getAnalysis();
+            //PredominantColorProcessor.Result result = colorSensor.getAnalysis();
 
 
-            if (intakeOnReader.isDown()) {
+            if (gamepad1.x) {
                 intakeRotateLeft.setPosition(.15);
                 intakeRotateRight.setPosition(.15);
-            }  else if (clawOp.isDown(GamepadKeys.Button.A)) {
-                intakeLeft.setPower(-1);
-                intakeRight.setPower(-1);
-                intakeRotateLeft.setPosition(.1);
-                intakeRotateRight.setPosition(.1);
-            } else if (intakeOnReader.wasJustReleased()){
-                intakeRotateLeft.setPosition(0);
-                intakeRotateRight.setPosition(0);
-                telemetry.addLine("Intake in position for claw pickup");
-            }
-
-            if (intakeOnReader.isDown()) {
                 intakeLeft.setPower(1);
                 intakeRight.setPower(1);
                 clawRotateLeft.setPosition(0);
                 clawRotateRight.setPosition(0);
                 clawAdjust.setPosition(.25);
                 claw.setPosition(1);
+            }  else if (gamepad1.a) {
+                intakeLeft.setPower(-1);
+                intakeRight.setPower(-1);
+                intakeRotateLeft.setPosition(.1);
+                intakeRotateRight.setPosition(.1);
+            } else{
+                intakeRotateLeft.setPosition(0);
+                intakeRotateRight.setPosition(0);
+                intakeLeft.setPower(0);
+                intakeRight.setPower(0);
+                telemetry.addLine("Intake in position for claw pickup");
             }
 
             /*
@@ -335,9 +332,6 @@ public class blue extends LinearOpMode {
                 clawRotateRight.setPosition(1);
                 clawAdjust.setPosition(1);
                 vSlides.setTargetPosition(1);
-                while (!vSlides.atTargetPosition()) {
-                    vSlides.set(-1);
-                }
                 claw.setPosition(1);
                 telemetry.addLine("Specimen pickup");
             }
@@ -349,9 +343,6 @@ public class blue extends LinearOpMode {
                 clawAdjust.setPosition(.75);
                 telemetry.addLine("Sample scoring");
                 vSlides.setTargetPosition(5);
-                while (!vSlides.atTargetPosition()) {
-                    vSlides.set(-1);
-                }
                 telemetry.addLine("Adjusting viper slides automatically");
             }
 
@@ -362,10 +353,12 @@ public class blue extends LinearOpMode {
                 }
             }
 
+            while (!vSlides.atTargetPosition()) {
+                vSlides.set(1);
+            }
 
-
-            telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
-            telemetry.addData("Vslides distance", "%.2f", vSlides.getDistance());
+            //telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
+            //telemetry.addData("Vslides distance", "%.2f", vSlides.getDistance());
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
             follower.update();
