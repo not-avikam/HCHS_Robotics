@@ -52,12 +52,18 @@ public class avikamsexperimentalcode extends LinearOpMode {
     //private final String soundPath = "/FIRST/blocks/sounds";
     //private final File Alert   = new File("/sdcard" + soundPath + "/gold.wav");
 
+    private final Pose startPose = new Pose(8, 19, Math.toRadians(0));
+
     @Override
     public void runOpMode() {
 
+
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
+        Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
+        follower.startTeleopDrive();
+        follower.setStartingPose(startPose);
         DcMotorEx frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
         DcMotorEx frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
         DcMotorEx backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
@@ -81,8 +87,6 @@ public class avikamsexperimentalcode extends LinearOpMode {
         vSlideLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         vSlideRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
-        vSlideLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        vSlideRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
 
         frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -112,6 +116,7 @@ public class avikamsexperimentalcode extends LinearOpMode {
         //boolean AlertFound   = Alert.exists();
         //telemetry.addData("Alert sound",   AlertFound ?   "Found" : "NOT Found \nCopy alert.wav to " + soundPath  );
 
+        intakeRotateRight.setDirection(Servo.Direction.REVERSE);
         frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
         backLeft.setDirection(DcMotorEx.Direction.REVERSE);
         frontRight.setDirection(DcMotorEx.Direction.FORWARD);
@@ -139,7 +144,7 @@ public class avikamsexperimentalcode extends LinearOpMode {
             // input motors exactly as shown below
             telemetry.addLine("To use field centric mode, press right stick.");
             telemetry.addLine("To use robot centric mode, press left stick.");
-            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
             telemetry.addLine("ROBOT CENTRIC MODE ACTIVE");
 
             follower.update();
@@ -194,8 +199,8 @@ public class avikamsexperimentalcode extends LinearOpMode {
                 clawAdjust.setPosition(.75);
                 claw.setPosition(0);
                 telemetry.addLine("Sample scoring");
-                vSlideLeft.setTargetPosition(5);
-                vSlideRight.setTargetPosition(5);
+                vSlideLeft.setPower(1);
+                vSlideRight.setPower(1);
                 telemetry.addLine("Adjusting viper slides automatically");
             } else if (gamepad2.dpad_down){
                 clawRotateLeft.setPosition(0);
@@ -259,13 +264,9 @@ public class avikamsexperimentalcode extends LinearOpMode {
             }
 
             if (gamepad2.right_trigger != 0) {
-                vSlideLeft.setTargetPosition(5);
-                vSlideRight.setTargetPosition(5);
                 vSlideLeft.setPower(gamepad2.right_trigger-gamepad2.left_trigger);
                 vSlideRight.setPower(gamepad2.right_trigger-gamepad2.left_trigger);
             } else if (gamepad2.left_trigger != 0) {
-                vSlideLeft.setTargetPosition(-5);
-                vSlideRight.setTargetPosition(-5);
                 vSlideLeft.setPower(-gamepad2.right_trigger+gamepad2.left_trigger);
                 vSlideRight.setPower(-gamepad2.right_trigger+gamepad2.left_trigger);
             }
