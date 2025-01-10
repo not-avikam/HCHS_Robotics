@@ -67,7 +67,7 @@ import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 
 import java.io.File;
 
-@TeleOp(name="award_blue_observation-side", group="LM3")
+@TeleOp(name="award_blue_observation-side", group="OpMode")
 public class hypothetical_blue_observation extends LinearOpMode {
     private Follower follower;
     private final ElapsedTime runtime = new ElapsedTime();

@@ -67,7 +67,7 @@ import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 
 import java.io.File;
 
-@TeleOp(name="award_red_basket-side", group="LM3")
+@TeleOp(name="award_red_basket-side", group="League Tournament")
 public class hypothetical_red_basket extends LinearOpMode {
     private Follower follower;
     private final ElapsedTime runtime = new ElapsedTime();
