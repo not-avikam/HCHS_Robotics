@@ -52,6 +52,9 @@ public class AutoBlue extends OpMode{
     private final Pose startPose = new Pose(8.983, 100.139, Math.toRadians(0));
     private final Pose preloadScoreControlPose = new Pose(31.706, 100.404, Math.toRadians(0));
     private final Pose scorePose = new Pose(37, 72, Math.toRadians(180));
+    private final Pose scorePose2 = new Pose(37, 65, Math.toRadians(180));
+    private final Pose scorePose3 = new Pose(37, 79, Math.toRadians(180));
+    private final Pose scorePose4 = new Pose(37, 62, Math.toRadians(180));
     private final Pose pickupPose = new Pose(10, 11, Math.toRadians(0));
     private final Pose pickup1ControlPose1 = new Pose(16.382, 67.640, Math.toRadians(0));
     private final Pose pickup1ControlPose2 = new Pose(85.343, 10.305, Math.toRadians(0));
@@ -62,7 +65,7 @@ public class AutoBlue extends OpMode{
     private final Pose parkPose = new Pose(8.983, 19.288, Math.toRadians(90));
     private final Pose parkControlPose = new Pose(12.154, 79.530, Math.toRadians(90));
     private Path scorePreload, park;
-    private PathChain grabPickup1, grabPickup2, score1, score2, pickupLast, pickup, pickupBackUp;
+    private PathChain grabPickup1, grabPickup2, score1, score2, pickupLast, score3, pickup, pickupBackUp;
 
     public void buildpaths() {
         scorePreload = new Path(new BezierCurve(new Point(startPose), new Point(preloadScoreControlPose), new Point(scorePose)));
@@ -73,7 +76,7 @@ public class AutoBlue extends OpMode{
                 .setLinearHeadingInterpolation(scorePose.getHeading(),pickupPose.getHeading())
                 .build();
         score1 = follower.pathBuilder()
-                .addPath(new BezierLine (new Point(pickupPose), new Point(scorePose)))
+                .addPath(new BezierLine (new Point(pickupPose), new Point(scorePose2)))
                 .setLinearHeadingInterpolation(pickupPose.getHeading(), scorePose.getHeading())
                 .build();
         grabPickup2 = follower.pathBuilder()
@@ -89,7 +92,11 @@ public class AutoBlue extends OpMode{
                 .setLinearHeadingInterpolation(pickupWait.getHeading(), pickupPose.getHeading())
                 .build();
         score2 = follower.pathBuilder()
-                .addPath(new BezierLine (new Point(pickupPose), new Point(scorePose)))
+                .addPath(new BezierLine (new Point(pickupPose), new Point(scorePose3)))
+                .setLinearHeadingInterpolation(pickupPose.getHeading(), scorePose.getHeading())
+                .build();
+        score3 = follower.pathBuilder()
+                .addPath(new BezierLine (new Point(pickupPose), new Point(scorePose4)))
                 .setLinearHeadingInterpolation(pickupPose.getHeading(), scorePose.getHeading())
                 .build();
         pickupLast = follower.pathBuilder()
@@ -168,7 +175,7 @@ public class AutoBlue extends OpMode{
                 break;
 
             case 3:
-                if(follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
+                if(follower.getPose().getX() > (scorePose2.getX() - 1) && follower.getPose().getY() > (scorePose2.getY() - 1)) {
                     /* Score Preload */
                     vSlides.setTargetPosition(5);
                     vSlides.setTargetPosition(0);
@@ -200,7 +207,7 @@ public class AutoBlue extends OpMode{
                 } break;
 
             case 6:
-                if(follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
+                if(follower.getPose().getX() > (scorePose3.getX() - 1) && follower.getPose().getY() > (scorePose3.getY() - 1)) {
                     /* Grab Sample */
                     vSlides.setTargetPosition(5);
                     vSlides.setTargetPosition(0);
@@ -219,12 +226,12 @@ public class AutoBlue extends OpMode{
                     clawRotateLeft.setPosition(.7);
                     clawRotateRight.setPosition(.7);
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    follower.followPath(score2,true);
+                    follower.followPath(score3,true);
                     setPathState(8);
                 } break;
 
             case 8:
-                if(follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
+                if(follower.getPose().getX() > (scorePose4.getX() - 1) && follower.getPose().getY() > (scorePose4.getY() - 1)) {
                     /* Score Preload */
                     vSlides.setTargetPosition(5);
                     vSlides.setTargetPosition(0);
