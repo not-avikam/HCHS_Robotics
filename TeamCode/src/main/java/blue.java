@@ -20,6 +20,8 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImpl;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -69,12 +71,12 @@ public class blue extends LinearOpMode {
         CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
         CRServo intakeLeft = hardwareMap.get(CRServo.class, "iL");
         CRServo intakeRight = hardwareMap.get(CRServo.class, "iR");
-        ServoEx claw = new SimpleServo(hardwareMap, "claw", 0, 180, AngleUnit.DEGREES);
-        ServoEx clawAdjust = new SimpleServo(hardwareMap, "cA", 0, 180, AngleUnit.DEGREES);
-        ServoEx clawRotateLeft = new SimpleServo(hardwareMap, "cRL", 0, 180, AngleUnit.DEGREES);
-        ServoEx clawRotateRight = new SimpleServo(hardwareMap, "cRR", 0, 180, AngleUnit.DEGREES);
-        ServoEx intakeRotateLeft = new SimpleServo(hardwareMap, "iRL", 0, 300, AngleUnit.DEGREES);
-        ServoEx intakeRotateRight = new SimpleServo(hardwareMap, "iRR", 0, 300, AngleUnit.DEGREES);
+        ServoImplEx claw = hardwareMap.get(ServoImplEx.class, "claw");
+        ServoImplEx clawAdjust = hardwareMap.get(ServoImplEx.class, "cA");
+        ServoImplEx clawRotateLeft = hardwareMap.get(ServoImplEx.class, "cRL");
+        ServoImplEx clawRotateRight = hardwareMap.get(ServoImplEx.class, "cLL");
+        ServoImplEx intakeRotateLeft = hardwareMap.get(ServoImplEx.class, "iRL");
+        ServoImplEx intakeRotateRight = hardwareMap.get(ServoImplEx.class, "iRR");
         //BNO055IMUNew imu = hardwareMap.get(BNO055IMUNew.class, "imu");
         GamepadEx driverOp = new GamepadEx(gamepad1);
         GamepadEx clawOp = new GamepadEx(gamepad2);
@@ -137,12 +139,11 @@ public class blue extends LinearOpMode {
         vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
         vSlideRight.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
 
-        intakeRotateRight.setInverted(true);
+        intakeRotateRight.setDirection(ServoImplEx.Direction.REVERSE);
         linSlideLeft.setDirection(CRServo.Direction.REVERSE);
         intakeLeft.setDirection(CRServo.Direction.REVERSE);
-        clawRotateLeft.setInverted(false);
-        clawRotateRight.setInverted(true);
-        claw.setInverted(true);
+        clawRotateRight.setDirection(ServoImplEx.Direction.REVERSE);;
+        claw.setDirection(ServoImplEx.Direction.REVERSE);
         vSlideRight.setInverted(true);
 
         telemetry.addData("Status", "Initialized");
@@ -310,21 +311,20 @@ public class blue extends LinearOpMode {
             //TODO: Fix hang mode
             // Try deleting this if it doesn't work
             // Remember to try adding the mass of the intake to calculate the power to keep it elevated
-            // Setting servo positions to -10 might deactivate them
             // Testing pending
             if (hangModeRight.getState() && hangModeLeft.getState()) {
                 vSlides.setRunMode(Motor.RunMode.RawPower);
                 vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
                 linSlideLeft.setPower(0);
                 linSlideRight.setPower(0);
-                claw.setPosition(-10);
-                clawRotateLeft.setPosition(-10);
-                clawRotateRight.setPosition(-10);
-                clawAdjust.setPosition(-10);
+                claw.setPwmDisable();
+                clawRotateLeft.setPwmDisable();
+                clawRotateRight.setPwmDisable();
+                clawAdjust.setPwmDisable();
                 intakeLeft.setPower(0);
                 intakeRight.setPower(0);
-                intakeRotateLeft.setPosition(-10);
-                intakeRotateRight.setPosition(-10);
+                intakeRotateLeft.setPwmDisable();
+                intakeRotateRight.setPwmDisable();
                 telemetry.addLine("Hang mode");
             }
 
