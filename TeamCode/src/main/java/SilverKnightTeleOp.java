@@ -201,7 +201,7 @@ public class SilverKnightTeleOp extends LinearOpMode {
                 clawRotateLeft.setPosition(.11);
                 clawRotateRight.setPosition(.11);
                 clawAdjust.setPosition(0.5);
-                telemetry.addLine("Specimen scoring");
+                telemetry.addLine("Specimen pickup");
             }
 
             if (gamepad2.y) {
