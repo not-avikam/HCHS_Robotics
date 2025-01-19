@@ -1,32 +1,3 @@
-/* Copyright (c) 2021 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 import android.util.Size;
 
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
@@ -70,7 +41,7 @@ import java.io.File;
 public class blue extends LinearOpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     private final String soundPath = "/FIRST/blocks/sounds";
-    private final File Alert  = new File( soundPath + "/Alert.wav");
+    private final File Alert  = new File( soundPath + "/alert.wav");
     private final Pose startPose = new Pose(9, 19, Math.toRadians(90));
     private final Pose observationZone = new Pose(0, 0);
     private final Pose basket = new Pose(0, 144);
@@ -190,10 +161,10 @@ public class blue extends LinearOpMode {
                 follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
                 follower.update();
             } else if (slowMode.wasJustPressed()) {
-                follower.setTeleOpMovementVectors((-gamepad1.left_stick_y*.5), (-gamepad1.left_stick_x*.5), (-gamepad1.right_stick_x*.5), false);
+                follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), false);
                 follower.update();
             } else if (robotCentricReader.wasJustPressed() && (slowMode.wasJustPressed())) {
-                follower.setTeleOpMovementVectors((-gamepad1.left_stick_y*.5), (-gamepad1.left_stick_x*.5), (-gamepad1.right_stick_x*.5), true);
+                follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), true);
                 follower.update();
             } else {
                 follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
@@ -225,7 +196,7 @@ public class blue extends LinearOpMode {
             linSlideLeft.setPower(horizontalPower);
             linSlideRight.setPower(horizontalPower);
 
-            if (gamepad2.dpad_up){
+            if (gamepad2.dpad_up) {
                 clawRotateLeft.setPosition(.833);
                 clawRotateRight.setPosition(.833);
                 clawAdjust.setPosition(.75);
@@ -233,10 +204,10 @@ public class blue extends LinearOpMode {
                 vSlides.setTargetPosition(5);
                 vSlides.set(1);
                 telemetry.addLine("Adjusting viper slides automatically");
-            } else if (gamepad2.dpad_down){
+            } else if (gamepad2.dpad_down) {
                 clawRotateLeft.setPosition(0);
                 clawRotateRight.setPosition(0);
-                clawAdjust.setPosition(.12-.0277);
+                clawAdjust.setPosition(.12 - .0277);
                 telemetry.addLine("Resetting claw to intake");
             } else if (gamepad2.dpad_left) {
                 clawRotateLeft.setPosition(.11);
@@ -247,10 +218,10 @@ public class blue extends LinearOpMode {
 
             if (gamepad2.right_trigger != 0) {
                 vSlides.setTargetPosition(5);
-                vSlides.set(gamepad2.right_trigger-gamepad2.left_trigger);
+                vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
             } else if (gamepad2.left_trigger != 0) {
                 vSlides.setTargetPosition(-5);
-                vSlides.set(gamepad2.right_trigger-gamepad2.left_trigger);
+                vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
             } else if (vSlideUpReader.wasJustReleased()) {
                 vSlides.set(0);
             } else if (vSlideDownReader.wasJustReleased()) {
@@ -276,7 +247,7 @@ public class blue extends LinearOpMode {
                 telemetry.addLine("Intake in position for sample pickup");
                 clawRotateLeft.setPosition(0);
                 clawRotateRight.setPosition(0);
-                clawAdjust.setPosition(.12-.0277);
+                clawAdjust.setPosition(.12 - .0277);
                 telemetry.addLine("Adjusting claw automatically");
             } else if (gamepad1.a) {
                 intakeLeft.setPower(-1);
@@ -298,7 +269,7 @@ public class blue extends LinearOpMode {
                 telemetry.addLine("Intake in position for sample pickup");
                 clawRotateLeft.setPosition(0);
                 clawRotateRight.setPosition(0);
-                clawAdjust.setPosition(.12-.0277);
+                clawAdjust.setPosition(.12 - .0277);
                 claw.setPosition(1);
                 telemetry.addLine("Adjusting claw automatically");
             } else if (result.closestSwatch == PredominantColorProcessor.Swatch.BLUE) {
@@ -324,7 +295,6 @@ public class blue extends LinearOpMode {
                 vSlides.setTargetPosition(1);
                 vSlides.set(-1);
                 telemetry.addLine("Specimen pickup");
-                telemetry.addLine("Specimen pickup");
             }
 
             if (follower.getPose().getX() < (basket.getX() + 24) && follower.getPose().getY() > (basket.getY()) - 24) {
@@ -339,11 +309,23 @@ public class blue extends LinearOpMode {
 
             //TODO: Fix hang mode
             // Try deleting this if it doesn't work
+            // Remember to try adding the mass of the intake to calculate the power to keep it elevated
+            // Setting servo positions to -10 might deactivate them
+            // Testing pending
             if (hangModeRight.getState() && hangModeLeft.getState()) {
-                while (opModeIsActive()) {
-                    vSlides.setRunMode(Motor.RunMode.RawPower);
-                    vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)-clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
-                }
+                vSlides.setRunMode(Motor.RunMode.RawPower);
+                vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
+                linSlideLeft.setPower(0);
+                linSlideRight.setPower(0);
+                claw.setPosition(-10);
+                clawRotateLeft.setPosition(-10);
+                clawRotateRight.setPosition(-10);
+                clawAdjust.setPosition(-10);
+                intakeLeft.setPower(0);
+                intakeRight.setPower(0);
+                intakeRotateLeft.setPosition(-10);
+                intakeRotateRight.setPosition(-10);
+                telemetry.addLine("Hang mode");
             }
 
             //telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
@@ -351,6 +333,6 @@ public class blue extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
             follower.update();
+            }
         }
     }
-}
