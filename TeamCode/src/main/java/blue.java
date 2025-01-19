@@ -70,7 +70,7 @@ public class blue extends LinearOpMode {
     private final String soundPath = "/FIRST/blocks/sounds";
     private final File Alert  = new File( soundPath + "/Alert.wav");
     static final boolean FIELD_CENTRIC = false;
-    private final Pose startPose = new Pose(8, 19, Math.toRadians(0));
+    private final Pose startPose = new Pose(9, 19, Math.toRadians(90));
     private final Pose observationZone = new Pose(0, 0);
     private final Pose basket = new Pose(0, 144);
 
@@ -97,8 +97,8 @@ public class blue extends LinearOpMode {
         CRServo intakeRight = hardwareMap.get(CRServo.class, "iR");
         ServoEx claw = new SimpleServo(hardwareMap, "claw", 0, 180, AngleUnit.DEGREES);
         ServoEx clawAdjust = new SimpleServo(hardwareMap, "cA", 0, 180, AngleUnit.DEGREES);
-        ServoEx clawRotateLeft = new SimpleServo(hardwareMap, "cRL", 0, 270, AngleUnit.DEGREES);
-        ServoEx clawRotateRight = new SimpleServo(hardwareMap, "cRR", 0, 270, AngleUnit.DEGREES);
+        ServoEx clawRotateLeft = new SimpleServo(hardwareMap, "cRL", 0, 300, AngleUnit.DEGREES);
+        ServoEx clawRotateRight = new SimpleServo(hardwareMap, "cRR", 0, 300, AngleUnit.DEGREES);
         ServoEx intakeRotateLeft = new SimpleServo(hardwareMap, "iRL", 0, 300, AngleUnit.DEGREES);
         ServoEx intakeRotateRight = new SimpleServo(hardwareMap, "iRR", 0, 300, AngleUnit.DEGREES);
         //BNO055IMUNew imu = hardwareMap.get(BNO055IMUNew.class, "imu");

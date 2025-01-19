@@ -49,34 +49,23 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
-import com.pedropathing.pathgen.PathChain;
-import com.pedropathing.pathgen.Point;
-import com.pedropathing.util.Timer;
-import com.pedropathing.util.Constants;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import pedroPathing.constants.FConstants;
-import pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.opencv.ImageRegion;
 import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 
 import java.io.File;
 
-@TeleOp(name="award_blue_observation-side", group="OpMode")
-public class hypothetical_blue_observation extends LinearOpMode {
+@TeleOp(name="award_red_observation-side", group="LM3")
+public class red extends LinearOpMode {
     private Follower follower;
     private final ElapsedTime runtime = new ElapsedTime();
     private final String soundPath = "/FIRST/blocks/sounds";
     private final File Alert  = new File("/sdcard" + soundPath + "/gold.wav");
     static final boolean FIELD_CENTRIC = false;
-    private final Pose startPose = new Pose(10, 57, Math.toRadians(0));
-    private final Pose observationZone = new Pose(0, 0);
-    private final Pose basket = new Pose(0, 144);
+    private final Pose startPose = new Pose(133, 87, Math.toRadians(180));
+    private final Pose observationZone = new Pose(144, 144);
+    private final Pose basket = new Pose(144, 0);
 
     @Override
     public void runOpMode() {
@@ -85,10 +74,10 @@ public class hypothetical_blue_observation extends LinearOpMode {
         // to the names assigned during the robot configuration step on the DS or RC devices.
         follower = new Follower(hardwareMap);
         MecanumDrive drive = new MecanumDrive(
-                new Motor(hardwareMap, "frontLeft", Motor.GoBILDA.RPM_312),
-                new Motor(hardwareMap, "frontRight", Motor.GoBILDA.RPM_312),
-                new Motor(hardwareMap, "backLeft", Motor.GoBILDA.RPM_312),
-                new Motor(hardwareMap, "backRight", Motor.GoBILDA.RPM_312)
+                new Motor(hardwareMap, "leftFront", Motor.GoBILDA.RPM_312),
+                new Motor(hardwareMap, "rightFront", Motor.GoBILDA.RPM_312),
+                new Motor(hardwareMap, "leftRear", Motor.GoBILDA.RPM_312),
+                new Motor(hardwareMap, "rightRear", Motor.GoBILDA.RPM_312)
         );
         MotorEx vSlideLeft = hardwareMap.get(MotorEx.class, "VSL");
         MotorEx vSlideRight = hardwareMap.get(MotorEx.class, "VSR");
@@ -269,7 +258,7 @@ public class hypothetical_blue_observation extends LinearOpMode {
                 clawAdjust.setPosition(.25);
                 claw.setPosition(1);
                 telemetry.addLine("Adjusting claw automatically");
-            } else if (gamepad1.x && result.closestSwatch == PredominantColorProcessor.Swatch.BLUE) {
+            } else if (gamepad1.x && result.closestSwatch == PredominantColorProcessor.Swatch.RED) {
                 intakeRotateLeft.setPosition(.15);
                 intakeRotateRight.setPosition(.15);
                 intakeLeft.setPower(1);
@@ -280,7 +269,7 @@ public class hypothetical_blue_observation extends LinearOpMode {
                 clawAdjust.setPosition(.25);
                 claw.setPosition(1);
                 telemetry.addLine("Adjusting claw automatically");
-            } else if (gamepad1.x && AlertFound && result.closestSwatch == PredominantColorProcessor.Swatch.RED) {
+            } else if (gamepad1.x && AlertFound && result.closestSwatch == PredominantColorProcessor.Swatch.BLUE) {
                 telemetry.addLine("WRONG COLOR!");
                 gamepad1.rumbleBlips(3);
                 gamepad2.rumbleBlips(3);
@@ -306,7 +295,7 @@ public class hypothetical_blue_observation extends LinearOpMode {
                 intakeRotateRight.setPosition(0);
             }
 
-            if (follower.getPose().getX() < (observationZone.getX() + 25) && follower.getPose().getY() < (observationZone.getY() + 31)) {
+            if (follower.getPose().getX() > (observationZone.getX() - 25) && follower.getPose().getY() > (observationZone.getY() - 31)) {
                 clawRotateLeft.setPosition(1);
                 clawRotateRight.setPosition(1);
                 clawAdjust.setPosition(1);
@@ -316,7 +305,7 @@ public class hypothetical_blue_observation extends LinearOpMode {
                 telemetry.addLine("Specimen pickup");
             }
 
-            if (follower.getPose().getX() < (basket.getX() + 24) && follower.getPose().getY() > (basket.getY()) - 24) {
+            if (follower.getPose().getX() > (basket.getX() - 24) && follower.getPose().getY() <  (basket.getY()) + 25) {
                 claw.setPosition(0);
                 clawRotateLeft.turnToAngle(135);
                 clawRotateRight.turnToAngle(135);;
@@ -333,4 +322,3 @@ public class hypothetical_blue_observation extends LinearOpMode {
             follower.update();
         }
     }}
-

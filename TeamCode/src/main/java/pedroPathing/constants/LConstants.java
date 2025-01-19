@@ -15,9 +15,9 @@ public class LConstants {
         OTOSConstants.hardwareMapName = "I2C1";
         OTOSConstants.linearUnit = DistanceUnit.INCH;
         angleUnit = AngleUnit.RADIANS;
-        OTOSConstants.offset = new SparkFunOTOS.Pose2D(0, 0, Math.PI / 2);
-        OTOSConstants.linearScalar = 1.0;
-        OTOSConstants.angularScalar = 1.0;
+        OTOSConstants.offset = new SparkFunOTOS.Pose2D(-3, 0, 0);
+        OTOSConstants.linearScalar = (1.00264470883);
+        OTOSConstants.angularScalar = (0.97831226545);
     }
 }
 

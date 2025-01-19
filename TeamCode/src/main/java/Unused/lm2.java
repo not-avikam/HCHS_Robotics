@@ -190,6 +190,8 @@ public class lm2 extends LinearOpMode {
         rightRear.setDirection(DcMotorEx.Direction.FORWARD);
         linSlideLeft.setDirection(CRServo.Direction.REVERSE);
         intakeLeft.setDirection(CRServo.Direction.REVERSE);
+        vSlideLeft.setDirection(DcMotorEx.Direction.REVERSE);
+
 
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");

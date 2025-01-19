@@ -27,6 +27,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -37,6 +39,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -49,13 +53,16 @@ public class LM3_Working extends LinearOpMode {
     //private final File Alert   = new File("/sdcard" + soundPath + "/gold.wav");
 
     private final Pose startPose = new Pose(8, 19, Math.toRadians(0));
+    private DcMotorEx vSlideLeft = null;
+    private DcMotorEx vSlideRight = null;
 
     @Override
     public void runOpMode() {
 
 
         // Initialize the hardware variables. Note that the strings used here must correspond
-        // to the names assigned during the robot configuration step on the DS or RC devices.
+        // to the names assign
+        // ed during the robot configuration step on the DS or RC devices.
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.startTeleopDrive();
@@ -64,25 +71,18 @@ public class LM3_Working extends LinearOpMode {
         DcMotorEx frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
         DcMotorEx backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
         DcMotorEx backRight = hardwareMap.get(DcMotorEx.class, "backRight");
-        DcMotorEx vSlideLeft = hardwareMap.get(DcMotorEx.class, "VSL");
-        DcMotorEx vSlideRight = hardwareMap.get(DcMotorEx.class, "VSR");
+        vSlideLeft = hardwareMap.get(DcMotorEx.class, "VSL");
+        vSlideRight = hardwareMap.get(DcMotorEx.class, "VSR");
         CRServo linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
         CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
         CRServo intakeLeft = hardwareMap.get(CRServo.class, "iL");
         CRServo intakeRight = hardwareMap.get(CRServo.class, "iR");
         Servo claw = hardwareMap.get(Servo.class, "claw");
         Servo clawAdjust = hardwareMap.get(Servo.class, "cA");
-        Servo clawRotateLeft = hardwareMap.get(Servo.class, "cRL");
-        Servo clawRotateRight = hardwareMap.get(Servo.class, "cRR");
+        ServoEx clawRotateLeft = new SimpleServo(hardwareMap, "cRL", 0, 300, AngleUnit.DEGREES);
+        ServoEx clawRotateRight = new SimpleServo(hardwareMap, "cRR", 0, 300, AngleUnit.DEGREES);
         Servo intakeRotateLeft = hardwareMap.get(Servo.class, "iRL");
         Servo intakeRotateRight = hardwareMap.get(Servo.class, "iRR");
-
-        vSlideLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        vSlideRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-
-        vSlideLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        vSlideRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-
 
         frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -113,13 +113,10 @@ public class LM3_Working extends LinearOpMode {
         //telemetry.addData("Alert sound",   AlertFound ?   "Found" : "NOT Found \nCopy alert.wav to " + soundPath  );
 
         intakeRotateRight.setDirection(Servo.Direction.REVERSE);
-        frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
-        backLeft.setDirection(DcMotorEx.Direction.REVERSE);
-        frontRight.setDirection(DcMotorEx.Direction.FORWARD);
-        backRight.setDirection(DcMotorEx.Direction.FORWARD);
         linSlideLeft.setDirection(CRServo.Direction.REVERSE);
         intakeLeft.setDirection(CRServo.Direction.REVERSE);
-        clawRotateLeft.setDirection(Servo.Direction.REVERSE);
+        clawRotateLeft.setInverted(false);
+        clawRotateRight.setInverted(true);
         claw.setDirection(Servo.Direction.REVERSE);
         vSlideRight.setDirection(DcMotorEx.Direction.REVERSE);
 
@@ -140,7 +137,7 @@ public class LM3_Working extends LinearOpMode {
             // input motors exactly as shown below
             telemetry.addLine("To use field centric mode, press right stick.");
             telemetry.addLine("To use robot centric mode, press left stick.");
-            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
+            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
             telemetry.addLine("ROBOT CENTRIC MODE ACTIVE");
 
             follower.update();
@@ -175,38 +172,36 @@ public class LM3_Working extends LinearOpMode {
             //   1) First get all the motors to take to correct positions on the robot
             //      by adjusting your Robot Configuration if necessary.
             //   2) Then make sure they run in the correct direction by modifying the
-            //      the setDirection() calls above.
+            //      the setDirection() calls above.s
             // Once the correct motors move in the correct direction re-comment this code.
 
-            /*
-            leftFrontPower  = gamepad1.x ? 1.0 : 0.0;  // X gamepad
-            leftBackPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
-            rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
-            rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
-            */
+
 
             // Send calculated power to wheels
-            linSlideLeft.setPower(horizontalPower);
-            linSlideRight.setPower(horizontalPower);
+            vSlideLeft.setPower(clawVerticalPower);
+            vSlideRight.setPower(clawVerticalPower);
+            //linSlideLeft.setPower(horizontalPower);
+            //linSlideRight.setPower(horizontalPower);
 
             if (gamepad2.dpad_up){
-                clawRotateLeft.setPosition(.5);
-                clawRotateRight.setPosition(.5);
-                clawAdjust.setPosition(.75);
+                clawRotateLeft.setPosition(.833);
+                clawRotateRight.setPosition(.833);
+                clawAdjust.setPosition(.5);
                 claw.setPosition(0);
                 telemetry.addLine("Sample scoring");
-                vSlideLeft.setPower(1);
-                vSlideRight.setPower(1);
+                vSlideLeft.setPower(-1);
+                vSlideRight.setPower(-1);
                 telemetry.addLine("Adjusting viper slides automatically");
             } else if (gamepad2.dpad_down){
                 clawRotateLeft.setPosition(0);
                 clawRotateRight.setPosition(0);
-                clawAdjust.setPosition(.25);
+                //clawAdjust.setPosition(O.25)
+                clawAdjust.setPosition(.2);
                 telemetry.addLine("Resetting claw to intake");
             } else if (gamepad2.dpad_left) {
-                clawRotateLeft.setPosition(1);
-                clawRotateRight.setPosition(1);
-                clawAdjust.setPosition(1);
+                clawRotateLeft.setPosition(.1556);
+                clawRotateRight.setPosition(.1556);
+                clawAdjust.setPosition(.5);
                 telemetry.addLine("Specimen scoring");
             }
 
@@ -236,8 +231,8 @@ public class LM3_Working extends LinearOpMode {
              */
 
             if (gamepad1.x) {
-                intakeRotateLeft.setPosition(.15);
-                intakeRotateRight.setPosition(.15);
+                intakeRotateLeft.setPosition(.025);
+                intakeRotateRight.setPosition(.17);
                 intakeLeft.setPower(1);
                 intakeRight.setPower(1);
                 telemetry.addLine("Intake in position for sample pickup");
@@ -259,12 +254,15 @@ public class LM3_Working extends LinearOpMode {
                 telemetry.addLine("In position for claw pickup");
             }
 
-            if (gamepad2.right_trigger != 0) {
-                vSlideLeft.setPower(gamepad2.right_trigger-gamepad2.left_trigger);
-                vSlideRight.setPower(gamepad2.right_trigger-gamepad2.left_trigger);
-            } else if (gamepad2.left_trigger != 0) {
-                vSlideLeft.setPower(-gamepad2.right_trigger+gamepad2.left_trigger);
-                vSlideRight.setPower(-gamepad2.right_trigger+gamepad2.left_trigger);
+            if (gamepad1.right_trigger !=0) {
+                linSlideRight.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
+                linSlideLeft.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
+            } else if (gamepad1.left_trigger !=0) {
+                linSlideRight.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
+                linSlideLeft.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
+            } else {
+                linSlideRight.setPower(0);
+                linSlideLeft.setPower(0);
             }
 
             // Show the elapsed game time and wheel power.
