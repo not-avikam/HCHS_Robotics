@@ -1,3 +1,5 @@
+import static java.lang.Math.abs;
+
 import android.util.Size;
 
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
@@ -196,6 +198,20 @@ public class blue extends LinearOpMode {
             // Send calculated power
             linSlideLeft.setPower(horizontalPower);
             linSlideRight.setPower(horizontalPower);
+
+            // TODO: This code is incorrect
+            //  it only calculates the newtons of force necessary
+            //  we need to convert the newtons to whatever is correct for the GoBilda 300 degree speed servos
+//            if (gamepad1.right_trigger != 0) {
+//                linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+//                linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+//            } else if (gamepad1.left_trigger != 0) {
+//                linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+//                linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+//            } else {
+//                linSlideLeft.setPower(-1*(abs((follower.getVelocityMagnitude()*follower.getVelocityMagnitude() /* * mass of intake*/ )/3)));
+//                linSlideRight.setPower(-1*(abs((follower.getVelocityMagnitude()*follower.getVelocityMagnitude() /* * mass of intake*/ )/3)));
+//            }
 
             if (gamepad2.dpad_up) {
                 clawRotateLeft.setPosition(.833);
