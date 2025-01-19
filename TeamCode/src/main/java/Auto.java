@@ -189,42 +189,62 @@ public class Auto extends OpMode{
                 if (follower.getPose().getX() > (scorePose1.getX() - 1) && follower.getPose().getY() > (scorePose1.getY() - 1)) {
                     vSlides.setTargetPosition(1);
                     vSlides.set(1);
-                    clawRotateRight.setPosition(.5);
-                    clawRotateLeft.setPosition(.5);
-                    claw.setPosition(1);
+                    clawRotateRight.setPosition(.65);
+                    clawRotateLeft.setPosition(.65);
+                    clawAdjust.setPosition(1);
+                    //TODO: Measure the correct amount of time for this
+                    /*
+                    if(pathTimer.getElapsedTimeSeconds() > 1) {
+                        claw.setPosition(0);
+                    }
+                     */
                     follower.followPath(pickup1, false);
                     setPathState(2);
                 }
                 break;
             case 2:
-                vSlides.setTargetPosition(0);
-                vSlides.set(-1);
-                follower.followPath(dropOffSample1, false);
-                setPathState(3);
+                if (follower.getPose().getX() > (pickupPose1.getX() - 1) && follower.getPose().getY() > (pickupPose1.getY() - 1)) {
+                    vSlides.setTargetPosition(0);
+                    vSlides.set(-1);
+                    follower.followPath(dropOffSample1, false);
+                    setPathState(3);
+                }
                 break;
             case 3:
-                follower.followPath(pickUpSample2, false);
-                setPathState(4);
+                if (follower.getPose().getX() > (dropOff1.getX() - 1) && follower.getPose().getY() > (dropOff1.getY() - 1)) {
+                    follower.followPath(pickUpSample2, false);
+                    setPathState(4);
+                }
                 break;
             case 4:
-                follower.followPath(dropOffSample2, false);
-                setPathState(5);
+                if (follower.getPose().getX() > (pickUpPose2.getX() - 1) && follower.getPose().getY() > (pickUpPose2.getY() - 1)) {
+                    follower.followPath(dropOffSample2, false);
+                    setPathState(5);
+                }
                 break;
             case 5:
-                follower.followPath(pickUpSample3, false);
-                setPathState(6);
+                if (follower.getPose().getX() > (dropOff2.getX() - 1) && follower.getPose().getY() > (dropOff2.getY() - 1)) {
+                    follower.followPath(pickUpSample3, false);
+                    setPathState(6);
+                }
                 break;
             case 6:
-                follower.followPath(pickupSpecimen, true);
-                setPathState(7);
+                if (follower.getPose().getX() > (dropOff3.getX() - 1) && follower.getPose().getY() > (dropOff3.getY() - 1)) {
+                    follower.followPath(pickupSpecimen, true);
+                    setPathState(7);
+                }
                 break;
             case 7:
-                follower.followPath(score2,true);
-                setPathState(8);
+                if (follower.getPose().getX() > (pickupSpecimenPose.getX() - 1) && follower.getPose().getY() > (pickupSpecimenPose.getY() - 1)) {
+                    follower.followPath(score2,true);
+                    setPathState(8);
+                }
                 break;
             case 8:
-                follower.followPath(score2return, true);
-                setPathState(9);
+                if (follower.getPose().getX() > (scorePose2.getX() - 1) && follower.getPose().getY() > (scorePose2.getY() - 1)) {
+                    follower.followPath(score2return, true);
+                    setPathState(9);
+                }
                 break;
             case 9:
                 follower.followPath(score3, true);
