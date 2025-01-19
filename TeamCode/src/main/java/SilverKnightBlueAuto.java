@@ -9,7 +9,6 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
@@ -26,8 +25,8 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@Autonomous(name = "Blue Autonomous", group = "League Tournament")
-public class Auto extends OpMode{
+@Autonomous(name = "Blue Autonomous - Silver Knight", group = "Silver Knight")
+public class SilverKnightBlueAuto extends OpMode{
     //hardware
     private DcMotorEx leftFront;
     private DcMotorEx leftRear;

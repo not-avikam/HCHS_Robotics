@@ -44,14 +44,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@TeleOp(name="Scrimage Red", group="Scrimmage")
-public class ScrimmageRed extends LinearOpMode {
+@TeleOp(name="TeleOp for Silver Knight", group="Sliver Knight")
+public class SilverKnightTeleOp extends LinearOpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     private Follower follower;
     //private final String soundPath = "/FIRST/blocks/sounds";
     //private final File Alert   = new File("/sdcard" + soundPath + "/gold.wav");
 
-    private final Pose startPose = new Pose(8, 19, Math.toRadians(180));
+    private final Pose startPose = new Pose(8, 19, Math.toRadians(0));
     private DcMotorEx vSlideLeft = null;
     private DcMotorEx vSlideRight = null;
 
@@ -133,15 +133,12 @@ public class ScrimmageRed extends LinearOpMode {
 
             //PredominantColorProcessor.Result result = colorSensor.getAnalysis();
 
-            // input motors exactly as shown below
-            telemetry.addLine("To use field centric mode, press right stick.");
-            telemetry.addLine("To use robot centric mode, press left stick.");
-            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
-            telemetry.addLine("ROBOT CENTRIC MODE ACTIVE");
-            follower.update();
-
-            if (gamepad1.y) {
-                follower.setTeleOpMovementVectors(-gamepad1.left_stick_y*.5, -gamepad1.left_stick_x*.5, -gamepad1.right_stick_x*.5, false);
+            if (gamepad1.left_bumper) {
+                follower.setTeleOpMovementVectors((-gamepad1.left_stick_y*.5), (-gamepad1.left_stick_x*.5), (-gamepad1.right_stick_x*.5), false);
+                follower.update();
+            } else {
+                follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
+                follower.update();
             }
 
             double max;
@@ -182,8 +179,8 @@ public class ScrimmageRed extends LinearOpMode {
             // Send calculated power to wheels
             vSlideLeft.setPower(clawVerticalPower);
             vSlideRight.setPower(clawVerticalPower);
-            //linSlideLeft.setPower(horizontalPower);
-            //linSlideRight.setPower(horizontalPower);
+            linSlideLeft.setPower(horizontalPower);
+            linSlideRight.setPower(horizontalPower);
 
             if (gamepad2.dpad_up){
                 clawRotateLeft.setPosition(.833);
@@ -198,12 +195,12 @@ public class ScrimmageRed extends LinearOpMode {
                 clawRotateLeft.setPosition(0);
                 clawRotateRight.setPosition(0);
                 //clawAdjust.setPosition(O.25)
-                clawAdjust.setPosition(.2);
+                clawAdjust.setPosition(.12-.0277);
                 telemetry.addLine("Resetting claw to intake");
             } else if (gamepad2.dpad_left) {
-                clawRotateLeft.setPosition(.138);
-                clawRotateRight.setPosition(.138);
-                clawAdjust.setPosition(.5);
+                clawRotateLeft.setPosition(.11);
+                clawRotateRight.setPosition(.11);
+                clawAdjust.setPosition(0.5);
                 telemetry.addLine("Specimen scoring");
             }
 
@@ -254,17 +251,6 @@ public class ScrimmageRed extends LinearOpMode {
                 intakeRotateLeft.setPosition(0);
                 intakeRotateRight.setPosition(0);
                 telemetry.addLine("In position for claw pickup");
-            }
-
-            if (gamepad1.right_trigger !=0) {
-                linSlideRight.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
-                linSlideLeft.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
-            } else if (gamepad1.left_trigger !=0) {
-                linSlideRight.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
-                linSlideLeft.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
-            } else {
-                linSlideRight.setPower(0);
-                linSlideLeft.setPower(0);
             }
 
             // Show the elapsed game time and wheel power.
