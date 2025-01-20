@@ -1,354 +1,353 @@
-import static java.lang.Math.abs;
+    import static java.lang.Math.abs;
 
-import android.util.Size;
+    import android.util.Size;
 
-import com.arcrobotics.ftclib.drivebase.MecanumDrive;
-import com.arcrobotics.ftclib.gamepad.ButtonReader;
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
-import com.arcrobotics.ftclib.gamepad.TriggerReader;
-import com.arcrobotics.ftclib.hardware.RevIMU;
-import com.arcrobotics.ftclib.hardware.ServoEx;
-import com.arcrobotics.ftclib.hardware.SimpleServo;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
-import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
-import com.qualcomm.ftccommon.SoundPlayer;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.ServoImpl;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
-import com.qualcomm.robotcore.util.ElapsedTime;
+    import com.arcrobotics.ftclib.controller.PIDFController;
+    import com.arcrobotics.ftclib.drivebase.MecanumDrive;
+    import com.arcrobotics.ftclib.gamepad.ButtonReader;
+    import com.arcrobotics.ftclib.gamepad.GamepadEx;
+    import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+    import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
+    import com.arcrobotics.ftclib.gamepad.TriggerReader;
+    import com.arcrobotics.ftclib.hardware.motors.Motor;
+    import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+    import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
+    import com.qualcomm.ftccommon.SoundPlayer;
+    import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+    import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+    import com.qualcomm.robotcore.hardware.CRServo;
+    import com.qualcomm.robotcore.hardware.DcMotorSimple;
+    import com.qualcomm.robotcore.hardware.Servo;
+    import com.qualcomm.robotcore.hardware.ServoImplEx;
+    import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.opencv.ImageRegion;
-import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
+    import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+    import org.firstinspires.ftc.vision.VisionPortal;
+    import org.firstinspires.ftc.vision.opencv.ImageRegion;
+    import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 
-import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
-import com.pedropathing.util.Constants;
+    import com.pedropathing.follower.Follower;
+    import com.pedropathing.localization.Pose;
+    import com.pedropathing.util.Constants;
 
-import pedroPathing.constants.FConstants;
-import pedroPathing.constants.LConstants;
+    import pedroPathing.constants.FConstants;
+    import pedroPathing.constants.LConstants;
 
-import java.io.File;
+    import java.io.File;
 
-@TeleOp(name="blue-experimental", group="Silver Knight")
-public class blue extends LinearOpMode {
-    private final ElapsedTime runtime = new ElapsedTime();
-    private final String soundPath = "/FIRST/blocks/sounds";
-    private final File Alert  = new File( soundPath + "/alert.wav");
-    private final Pose startPose = new Pose(9, 19, Math.toRadians(90));
-    private final Pose observationZone = new Pose(0, 0);
-    private final Pose basket = new Pose(0, 144);
-    private Follower follower;
+    @TeleOp(name="blue-experimental", group="Silver Knight")
+    public class blue extends LinearOpMode {
+        PIDFController pidf = new PIDFController(1, 2, 3, 4);
+        private final ElapsedTime runtime = new ElapsedTime();
+        private final String soundPath = "/FIRST/blocks/sounds";
+        private final File Alert  = new File( soundPath + "/alert.wav");
+        private final Pose startPose = new Pose(9, 19, Math.toRadians(90));
+        private final Pose observationZone = new Pose(0, 0);
+        private final Pose basket = new Pose(0, 144);
+        private Follower follower;
 
-    @Override
-    public void runOpMode() {
+        @Override
+        public void runOpMode() {
 
-        // Initialize the hardware variables. Note that the strings used here must correspond
-        // to the names assigned during the robot configuration step on the DS or RC devices.
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
-        follower.startTeleopDrive();
-        follower.setStartingPose(startPose);
-        MecanumDrive drive = new MecanumDrive(
-                new Motor(hardwareMap, "frontLeft", Motor.GoBILDA.RPM_312),
-                new Motor(hardwareMap, "backRight", Motor.GoBILDA.RPM_312),
-                new Motor(hardwareMap, "backLeft", Motor.GoBILDA.RPM_312),
-                new Motor(hardwareMap, "frontRight", Motor.GoBILDA.RPM_312)
-        );
-        MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
-        MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
-        MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
-        CRServo linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
-        CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
-        CRServo intakeLeft = hardwareMap.get(CRServo.class, "iL");
-        CRServo intakeRight = hardwareMap.get(CRServo.class, "iR");
-        ServoImplEx claw = hardwareMap.get(ServoImplEx.class, "claw");
-        ServoImplEx clawAdjust = hardwareMap.get(ServoImplEx.class, "cA");
-        ServoImplEx clawRotateLeft = hardwareMap.get(ServoImplEx.class, "cRL");
-        ServoImplEx clawRotateRight = hardwareMap.get(ServoImplEx.class, "cLL");
-        ServoImplEx intakeRotateLeft = hardwareMap.get(ServoImplEx.class, "iRL");
-        ServoImplEx intakeRotateRight = hardwareMap.get(ServoImplEx.class, "iRR");
-        //BNO055IMUNew imu = hardwareMap.get(BNO055IMUNew.class, "imu");
-        GamepadEx driverOp = new GamepadEx(gamepad1);
-        GamepadEx clawOp = new GamepadEx(gamepad2);
+            // Initialize the hardware variables. Note that the strings used here must correspond
+            // to the names assigned during the robot configuration step on the DS or RC devices.
+            Constants.setConstants(FConstants.class, LConstants.class);
+            follower = new Follower(hardwareMap);
+            follower.startTeleopDrive();
+            follower.setStartingPose(startPose);
+            MecanumDrive drive = new MecanumDrive(
+                    new Motor(hardwareMap, "frontLeft", Motor.GoBILDA.RPM_312),
+                    new Motor(hardwareMap, "backRight", Motor.GoBILDA.RPM_312),
+                    new Motor(hardwareMap, "backLeft", Motor.GoBILDA.RPM_312),
+                    new Motor(hardwareMap, "frontRight", Motor.GoBILDA.RPM_312)
+            );
+            MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
+            MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
+            MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
+            CRServo linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
+            CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
+            CRServo intakeLeft = hardwareMap.get(CRServo.class, "iL");
+            CRServo intakeRight = hardwareMap.get(CRServo.class, "iR");
+            ServoImplEx claw = hardwareMap.get(ServoImplEx.class, "claw");
+            ServoImplEx clawAdjust = hardwareMap.get(ServoImplEx.class, "cA");
+            ServoImplEx clawRotateLeft = hardwareMap.get(ServoImplEx.class, "cRL");
+            ServoImplEx clawRotateRight = hardwareMap.get(ServoImplEx.class, "cLL");
+            ServoImplEx intakeRotateLeft = hardwareMap.get(ServoImplEx.class, "iRL");
+            ServoImplEx intakeRotateRight = hardwareMap.get(ServoImplEx.class, "iRR");
+            //BNO055IMUNew imu = hardwareMap.get(BNO055IMUNew.class, "imu");
+            GamepadEx driverOp = new GamepadEx(gamepad1);
+            GamepadEx clawOp = new GamepadEx(gamepad2);
 
 
-        PredominantColorProcessor colorSensor = new PredominantColorProcessor.Builder()
-                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.1, 0.1, 0.1, -0.1))
-                .setSwatches(
-                        PredominantColorProcessor.Swatch.RED,
-                        PredominantColorProcessor.Swatch.BLUE,
-                        PredominantColorProcessor.Swatch.YELLOW,
-                        PredominantColorProcessor.Swatch.BLACK,
-                        PredominantColorProcessor.Swatch.WHITE)
-                .build();
+            PredominantColorProcessor colorSensor = new PredominantColorProcessor.Builder()
+                    .setRoi(ImageRegion.asUnityCenterCoordinates(-0.1, 0.1, 0.1, -0.1))
+                    .setSwatches(
+                            PredominantColorProcessor.Swatch.RED,
+                            PredominantColorProcessor.Swatch.BLUE,
+                            PredominantColorProcessor.Swatch.YELLOW,
+                            PredominantColorProcessor.Swatch.BLACK,
+                            PredominantColorProcessor.Swatch.WHITE)
+                    .build();
 
-        VisionPortal portal = new VisionPortal.Builder()
-                .addProcessor(colorSensor)
-                .setCameraResolution(new Size(320, 240))
-                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-                .build();
+            VisionPortal portal = new VisionPortal.Builder()
+                    .addProcessor(colorSensor)
+                    .setCameraResolution(new Size(320, 240))
+                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                    .build();
 
-        boolean AlertFound   = Alert.exists();
-        telemetry.addData("Alert sound",   AlertFound ?   "Found" : "NOT Found \nCopy alert.wav to " + soundPath  );
+            boolean AlertFound   = Alert.exists();
+            telemetry.addData("Alert sound",   AlertFound ?   "Found" : "NOT Found \nCopy alert.wav to " + soundPath  );
 
-        ToggleButtonReader robotCentricReader = new ToggleButtonReader(
-                driverOp, GamepadKeys.Button.LEFT_STICK_BUTTON
-        );
+            ToggleButtonReader robotCentricReader = new ToggleButtonReader(
+                    driverOp, GamepadKeys.Button.LEFT_STICK_BUTTON
+            );
 
-        ToggleButtonReader hangModeRight = new ToggleButtonReader(
-                clawOp, GamepadKeys.Button.RIGHT_STICK_BUTTON
-        );
+            ToggleButtonReader hangModeRight = new ToggleButtonReader(
+                    clawOp, GamepadKeys.Button.RIGHT_STICK_BUTTON
+            );
 
-        ToggleButtonReader hangModeLeft = new ToggleButtonReader(
-                clawOp, GamepadKeys.Button.LEFT_STICK_BUTTON
-        );
+            ToggleButtonReader hangModeLeft = new ToggleButtonReader(
+                    clawOp, GamepadKeys.Button.LEFT_STICK_BUTTON
+            );
 
-        ToggleButtonReader slowMode = new ToggleButtonReader(
-                driverOp, GamepadKeys.Button.LEFT_BUMPER
-        );
+            ToggleButtonReader slowMode = new ToggleButtonReader(
+                    driverOp, GamepadKeys.Button.LEFT_BUMPER
+            );
 
-        ButtonReader intakeOnReader = new ButtonReader(
-                driverOp, GamepadKeys.Button.X
-        );
+            ButtonReader intakeOnReader = new ButtonReader(
+                    driverOp, GamepadKeys.Button.X
+            );
 
-        TriggerReader vSlideUpReader = new TriggerReader(
-                clawOp, GamepadKeys.Trigger.RIGHT_TRIGGER
-        );
+            TriggerReader vSlideUpReader = new TriggerReader(
+                    clawOp, GamepadKeys.Trigger.RIGHT_TRIGGER
+            );
 
-        TriggerReader vSlideDownReader = new TriggerReader(
-                clawOp, GamepadKeys.Trigger.LEFT_TRIGGER
-        );
+            TriggerReader vSlideDownReader = new TriggerReader(
+                    clawOp, GamepadKeys.Trigger.LEFT_TRIGGER
+            );
 
-        //TODO: Adjust the vSlides parameters
-        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-        vSlides.setRunMode(Motor.RunMode.PositionControl);
-        vSlides.setPositionCoefficient(0.05);
-        vSlides.setDistancePerPulse(0.015);
-        vSlides.stopAndResetEncoder();
+            //TODO: Adjust the vSlides parameters
+            vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+            vSlides.setRunMode(Motor.RunMode.PositionControl);
+            vSlides.setPositionCoefficient(0.05);
+            vSlides.setDistancePerPulse(0.015);
+            vSlides.stopAndResetEncoder();
 
-        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-        vSlideRight.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+            vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+            vSlideRight.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
 
-        intakeRotateRight.setDirection(ServoImplEx.Direction.REVERSE);
-        linSlideLeft.setDirection(CRServo.Direction.REVERSE);
-        intakeLeft.setDirection(CRServo.Direction.REVERSE);
-        clawRotateRight.setDirection(ServoImplEx.Direction.REVERSE);;
-        claw.setDirection(ServoImplEx.Direction.REVERSE);
-        vSlideRight.setInverted(true);
+            intakeRotateRight.setDirection(ServoImplEx.Direction.REVERSE);
+            linSlideLeft.setDirection(CRServo.Direction.REVERSE);
+            intakeLeft.setDirection(CRServo.Direction.REVERSE);
+            clawRotateRight.setDirection(ServoImplEx.Direction.REVERSE);;
+            claw.setDirection(ServoImplEx.Direction.REVERSE);
+            vSlideRight.setInverted(true);
 
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
-
-        follower.startTeleopDrive();
-        follower.setStartingPose(startPose);
-
-        waitForStart();
-        runtime.reset();
-
-        // run until the end of the match (driver presses STOP)
-        while (opModeIsActive()) {
-
-            if (robotCentricReader.wasJustPressed()) {
-                follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
-                follower.update();
-            } else if (slowMode.wasJustPressed()) {
-                follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), false);
-                follower.update();
-            } else if (robotCentricReader.wasJustPressed() && (slowMode.wasJustPressed())) {
-                follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), true);
-                follower.update();
-            } else {
-                follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
-                follower.update();
-            }
-
-            telemetry.addLine("To use field centric mode, press left stick.");
-
-            follower.update();
-
-            double in = gamepad1.left_trigger;
-            double out = gamepad1.right_trigger;
-
-            double max;
-
-            double horizontalPower = out - in;
-
-            //max = Math.max(Math.abs(horizontalPower), Math.abs(clawVerticalPower));
-
-            /*
-            if (max > 1.0) {
-                horizontalPower /= max;
-                //clawVerticalPower /= max;
-            }
-
-             */
-
-            // Send calculated power
-            linSlideLeft.setPower(horizontalPower);
-            linSlideRight.setPower(horizontalPower);
-
-            // TODO: This code is incorrect
-            //  it only calculates the newtons of force necessary
-            //  we need to convert the newtons to whatever is correct for the GoBilda 300 degree speed servos
-//            if (gamepad1.right_trigger != 0) {
-//                linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-//                linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-//            } else if (gamepad1.left_trigger != 0) {
-//                linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-//                linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-//            } else {
-//                linSlideLeft.setPower(-1*(abs((follower.getVelocityMagnitude()*follower.getVelocityMagnitude() /* * mass of intake*/ )/3)));
-//                linSlideRight.setPower(-1*(abs((follower.getVelocityMagnitude()*follower.getVelocityMagnitude() /* * mass of intake*/ )/3)));
-//            }
-
-            if (gamepad2.dpad_up) {
-                clawRotateLeft.setPosition(.833);
-                clawRotateRight.setPosition(.833);
-                clawAdjust.setPosition(.75);
-                telemetry.addLine("Sample scoring");
-                vSlides.setTargetPosition(5);
-                vSlides.set(1);
-                telemetry.addLine("Adjusting viper slides automatically");
-            } else if (gamepad2.dpad_down) {
-                clawRotateLeft.setPosition(0);
-                clawRotateRight.setPosition(0);
-                clawAdjust.setPosition(.12 - .0277);
-                telemetry.addLine("Resetting claw to intake");
-            } else if (gamepad2.dpad_left) {
-                clawRotateLeft.setPosition(.11);
-                clawRotateRight.setPosition(.11);
-                clawAdjust.setPosition(0.5);
-                telemetry.addLine("Specimen pickup");
-            }
-
-            if (gamepad2.right_trigger != 0) {
-                vSlides.setTargetPosition(5);
-                vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
-            } else if (gamepad2.left_trigger != 0) {
-                vSlides.setTargetPosition(-5);
-                vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
-            } else if (vSlideUpReader.wasJustReleased()) {
-                vSlides.set(0);
-            } else if (vSlideDownReader.wasJustReleased()) {
-                vSlides.set(0);
-            }
-
-            if (gamepad2.y) {
-                claw.setPosition(1);
-                telemetry.addLine("Claw opened all the way | MANUAL OPERATION OF CLAW");
-            } else if (gamepad2.b) {
-                claw.setPosition(0);
-                telemetry.addLine("Claw closed | MANUAL OPERATION OF CLAW");
-            }
-
-            PredominantColorProcessor.Result result = colorSensor.getAnalysis();
-
-
-            if (gamepad1.x) {
-                intakeRotateLeft.setPosition(.025);
-                intakeRotateRight.setPosition(.17);
-                //intakeLeft.setPower(1);
-                //intakeRight.setPower(1);
-                telemetry.addLine("Intake in position for sample pickup");
-                clawRotateLeft.setPosition(0);
-                clawRotateRight.setPosition(0);
-                clawAdjust.setPosition(.12 - .0277);
-                telemetry.addLine("Adjusting claw automatically");
-            } else if (gamepad1.a) {
-                intakeLeft.setPower(-1);
-                intakeRight.setPower(-1);
-                intakeRotateLeft.setPosition(.1);
-                intakeRotateRight.setPosition(.1);
-            } else {
-                intakeLeft.setPower(0);
-                intakeRight.setPower(0);
-                intakeRotateLeft.setPosition(0);
-                intakeRotateRight.setPosition(0);
-                telemetry.addLine("In position for claw pickup");
-            }
-
-
-            if (result.closestSwatch == PredominantColorProcessor.Swatch.YELLOW) {
-                intakeLeft.setPower(1);
-                intakeRight.setPower(1);
-                telemetry.addLine("Intake in position for sample pickup");
-                clawRotateLeft.setPosition(0);
-                clawRotateRight.setPosition(0);
-                clawAdjust.setPosition(.12 - .0277);
-                claw.setPosition(1);
-                telemetry.addLine("Adjusting claw automatically");
-            } else if (result.closestSwatch == PredominantColorProcessor.Swatch.BLUE) {
-                intakeLeft.setPower(1);
-                intakeRight.setPower(1);
-                telemetry.addLine("Intake in position for sample pickup");
-                clawRotateLeft.setPosition(0);
-                clawRotateRight.setPosition(0);
-                clawAdjust.setPosition(.25);
-                claw.setPosition(1);
-                telemetry.addLine("Adjusting claw automatically");
-            } else if (AlertFound && result.closestSwatch == PredominantColorProcessor.Swatch.RED) {
-                telemetry.addLine("WRONG COLOR!");
-                gamepad1.rumbleBlips(3);
-                gamepad2.rumbleBlips(3);
-                SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, Alert);
-            }
-
-            if (follower.getPose().getX() < (observationZone.getX() + 25) && follower.getPose().getY() < (observationZone.getY() + 31)) {
-                clawRotateLeft.setPosition(.11);
-                clawRotateRight.setPosition(.11);
-                clawAdjust.setPosition(0.5);
-                vSlides.setTargetPosition(1);
-                vSlides.set(-1);
-                telemetry.addLine("Specimen pickup");
-            }
-
-            if (follower.getPose().getX() < (basket.getX() + 24) && follower.getPose().getY() > (basket.getY()) - 24) {
-                clawRotateLeft.setPosition(.833);
-                clawRotateRight.setPosition(.833);
-                clawAdjust.setPosition(.75);
-                telemetry.addLine("Sample scoring");
-                vSlides.setTargetPosition(5);
-                vSlides.set(-1);
-                telemetry.addLine("Adjusting viper slides automatically");
-            }
-
-            //TODO: Fix hang mode
-            // Try deleting this if it doesn't work
-            // Remember to try adding the mass of the intake to calculate the power to keep it elevated
-            // Testing pending
-            if (hangModeRight.getState() && hangModeLeft.getState()) {
-                vSlides.setRunMode(Motor.RunMode.RawPower);
-                vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
-                linSlideLeft.setPower(0);
-                linSlideRight.setPower(0);
-                claw.setPwmDisable();
-                clawRotateLeft.setPwmDisable();
-                clawRotateRight.setPwmDisable();
-                clawAdjust.setPwmDisable();
-                intakeLeft.setPower(0);
-                intakeRight.setPower(0);
-                intakeRotateLeft.setPwmDisable();
-                intakeRotateRight.setPwmDisable();
-                telemetry.addLine("Hang mode");
-            }
-
-            //telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
-            //telemetry.addData("Vslides distance", "%.2f", vSlides.getDistance());
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.addData("Status", "Initialized");
             telemetry.update();
-            follower.update();
+
+            follower.startTeleopDrive();
+            follower.setStartingPose(startPose);
+
+            waitForStart();
+            runtime.reset();
+
+            // run until the end of the match (driver presses STOP)
+            while (opModeIsActive()) {
+
+                if (robotCentricReader.wasJustPressed()) {
+                    follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
+                    follower.update();
+                } else if (slowMode.wasJustPressed()) {
+                    follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), false);
+                    follower.update();
+                } else if (robotCentricReader.wasJustPressed() && (slowMode.wasJustPressed())) {
+                    follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), true);
+                    follower.update();
+                } else {
+                    follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
+                    follower.update();
+                }
+
+                telemetry.addLine("To use field centric mode, press left stick.");
+
+                follower.update();
+
+                double in = gamepad1.left_trigger;
+                double out = gamepad1.right_trigger;
+
+                double max;
+
+                double horizontalPower = out - in;
+
+                //max = Math.max(Math.abs(horizontalPower), Math.abs(clawVerticalPower));
+
+                /*
+                if (max > 1.0) {
+                    horizontalPower /= max;
+                    //clawVerticalPower /= max;
+                }
+
+                 */
+
+                // Send calculated power
+                linSlideLeft.setPower(horizontalPower);
+                linSlideRight.setPower(horizontalPower);
+
+                // TODO: This code is incorrect
+                //  it only calculates the newtons of force necessary
+                //  we need to convert the newtons to whatever is correct for the GoBilda 300 degree speed servos
+    //            if (gamepad1.right_trigger != 0) {
+    //                linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+    //                linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+    //            } else if (gamepad1.left_trigger != 0) {
+    //                linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+    //                linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+    //            } else {
+    //                linSlideLeft.setPower(-1*(abs((follower.getVelocityMagnitude()*follower.getVelocityMagnitude() /* * mass of intake*/ )/3)));
+    //                linSlideRight.setPower(-1*(abs((follower.getVelocityMagnitude()*follower.getVelocityMagnitude() /* * mass of intake*/ )/3)));
+    //            }
+
+                double targetDistance = 0;
+                double power = pidf.calculate(vSlides.getCurrentPosition());  // Adjust power based on how fast you want to move
+
+                if (gamepad2.dpad_up) {
+                    clawRotateLeft.setPosition(.833);
+                    clawRotateRight.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    telemetry.addLine("Sample scoring");
+                    targetDistance = 5;
+                    vSlides.set(power);
+                    telemetry.addLine("Adjusting viper slides automatically");
+                } else if (gamepad2.dpad_down) {
+                    clawRotateLeft.setPosition(0);
+                    clawRotateRight.setPosition(0);
+                    clawAdjust.setPosition(.12 - .0277);
+                    telemetry.addLine("Resetting claw to intake");
+                } else if (gamepad2.dpad_left) {
+                    clawRotateLeft.setPosition(.11);
+                    clawRotateRight.setPosition(.11);
+                    clawAdjust.setPosition(0.5);
+                    telemetry.addLine("Specimen pickup");
+                }
+
+                if (gamepad2.right_trigger != 0) {
+                    targetDistance = 5;
+                    vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
+                } else if (gamepad2.left_trigger != 0) {
+                    targetDistance = -5;
+                    vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
+                } else if (vSlideUpReader.wasJustReleased()) {
+                    vSlides.set(0);
+                } else if (vSlideDownReader.wasJustReleased()) {
+                    vSlides.set(0);
+                }
+
+                if (gamepad2.y) {
+                    claw.setPosition(1);
+                    telemetry.addLine("Claw opened all the way | MANUAL OPERATION OF CLAW");
+                } else if (gamepad2.b) {
+                    claw.setPosition(0);
+                    telemetry.addLine("Claw closed | MANUAL OPERATION OF CLAW");
+                }
+
+                PredominantColorProcessor.Result result = colorSensor.getAnalysis();
+
+
+                if (gamepad1.x) {
+                    intakeRotateLeft.setPosition(.025);
+                    intakeRotateRight.setPosition(.17);
+                    //intakeLeft.setPower(1);
+                    //intakeRight.setPower(1);
+                    telemetry.addLine("Intake in position for sample pickup");
+                    clawRotateLeft.setPosition(0);
+                    clawRotateRight.setPosition(0);
+                    clawAdjust.setPosition(.12 - .0277);
+                    telemetry.addLine("Adjusting claw automatically");
+                } else if (gamepad1.a) {
+                    intakeLeft.setPower(-1);
+                    intakeRight.setPower(-1);
+                    intakeRotateLeft.setPosition(.1);
+                    intakeRotateRight.setPosition(.1);
+                } else {
+                    intakeLeft.setPower(0);
+                    intakeRight.setPower(0);
+                    intakeRotateLeft.setPosition(0);
+                    intakeRotateRight.setPosition(0);
+                    telemetry.addLine("In position for claw pickup");
+                }
+
+
+                if (result.closestSwatch == PredominantColorProcessor.Swatch.YELLOW) {
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
+                    telemetry.addLine("Intake on");
+                    clawRotateLeft.setPosition(0);
+                    clawRotateRight.setPosition(0);
+                    clawAdjust.setPosition(.12 - .0277);
+                    claw.setPosition(1);
+                    telemetry.addLine("Adjusting claw automatically");
+                } else if (result.closestSwatch == PredominantColorProcessor.Swatch.BLUE) {
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
+                    telemetry.addLine("Intake on");
+                    clawRotateLeft.setPosition(0);
+                    clawRotateRight.setPosition(0);
+                    clawAdjust.setPosition(.25);
+                    claw.setPosition(1);
+                    telemetry.addLine("Adjusting claw automatically");
+                } else if (AlertFound && result.closestSwatch == PredominantColorProcessor.Swatch.RED) {
+                    telemetry.addLine("WRONG COLOR!");
+                    gamepad1.rumbleBlips(3);
+                    gamepad2.rumbleBlips(3);
+                    SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, Alert);
+                }
+
+                if (follower.getPose().getX() < (observationZone.getX() + 25) && follower.getPose().getY() < (observationZone.getY() + 31)) {
+                    clawRotateLeft.setPosition(.11);
+                    clawRotateRight.setPosition(.11);
+                    clawAdjust.setPosition(0.5);
+                    targetDistance = 1;
+                    telemetry.addLine("Specimen pickup");
+                }
+
+                if (follower.getPose().getX() < (basket.getX() + 24) && follower.getPose().getY() > (basket.getY()) - 24) {
+                    clawRotateLeft.setPosition(.833);
+                    clawRotateRight.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    telemetry.addLine("Sample scoring");
+                    targetDistance = 5;
+                    telemetry.addLine("Adjusting viper slides automatically");
+                }
+
+                if (hangModeRight.getState() && hangModeLeft.getState()) {
+                    vSlides.setRunMode(Motor.RunMode.RawPower);
+                    vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
+    //              Use Newton's second law to calculate the power to compensate for gravity for linear slide power
+    //              remember that the answer you get is in newtons and needs to be converted for the servo you use
+    //              F=Mass of intake * 9.8
+                    linSlideLeft.setPower(0);
+                    linSlideRight.setPower(0);
+                    claw.setPwmDisable();
+                    clawRotateLeft.setPwmDisable();
+                    clawRotateRight.setPwmDisable();
+                    clawAdjust.setPwmDisable();
+                    intakeLeft.setPower(0);
+                    intakeRight.setPower(0);
+                    intakeRotateLeft.setPwmDisable();
+                    intakeRotateRight.setPwmDisable();
+                    telemetry.addLine("Hang mode");
+                }
+
+                double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
+                double distanceRemaining = targetDistance - currentDistance;
+                pidf.setSetPoint(targetDistance);
+
+                //telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
+                //telemetry.addData("Vslides distance", "%.2f", vSlides.getDistance());
+                telemetry.addData("Status", "Run Time: " + runtime.toString());
+                telemetry.update();
+                follower.update();
+            }
             }
         }
-    }
