@@ -25,8 +25,8 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@Autonomous(name = "Blue Autonomous - Silver Knight", group = "Silver Knight")
-public class SilverKnightBlueAuto extends OpMode{
+@Autonomous(name = "Blue Autonomous Observation - Silver Knight", group = "Silver Knight")
+public class SilverKnightBlueAutoObservation extends OpMode{
     //hardware
     private DcMotorEx leftFront;
     private DcMotorEx leftRear;
@@ -186,7 +186,7 @@ public class SilverKnightBlueAuto extends OpMode{
                 break;
             case 1:
                 if (follower.getPose().getX() > (scorePose1.getX() - 1) && follower.getPose().getY() > (scorePose1.getY() - 1)) {
-                    vSlides.setTargetPosition(1);
+                    vSlides.setTargetPosition(5);
                     vSlides.set(1);
                     clawRotateRight.setPosition(.65);
                     clawRotateLeft.setPosition(.65);
@@ -235,41 +235,117 @@ public class SilverKnightBlueAuto extends OpMode{
                 break;
             case 7:
                 if (follower.getPose().getX() > (pickupSpecimenPose.getX() - 1) && follower.getPose().getY() > (pickupSpecimenPose.getY() - 1)) {
+                    clawRotateLeft.setPosition(.11);
+                    clawRotateRight.setPosition(.11);
+                    clawAdjust.setPosition(0.5);
+                    vSlides.setTargetPosition(1);
+                    vSlides.set(-1);
                     follower.followPath(score2,true);
                     setPathState(8);
                 }
                 break;
             case 8:
                 if (follower.getPose().getX() > (scorePose2.getX() - 1) && follower.getPose().getY() > (scorePose2.getY() - 1)) {
+                    vSlides.setTargetPosition(5);
+                    vSlides.set(1);
+                    clawRotateRight.setPosition(.65);
+                    clawRotateLeft.setPosition(.65);
+                    clawAdjust.setPosition(1);
+                    //TODO: Measure the correct amount of time for this
+                    /*
+                    if(pathTimer.getElapsedTimeSeconds() > 1) {
+                        claw.setPosition(0);
+                    }
+                     */
                     follower.followPath(score2return, true);
                     setPathState(9);
                 }
                 break;
             case 9:
-                follower.followPath(score3, true);
-                setPathState(10);
+                if (follower.getPose().getX() > (pickupSpecimenPose.getX() - 1) && follower.getPose().getY() > (pickupSpecimenPose.getY() - 1)) {
+                    clawRotateLeft.setPosition(.11);
+                    clawRotateRight.setPosition(.11);
+                    clawAdjust.setPosition(0.5);
+                    vSlides.setTargetPosition(1);
+                    vSlides.set(-1);
+                    follower.followPath(score3,true);
+                    setPathState(10);
+                }
                 break;
             case 10:
-                follower.followPath(score3return, true);
-                setPathState(11);
+                if (follower.getPose().getX() > (scorePose3.getX() - 1) && follower.getPose().getY() > (scorePose3.getY() - 1)) {
+                    vSlides.setTargetPosition(5);
+                    vSlides.set(1);
+                    clawRotateRight.setPosition(.65);
+                    clawRotateLeft.setPosition(.65);
+                    clawAdjust.setPosition(1);
+                    //TODO: Measure the correct amount of time for this
+                    /*
+                    if(pathTimer.getElapsedTimeSeconds() > 1) {
+                        claw.setPosition(0);
+                    }
+                     */
+                    follower.followPath(score3return,true);
+                    setPathState(11);
+                }
                 break;
             case 11:
-                follower.followPath(score4,true);
-                setPathState(12);
+                if (follower.getPose().getX() > (pickupSpecimenPose.getX() - 1) && follower.getPose().getY() > (pickupSpecimenPose.getY() - 1)) {
+                    clawRotateLeft.setPosition(.11);
+                    clawRotateRight.setPosition(.11);
+                    clawAdjust.setPosition(0.5);
+                    vSlides.setTargetPosition(1);
+                    vSlides.set(-1);
+                    follower.followPath(score4,true);
+                    setPathState(12);
+                }
                 break;
             case 12:
-                follower.followPath(score4return, true);
-                setPathState(13);
+                if (follower.getPose().getX() > (scorePose4.getX() - 1) && follower.getPose().getY() > (scorePose4.getY() - 1)) {
+                    vSlides.setTargetPosition(5);
+                    vSlides.set(1);
+                    clawRotateRight.setPosition(.65);
+                    clawRotateLeft.setPosition(.65);
+                    clawAdjust.setPosition(1);
+                    //TODO: Measure the correct amount of time for this
+                    /*
+                    if(pathTimer.getElapsedTimeSeconds() > 1) {
+                        claw.setPosition(0);
+                    }
+                     */
+                    follower.followPath(score4return, true);
+                    setPathState(13);
+                }
                 break;
             case 13:
-                follower.followPath(score5, true);
-                setPathState(14);
+                if (follower.getPose().getX() > (pickupSpecimenPose.getX() - 1) && follower.getPose().getY() > (pickupSpecimenPose.getY() - 1)) {
+                    clawRotateLeft.setPosition(.11);
+                    clawRotateRight.setPosition(.11);
+                    clawAdjust.setPosition(0.5);
+                    vSlides.setTargetPosition(1);
+                    vSlides.set(-1);
+                    follower.followPath(score5,true);
+                    setPathState(14);
+                }
                 break;
             case 14:
-                follower.followPath(park, false);
-                //Sets to a non existent pathstate so that it doesn't keep running
-                //-Avikam ;)
-                setPathState(15);
+                if (follower.getPose().getX() > (scorePose5.getX() - 1) && follower.getPose().getY() > (scorePose5.getY() - 1)) {
+                    vSlides.setTargetPosition(5);
+                    vSlides.set(1);
+                    clawRotateRight.setPosition(.65);
+                    clawRotateLeft.setPosition(.65);
+                    clawAdjust.setPosition(1);
+                    //TODO: Measure the correct amount of time for this
+                    /*
+                    if(pathTimer.getElapsedTimeSeconds() > 1) {
+                        claw.setPosition(0);
+                    }
+                     */
+                    follower.followPath(park, false);
+                    //Sets to a non existent pathstate so that it doesn't keep running
+                    //-Avikam ;)
+                    setPathState(15);
+                }
                 break;
         }
     }
@@ -284,6 +360,33 @@ public class SilverKnightBlueAuto extends OpMode{
         MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
         MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
         MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
+        CRServo linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
+        CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
+        ServoEx intakeRotateLeft = new SimpleServo(hardwareMap, "iRL", 0, 300, AngleUnit.DEGREES);
+        ServoEx intakeRotateRight = new SimpleServo(hardwareMap, "iRR", 0, 300, AngleUnit.DEGREES);
+
+        linSlideLeft.setDirection(CRServo.Direction.REVERSE);
+        intakeLeft.setDirection(CRServo.Direction.REVERSE);
+        intakeRotateLeft.setInverted(true);
+        vSlides.setInverted(true);
+        vSlideRight.setInverted(false);
+
+        intakeRotateLeft.setPosition(0);
+        intakeRotateRight.setPosition(0);
+
+// TODO: This code is incorrect
+//  it only calculates the newtons of force necessary
+//  we need to convert the newtons to whatever is correct for the GoBilda 300 degree speed servos
+//            if (gamepad1.right_trigger != 0) {
+//                linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+//                linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+//            } else if (gamepad1.left_trigger != 0) {
+//                linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+//                linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+//            } else {
+//                linSlideLeft.setPower(-1*(abs((follower.getVelocityMagnitude()*follower.getVelocityMagnitude() /* * mass of intake*/ )/3)));
+//                linSlideRight.setPower(-1*(abs((follower.getVelocityMagnitude()*follower.getVelocityMagnitude() /* * mass of intake*/ )/3)));
+//            }
 
         // These loop the movements of the robot
         follower.update();
@@ -313,10 +416,17 @@ public class SilverKnightBlueAuto extends OpMode{
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
         buildPaths();
+
+        telemetry.addLine("Align on the field tile next to the observation zone, with the edge of the robot aligned with the edge of the field tile facing the observation zone");
+        telemetry.addLine("There should be 3 tiles to the left of the robot and 2 to the right");
+        telemetry.update();
     }
 
     @Override
-    public void init_loop() {}
+    public void init_loop() {
+        intakeRotateLeft.setPosition(0);
+        intakeRotateRight.setPosition(0);
+    }
 
     @Override
     public void start() {

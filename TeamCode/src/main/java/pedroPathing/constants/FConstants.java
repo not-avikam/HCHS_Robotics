@@ -8,9 +8,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class FConstants {
     static {
-        //FollowerConstants.useSecondaryTranslationalPID = true;
-        //FollowerConstants.useSecondaryHeadingPID = true;
-        //FollowerConstants.useSecondaryDrivePID = true;
 
         FollowerConstants.localizers = Localizers.OTOS;
 
