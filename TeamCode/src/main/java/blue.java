@@ -41,7 +41,7 @@
         private final ElapsedTime runtime = new ElapsedTime();
         private final String soundPath = "/FIRST/blocks/sounds";
         private final File Alert  = new File( soundPath + "/alert.wav");
-        private final Pose startPose = new Pose(9, 19, Math.toRadians(90));
+        private final Pose startPose = new Pose(18, 24, Math.toRadians(0));
         private final Pose observationZone = new Pose(0, 0);
         private final Pose basket = new Pose(0, 144);
         private Follower follower;

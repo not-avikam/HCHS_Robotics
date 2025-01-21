@@ -65,7 +65,7 @@ public class ScrimmageBlueAuto extends OpMode{
     private final Pose scorePose3 = new Pose(38, 74, Math.toRadians(0));
     private final Pose scorePose4 = new Pose(38, 72, Math.toRadians(0));
     private final Pose scorePose5 = new Pose(38, 68, Math.toRadians(0));
-    private final Pose parkPose = new Pose(9, 19, Math.toRadians(0));
+    private final Pose parkPose = new Pose(18, 24, Math.toRadians(0));
     private PathChain park, score2return, score3return, score4return, score5return, score2, score3, score4, score5, pickupSpecimen, scorePreload, pickup1, pickup2, pickUpSample3, dropOffSample1, dropOffSample2, dropOffSample3, pickUpSample2;
     public void buildPaths() {
         scorePreload = follower.pathBuilder()
