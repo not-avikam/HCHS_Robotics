@@ -10,7 +10,7 @@ public class OptimalPositionCalculator extends LinearOpMode {
         ServoImplEx claw = hardwareMap.get(ServoImplEx.class, "claw");
         ServoImplEx clawAdjust = hardwareMap.get(ServoImplEx.class, "cA");
         ServoImplEx clawRotateLeft = hardwareMap.get(ServoImplEx.class, "cRL");
-        ServoImplEx clawRotateRight = hardwareMap.get(ServoImplEx.class, "cLL");
+        ServoImplEx clawRotateRight = hardwareMap.get(ServoImplEx.class, "cRL");
         ServoImplEx intakeRotateLeft = hardwareMap.get(ServoImplEx.class, "iRL");
         ServoImplEx intakeRotateRight = hardwareMap.get(ServoImplEx.class, "iRR");
         CRServo intakeLeft = hardwareMap.get(CRServo.class, "iL");

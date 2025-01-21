@@ -360,6 +360,7 @@ public class SilverKnightBlueAutoObservation extends OpMode{
         MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
         MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
         MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
+        CRServo intakeLeft = hardwareMap.get(CRServo.class, "iL");
         CRServo linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
         CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
         ServoEx intakeRotateLeft = new SimpleServo(hardwareMap, "iRL", 0, 300, AngleUnit.DEGREES);
@@ -424,6 +425,8 @@ public class SilverKnightBlueAutoObservation extends OpMode{
 
     @Override
     public void init_loop() {
+        ServoEx intakeRotateLeft = new SimpleServo(hardwareMap, "iRL", 0, 300, AngleUnit.DEGREES);
+        ServoEx intakeRotateRight = new SimpleServo(hardwareMap, "iRR", 0, 300, AngleUnit.DEGREES);
         intakeRotateLeft.setPosition(0);
         intakeRotateRight.setPosition(0);
     }

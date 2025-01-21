@@ -32,7 +32,9 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @Config
 @TeleOp
@@ -52,6 +54,15 @@ public class vSlidesPIDtuning extends OpMode {
 
         vSlideLeft = hardwareMap.get(DcMotorEx.class, "VSL");
         vSlideRight = hardwareMap.get(DcMotorEx.class, "VSR");
+        vSlideLeft.setDirection(DcMotorEx.Direction.REVERSE);
+
+        vSlideLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        vSlideLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        vSlideLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        vSlideRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        vSlideRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        vSlideRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     @Override
