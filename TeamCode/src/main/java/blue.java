@@ -1,5 +1,6 @@
     import static java.lang.Math.abs;
 
+    import android.graphics.Color;
     import android.util.Size;
 
     import com.arcrobotics.ftclib.controller.PIDFController;
@@ -136,7 +137,7 @@
             vSlides.setRunMode(Motor.RunMode.PositionControl);
             vSlides.setPositionCoefficient(0.05);
             vSlides.setDistancePerPulse(0.015);
-            vSlides.stopAndResetEncoder();
+            vSlides.resetEncoder();
 
             vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
 
@@ -184,14 +185,16 @@
                 } else if (gamepad1.left_trigger != 0) {
                     linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
                     linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-                } else {
+                } else if (follower.getVelocityMagnitude() >= 1.5){
                     linSlideLeft.setPower(-1 * ((Math.abs((Math.pow(follower.getVelocityMagnitude(), 2) * .2 / .55)/1.79)*2) * 100));
                     linSlideRight.setPower(-1 * ((Math.abs((Math.pow(follower.getVelocityMagnitude(), 2) * .2 / .55)/1.79)*2) * 100));
+                } else {
+                    linSlideLeft.setPower(0);
+                    linSlideRight.setPower(0);
                 }
 
                 double targetDistance = 0;
-
-                double power = pidf.calculate(vSlides.getCurrentPosition());  // Adjust power based on how fast you want to move
+                //double power = pidf.calculate(vSlides.getCurrentPosition());  // Adjust power based on how fast you want to move
 
                 if (gamepad2.dpad_up) {
                     clawRotateLeft.setPosition(.833);
@@ -199,7 +202,7 @@
                     clawAdjust.setPosition(.75);
                     telemetry.addLine("Sample scoring");
                     targetDistance = 5;
-                    vSlides.set(power);
+                    //vSlides.set(power);
                     telemetry.addLine("Adjusting viper slides automatically");
                 } else if (gamepad2.dpad_down) {
                     clawRotateLeft.setPosition(0);
@@ -215,14 +218,14 @@
 
                 if (gamepad2.right_trigger != 0) {
                     targetDistance = 5;
-                    vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
+                    //vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
                 } else if (gamepad2.left_trigger != 0) {
                     targetDistance = -5;
-                    vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
+                    //vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
                 } else if (vSlideUpReader.wasJustReleased()) {
-                    vSlides.set(0);
+                    //vSlides.set(0);
                 } else if (vSlideDownReader.wasJustReleased()) {
-                    vSlides.set(0);
+                    //vSlides.set(0);
                 }
 
                 if (gamepad2.y) {
@@ -309,8 +312,8 @@
                     telemetry.addLine("Hang mode");
                 }
 
-                double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
-                double distanceRemaining = targetDistance - currentDistance;
+                //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
+                //double distanceRemaining = targetDistance - currentDistance;
                 pidf.setSetPoint(targetDistance);
 
                 //telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
@@ -318,7 +321,11 @@
                 telemetry.addData("Status", "Run Time: " + runtime.toString());
                 telemetry.addData("x", follower.getPose().getX());
                 telemetry.addData("y", follower.getPose().getY());
+                telemetry.addData("velocity", follower.getVelocity());
+                telemetry.addData("velocity magnitude", follower.getVelocityMagnitude());
                 telemetry.addData("heading", follower.getPose().getHeading());
+                telemetry.addData("Best Match:", result.closestSwatch);
+                telemetry.addLine(String.format("R %3d, G %3d, B %3d", Color.red(result.rgb), Color.green(result.rgb), Color.blue(result.rgb)));
                 telemetry.update();
                 follower.update();
             }
