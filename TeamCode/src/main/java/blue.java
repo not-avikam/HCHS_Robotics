@@ -9,6 +9,8 @@
     import com.arcrobotics.ftclib.gamepad.GamepadKeys;
     import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
     import com.arcrobotics.ftclib.gamepad.TriggerReader;
+    import com.arcrobotics.ftclib.hardware.ServoEx;
+    import com.arcrobotics.ftclib.hardware.SimpleServo;
     import com.arcrobotics.ftclib.hardware.motors.Motor;
     import com.arcrobotics.ftclib.hardware.motors.MotorEx;
     import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
@@ -22,6 +24,7 @@
     import com.qualcomm.robotcore.util.ElapsedTime;
 
     import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+    import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
     import org.firstinspires.ftc.vision.VisionPortal;
     import org.firstinspires.ftc.vision.opencv.ImageRegion;
     import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
@@ -41,7 +44,9 @@
         private final ElapsedTime runtime = new ElapsedTime();
         private final String soundPath = "/FIRST/blocks/sounds";
         private final File Alert  = new File( soundPath + "/alert.wav");
-        private final Pose startPose = new Pose(18, 24, Math.toRadians(0));
+
+        //TODO: Make this correct
+        private final Pose startPose = new Pose(64, 80, Math.toRadians(0));
         private final Pose observationZone = new Pose(0, 0);
         private final Pose basket = new Pose(0, 144);
         private Follower follower;
@@ -70,8 +75,8 @@
             CRServo intakeRight = hardwareMap.get(CRServo.class, "iR");
             ServoImplEx claw = hardwareMap.get(ServoImplEx.class, "claw");
             ServoImplEx clawAdjust = hardwareMap.get(ServoImplEx.class, "cA");
-            ServoImplEx clawRotateLeft = hardwareMap.get(ServoImplEx.class, "cRL");
-            ServoImplEx clawRotateRight = hardwareMap.get(ServoImplEx.class, "cRL");
+            ServoEx clawRotateLeft = new SimpleServo(hardwareMap, "cRL", 0, 300, AngleUnit.DEGREES);
+            ServoEx clawRotateRight = new SimpleServo(hardwareMap, "cRR", 0, 300, AngleUnit.DEGREES);
             ServoImplEx intakeRotateLeft = hardwareMap.get(ServoImplEx.class, "iRL");
             ServoImplEx intakeRotateRight = hardwareMap.get(ServoImplEx.class, "iRR");
             //BNO055IMUNew imu = hardwareMap.get(BNO055IMUNew.class, "imu");
@@ -139,7 +144,8 @@
             intakeRotateRight.setDirection(ServoImplEx.Direction.REVERSE);
             linSlideLeft.setDirection(CRServo.Direction.REVERSE);
             intakeLeft.setDirection(CRServo.Direction.REVERSE);
-            clawRotateRight.setDirection(ServoImplEx.Direction.REVERSE);;
+            clawRotateLeft.setInverted(false);
+            clawRotateRight.setInverted(true);;
             claw.setDirection(ServoImplEx.Direction.REVERSE);
             vSlideRight.setInverted(true);
 
@@ -173,51 +179,29 @@
 
                 follower.update();
 
-                double in = gamepad1.left_trigger;
-                double out = gamepad1.right_trigger;
-
-                double max;
-
-                double horizontalPower = out - in;
-
-                //max = Math.max(Math.abs(horizontalPower), Math.abs(clawVerticalPower));
-
-                /*
-                if (max > 1.0) {
-                    horizontalPower /= max;
-                    //clawVerticalPower /= max;
+                if (gamepad1.right_trigger != 0) {
+                    linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+                    linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+                } else if (gamepad1.left_trigger != 0) {
+                    linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+                    linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+                } else {
+                    linSlideLeft.setPower(-1 * ((Math.abs(Math.pow(follower.getVelocityMagnitude(), 2) * .2 / .55)/1.79) * 100));
+                    linSlideRight.setPower(-1 * ((Math.abs(Math.pow(follower.getVelocityMagnitude(), 2) * .2 / .55)/1.79) * 100));
                 }
 
-                 */
-
-                // Send calculated power
-                linSlideLeft.setPower(horizontalPower);
-                linSlideRight.setPower(horizontalPower);
-
-                // TODO: This code is incorrect
-                //  it only calculates the newtons of force necessary
-                //  we need to convert the newtons to whatever is correct for the GoBilda 300 degree speed servos
-    //            if (gamepad1.right_trigger != 0) {
-    //                linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-    //                linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-    //            } else if (gamepad1.left_trigger != 0) {
-    //                linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-    //                linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-    //            } else {
-    //                linSlideLeft.setPower(-1*(abs((follower.getVelocityMagnitude()*follower.getVelocityMagnitude() /* * mass of intake*/ )/3)));
-    //                linSlideRight.setPower(-1*(abs((follower.getVelocityMagnitude()*follower.getVelocityMagnitude() /* * mass of intake*/ )/3)));
-    //            }
-
                 double targetDistance = 0;
-                double power = pidf.calculate(vSlides.getCurrentPosition());  // Adjust power based on how fast you want to move
+                //TODO
+                //double power = pidf.calculate(vSlides.getCurrentPosition());  // Adjust power based on how fast you want to move
 
                 if (gamepad2.dpad_up) {
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
                     telemetry.addLine("Sample scoring");
-                    targetDistance = 5;
-                    vSlides.set(power);
+                    //TODO
+//                    targetDistance = 5;
+//                    vSlides.set(power);
                     telemetry.addLine("Adjusting viper slides automatically");
                 } else if (gamepad2.dpad_down) {
                     clawRotateLeft.setPosition(0);
@@ -269,21 +253,12 @@
                     intakeRight.setPower(-1);
                     intakeRotateLeft.setPosition(.1);
                     intakeRotateRight.setPosition(.1);
-                } else {
-                    intakeLeft.setPower(0);
-                    intakeRight.setPower(0);
-                    intakeRotateLeft.setPosition(0);
-                    intakeRotateRight.setPosition(0);
-                    telemetry.addLine("In position for claw pickup");
-                }
-
-
-                if (result.closestSwatch == PredominantColorProcessor.Swatch.YELLOW) {
+                } else if (result.closestSwatch == PredominantColorProcessor.Swatch.YELLOW) {
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
                     telemetry.addLine("Intake on");
-                    clawRotateLeft.setPosition(0);
-                    clawRotateRight.setPosition(0);
+                    //clawRotateLeft.setPosition(0);
+                    //clawRotateRight.setPosition(0);
                     clawAdjust.setPosition(.12 - .0277);
                     claw.setPosition(1);
                     telemetry.addLine("Adjusting claw automatically");
@@ -291,16 +266,21 @@
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
                     telemetry.addLine("Intake on");
-                    clawRotateLeft.setPosition(0);
-                    clawRotateRight.setPosition(0);
+                    //clawRotateLeft.setPosition(0);
+                    //clawRotateRight.setPosition(0);
                     clawAdjust.setPosition(.25);
                     claw.setPosition(1);
                     telemetry.addLine("Adjusting claw automatically");
-                } else if (AlertFound && result.closestSwatch == PredominantColorProcessor.Swatch.RED) {
+                } else if (result.closestSwatch == PredominantColorProcessor.Swatch.RED) {
                     telemetry.addLine("WRONG COLOR!");
                     gamepad1.rumbleBlips(3);
                     gamepad2.rumbleBlips(3);
-                    SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, Alert);
+                }  else {
+                    intakeLeft.setPower(0);
+                    intakeRight.setPower(0);
+                    intakeRotateLeft.setPosition(0);
+                    intakeRotateRight.setPosition(0);
+                    telemetry.addLine("In position for claw pickup");
                 }
 
                 if (follower.getPose().getX() < (observationZone.getX() + 25) && follower.getPose().getY() < (observationZone.getY() + 31)) {
@@ -320,17 +300,15 @@
                     telemetry.addLine("Adjusting viper slides automatically");
                 }
 
-                if (hangModeRight.getState() && hangModeLeft.getState()) {
+                if (hangModeRight.wasJustReleased() && hangModeLeft.wasJustReleased()) {
                     vSlides.setRunMode(Motor.RunMode.RawPower);
                     vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
-    //              Use Newton's second law to calculate the power to compensate for gravity for linear slide power
-    //              remember that the answer you get is in newtons and needs to be converted for the servo you use
-    //              F=Mass of intake * 9.8
-                    linSlideLeft.setPower(0);
-                    linSlideRight.setPower(0);
+                    linSlideLeft.setPower(-.053);
+                    linSlideRight.setPower(-.053);
                     claw.setPwmDisable();
-                    clawRotateLeft.setPwmDisable();
-                    clawRotateRight.setPwmDisable();
+                    //TODO
+                    //clawRotateLeft.setPwmDisable();
+                    //clawRotateRight.setPwmDisable();
                     clawAdjust.setPwmDisable();
                     intakeLeft.setPower(0);
                     intakeRight.setPower(0);
@@ -339,13 +317,17 @@
                     telemetry.addLine("Hang mode");
                 }
 
-                double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
-                double distanceRemaining = targetDistance - currentDistance;
+                //TODO
+                //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
+                //double distanceRemaining = targetDistance - currentDistance;
                 pidf.setSetPoint(targetDistance);
 
                 //telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
                 //telemetry.addData("Vslides distance", "%.2f", vSlides.getDistance());
                 telemetry.addData("Status", "Run Time: " + runtime.toString());
+                telemetry.addData("x", follower.getPose().getX());
+                telemetry.addData("y", follower.getPose().getY());
+                telemetry.addData("heading", follower.getPose().getHeading());
                 telemetry.update();
                 follower.update();
             }
