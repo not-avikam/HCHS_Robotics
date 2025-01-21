@@ -40,7 +40,7 @@
 
     @TeleOp(name="blue-experimental", group="Silver Knight")
     public class blue extends LinearOpMode {
-        PIDFController pidf = new PIDFController(1, 2, 3, 4);
+        PIDFController pidf = new PIDFController(0, 0, 0, 0);
         private final ElapsedTime runtime = new ElapsedTime();
         private final String soundPath = "/FIRST/blocks/sounds";
         private final File Alert  = new File( soundPath + "/alert.wav");
@@ -139,7 +139,6 @@
             vSlides.stopAndResetEncoder();
 
             vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-            vSlideRight.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
 
             intakeRotateRight.setDirection(ServoImplEx.Direction.REVERSE);
             linSlideLeft.setDirection(CRServo.Direction.REVERSE);
@@ -186,22 +185,21 @@
                     linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
                     linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
                 } else {
-                    linSlideLeft.setPower(-1 * ((Math.abs(Math.pow(follower.getVelocityMagnitude(), 2) * .2 / .55)/1.79) * 100));
-                    linSlideRight.setPower(-1 * ((Math.abs(Math.pow(follower.getVelocityMagnitude(), 2) * .2 / .55)/1.79) * 100));
+                    linSlideLeft.setPower(-1 * ((Math.abs((Math.pow(follower.getVelocityMagnitude(), 2) * .2 / .55)/1.79)*2) * 100));
+                    linSlideRight.setPower(-1 * ((Math.abs((Math.pow(follower.getVelocityMagnitude(), 2) * .2 / .55)/1.79)*2) * 100));
                 }
 
                 double targetDistance = 0;
-                //TODO
-                //double power = pidf.calculate(vSlides.getCurrentPosition());  // Adjust power based on how fast you want to move
+
+                double power = pidf.calculate(vSlides.getCurrentPosition());  // Adjust power based on how fast you want to move
 
                 if (gamepad2.dpad_up) {
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
                     telemetry.addLine("Sample scoring");
-                    //TODO
-//                    targetDistance = 5;
-//                    vSlides.set(power);
+                    targetDistance = 5;
+                    vSlides.set(power);
                     telemetry.addLine("Adjusting viper slides automatically");
                 } else if (gamepad2.dpad_down) {
                     clawRotateLeft.setPosition(0);
@@ -241,8 +239,6 @@
                 if (gamepad1.x) {
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
-                    //intakeLeft.setPower(1);
-                    //intakeRight.setPower(1);
                     telemetry.addLine("Intake in position for sample pickup");
                     clawRotateLeft.setPosition(0);
                     clawRotateRight.setPosition(0);
@@ -257,8 +253,6 @@
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
                     telemetry.addLine("Intake on");
-                    //clawRotateLeft.setPosition(0);
-                    //clawRotateRight.setPosition(0);
                     clawAdjust.setPosition(.12 - .0277);
                     claw.setPosition(1);
                     telemetry.addLine("Adjusting claw automatically");
@@ -266,8 +260,6 @@
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
                     telemetry.addLine("Intake on");
-                    //clawRotateLeft.setPosition(0);
-                    //clawRotateRight.setPosition(0);
                     clawAdjust.setPosition(.25);
                     claw.setPosition(1);
                     telemetry.addLine("Adjusting claw automatically");
@@ -317,9 +309,8 @@
                     telemetry.addLine("Hang mode");
                 }
 
-                //TODO
-                //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
-                //double distanceRemaining = targetDistance - currentDistance;
+                double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
+                double distanceRemaining = targetDistance - currentDistance;
                 pidf.setSetPoint(targetDistance);
 
                 //telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
