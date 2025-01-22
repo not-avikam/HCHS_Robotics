@@ -185,7 +185,7 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 follower.followPath(scorePreload, true);
                 break;
             case 1:
-                if (follower.getPose().getX() > (scorePose1.getX() - 1) && follower.getPose().getY() > (scorePose1.getY() - 1)) {
+                if (!follower.isBusy()) {
                     vSlides.setTargetPosition(5);
                     vSlides.set(1);
                     clawRotateRight.setPosition(.65);
@@ -202,7 +202,7 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 }
                 break;
             case 2:
-                if (follower.getPose().getX() > (pickupPose1.getX() - 1) && follower.getPose().getY() > (pickupPose1.getY() - 1)) {
+                if (!follower.isBusy()) {
                     vSlides.setTargetPosition(0);
                     vSlides.set(-1);
                     follower.followPath(dropOffSample1, false);
@@ -210,31 +210,31 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 }
                 break;
             case 3:
-                if (follower.getPose().getX() > (dropOff1.getX() - 1) && follower.getPose().getY() > (dropOff1.getY() - 1)) {
+                if (!follower.isBusy()) {
                     follower.followPath(pickUpSample2, false);
                     setPathState(4);
                 }
                 break;
             case 4:
-                if (follower.getPose().getX() > (pickUpPose2.getX() - 1) && follower.getPose().getY() > (pickUpPose2.getY() - 1)) {
+                if (!follower.isBusy()) {
                     follower.followPath(dropOffSample2, false);
                     setPathState(5);
                 }
                 break;
             case 5:
-                if (follower.getPose().getX() > (dropOff2.getX() - 1) && follower.getPose().getY() > (dropOff2.getY() - 1)) {
+                if (!follower.isBusy()) {
                     follower.followPath(pickUpSample3, false);
                     setPathState(6);
                 }
                 break;
             case 6:
-                if (follower.getPose().getX() > (dropOff3.getX() - 1) && follower.getPose().getY() > (dropOff3.getY() - 1)) {
+                if (!follower.isBusy()) {
                     follower.followPath(pickupSpecimen, true);
                     setPathState(7);
                 }
                 break;
             case 7:
-                if (follower.getPose().getX() > (pickupSpecimenPose.getX() - 1) && follower.getPose().getY() > (pickupSpecimenPose.getY() - 1)) {
+                if (!follower.isBusy()) {
                     clawRotateLeft.setPosition(.11);
                     clawRotateRight.setPosition(.11);
                     clawAdjust.setPosition(0.5);
@@ -245,7 +245,7 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 }
                 break;
             case 8:
-                if (follower.getPose().getX() > (scorePose2.getX() - 1) && follower.getPose().getY() > (scorePose2.getY() - 1)) {
+                if (!follower.isBusy()) {
                     vSlides.setTargetPosition(5);
                     vSlides.set(1);
                     clawRotateRight.setPosition(.65);
@@ -262,7 +262,7 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 }
                 break;
             case 9:
-                if (follower.getPose().getX() > (pickupSpecimenPose.getX() - 1) && follower.getPose().getY() > (pickupSpecimenPose.getY() - 1)) {
+                if (!follower.isBusy()) {
                     clawRotateLeft.setPosition(.11);
                     clawRotateRight.setPosition(.11);
                     clawAdjust.setPosition(0.5);
@@ -273,7 +273,7 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 }
                 break;
             case 10:
-                if (follower.getPose().getX() > (scorePose3.getX() - 1) && follower.getPose().getY() > (scorePose3.getY() - 1)) {
+                if (!follower.isBusy()) {
                     vSlides.setTargetPosition(5);
                     vSlides.set(1);
                     clawRotateRight.setPosition(.65);
@@ -290,7 +290,7 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 }
                 break;
             case 11:
-                if (follower.getPose().getX() > (pickupSpecimenPose.getX() - 1) && follower.getPose().getY() > (pickupSpecimenPose.getY() - 1)) {
+                if (!follower.isBusy()) {
                     clawRotateLeft.setPosition(.11);
                     clawRotateRight.setPosition(.11);
                     clawAdjust.setPosition(0.5);
@@ -301,7 +301,7 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 }
                 break;
             case 12:
-                if (follower.getPose().getX() > (scorePose4.getX() - 1) && follower.getPose().getY() > (scorePose4.getY() - 1)) {
+                if (!follower.isBusy()) {
                     vSlides.setTargetPosition(5);
                     vSlides.set(1);
                     clawRotateRight.setPosition(.65);
@@ -318,7 +318,7 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 }
                 break;
             case 13:
-                if (follower.getPose().getX() > (pickupSpecimenPose.getX() - 1) && follower.getPose().getY() > (pickupSpecimenPose.getY() - 1)) {
+                if (!follower.isBusy()) {
                     clawRotateLeft.setPosition(.11);
                     clawRotateRight.setPosition(.11);
                     clawAdjust.setPosition(0.5);
@@ -329,7 +329,7 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 }
                 break;
             case 14:
-                if (follower.getPose().getX() > (scorePose5.getX() - 1) && follower.getPose().getY() > (scorePose5.getY() - 1)) {
+                if (!follower.isBusy()) {
                     vSlides.setTargetPosition(5);
                     vSlides.set(1);
                     clawRotateRight.setPosition(.65);
