@@ -1,5 +1,6 @@
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.hardware.RevIMU;
+
+
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -16,8 +17,6 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
@@ -25,8 +24,11 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@Autonomous(name = "Blue Autonomous Observation - Silver Knight", group = "Silver Knight")
-public class SilverKnightBlueAutoObservation extends OpMode{
+@Autonomous(name = "Observation Zone debug help", group = "Silver Knight")
+public class test extends OpMode{
+    //private PoseUpdater poseUpdater;
+    //private DashboardPoseTracker dashboardPoseTracker;
+    PIDFController pidf = new PIDFController(0, 0, 0, 0);
     //hardware
     //auto stuff
     private Timer pathTimer, actionTimer, opmodeTimer;
@@ -131,11 +133,9 @@ public class SilverKnightBlueAutoObservation extends OpMode{
 
     public void autonomousPathUpdate() {
 
-        //MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
-        //MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
-        //MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
-        CRServo linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
-        CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
+        MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
+        MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
+        MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
         CRServo intakeLeft = hardwareMap.get(CRServo.class, "iL");
         CRServo intakeRight = hardwareMap.get(CRServo.class, "iR");
         ServoEx claw = new SimpleServo(hardwareMap, "claw", 0, 180, AngleUnit.DEGREES);
@@ -144,25 +144,30 @@ public class SilverKnightBlueAutoObservation extends OpMode{
         ServoEx clawRotateRight = new SimpleServo(hardwareMap, "cRR", 0, 270, AngleUnit.DEGREES);
         ServoEx intakeRotateLeft = new SimpleServo(hardwareMap, "iRL", 0, 300, AngleUnit.DEGREES);
         ServoEx intakeRotateRight = new SimpleServo(hardwareMap, "iRR", 0, 300, AngleUnit.DEGREES);
-        //BNO055IMUNew imu = hardwareMap.get(BNO055IMUNew.class, "imu");
-        GamepadEx driverOp = new GamepadEx(gamepad1);
-        GamepadEx clawOp = new GamepadEx(gamepad2);
-        RevIMU imu = new RevIMU(hardwareMap, "imu");
 
         //TODO: Adjust the vSlides parameters
-//        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-//        vSlides.setRunMode(Motor.RunMode.PositionControl);
-//        vSlides.setPositionCoefficient(0.05);
-//        vSlides.setDistancePerPulse(0.015);
-//        vSlides.stopAndResetEncoder();
+        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+        vSlides.setRunMode(Motor.RunMode.PositionControl);
+        vSlides.setPositionCoefficient(0.05);
+        vSlides.setDistancePerPulse(0.015);
+        vSlides.stopAndResetEncoder();
 
-        linSlideLeft.setDirection(CRServo.Direction.REVERSE);
+        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+
+        intakeRotateRight.setInverted(true);
         intakeLeft.setDirection(CRServo.Direction.REVERSE);
-        intakeRotateLeft.setInverted(true);
-        clawRotateLeft.setInverted(true);
+        clawRotateLeft.setInverted(false);
+        clawRotateRight.setInverted(true);;
         claw.setInverted(true);
-//        vSlides.setInverted(true);
-//        vSlideRight.setInverted(false);
+        vSlideRight.setInverted(true);
+
+        double targetDistance = 0;
+
+        //double power = pidf.calculate(vSlides.getCurrentPosition());  // Adjust power based on how fast you want to move
+
+        //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
+        //double distanceRemaining = targetDistance - currentDistance;
+        pidf.setSetPoint(targetDistance);
 
         switch (pathState) {
             case 0:
@@ -296,6 +301,7 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                     setPathState(13);
                 }
                 break;
+
             case 13:
                 if (!follower.isBusy()) {
                     clawRotateLeft.setPosition(.11);
@@ -336,30 +342,15 @@ public class SilverKnightBlueAutoObservation extends OpMode{
 
     @Override
     public void loop() {
-
-// TODO: This code is incorrect
-//  it only calculates the newtons of force necessary
-//  we need to convert the newtons to whatever is correct for the GoBilda 300 degree speed servos
-//            if (gamepad1.right_trigger != 0) {
-//                linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-//                linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-//            } else if (gamepad1.left_trigger != 0) {
-//                linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-//                linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-//            } else {
-//                linSlideLeft.setPower(-1*(abs((follower.getVelocityMagnitude()*follower.getVelocityMagnitude() /* * mass of intake*/ )/3)));
-//                linSlideRight.setPower(-1*(abs((follower.getVelocityMagnitude()*follower.getVelocityMagnitude() /* * mass of intake*/ )/3)));
-//            }
+        MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
+        MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
+        MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
 
         // These loop the movements of the robot
         follower.update();
+        //dashboardPoseTracker.update();
         autonomousPathUpdate();
 
-        /*
-        while (!vSlides.atTargetPosition()) {
-            vSlides.set(1);
-        }
-         */
 
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
