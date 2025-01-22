@@ -28,21 +28,6 @@ import pedroPathing.constants.LConstants;
 @Autonomous(name = "Blue Autonomous Observation - Silver Knight", group = "Silver Knight")
 public class SilverKnightBlueAutoObservation extends OpMode{
     //hardware
-    private DcMotorEx leftFront;
-    private DcMotorEx leftRear;
-    private DcMotorEx rightFront;
-    private DcMotorEx rightRear;
-    private DcMotorEx vSlideLeft = null;
-    private DcMotorEx vSlideRight = null;
-    private CRServo linSlideLeft = null;
-    private CRServo linSlideRight = null;
-    private CRServo intakeLeft = null;
-    private CRServo intakeRight = null;
-    private Servo clawRotateLeft = null;
-    private Servo clawRotateRight = null;
-    private Servo intakeRotateLeft = null;
-    private Servo intakeRotateRight = null;
-    private Servo claw = null;
     //auto stuff
     private Timer pathTimer, actionTimer, opmodeTimer;
     private Follower follower;
