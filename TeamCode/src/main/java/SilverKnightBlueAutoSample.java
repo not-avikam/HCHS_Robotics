@@ -38,21 +38,6 @@ public class SilverKnightBlueAutoSample extends OpMode{
     //private DashboardPoseTracker dashboardPoseTracker;
     PIDFController pidf = new PIDFController(0, 0, 0, 0);
     //hardware
-    private DcMotorEx leftFront;
-    private DcMotorEx leftRear;
-    private DcMotorEx rightFront;
-    private DcMotorEx rightRear;
-    private DcMotorEx vSlideLeft = null;
-    private DcMotorEx vSlideRight = null;
-    private CRServo linSlideLeft = null;
-    private CRServo linSlideRight = null;
-    private CRServo intakeLeft = null;
-    private CRServo intakeRight = null;
-    private Servo clawRotateLeft = null;
-    private Servo clawRotateRight = null;
-    private Servo intakeRotateLeft = null;
-    private Servo intakeRotateRight = null;
-    private Servo claw = null;
     //auto stuff
     private Timer pathTimer, actionTimer, opmodeTimer;
     private Follower follower;
@@ -108,8 +93,6 @@ public class SilverKnightBlueAutoSample extends OpMode{
         MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
         MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
         MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
-        CRServo linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
-        CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
         CRServo intakeLeft = hardwareMap.get(CRServo.class, "iL");
         CRServo intakeRight = hardwareMap.get(CRServo.class, "iR");
         ServoEx claw = new SimpleServo(hardwareMap, "claw", 0, 180, AngleUnit.DEGREES);
@@ -118,10 +101,6 @@ public class SilverKnightBlueAutoSample extends OpMode{
         ServoEx clawRotateRight = new SimpleServo(hardwareMap, "cRR", 0, 270, AngleUnit.DEGREES);
         ServoEx intakeRotateLeft = new SimpleServo(hardwareMap, "iRL", 0, 300, AngleUnit.DEGREES);
         ServoEx intakeRotateRight = new SimpleServo(hardwareMap, "iRR", 0, 300, AngleUnit.DEGREES);
-        //BNO055IMUNew imu = hardwareMap.get(BNO055IMUNew.class, "imu");
-        GamepadEx driverOp = new GamepadEx(gamepad1);
-        GamepadEx clawOp = new GamepadEx(gamepad2);
-        RevIMU imu = new RevIMU(hardwareMap, "imu");
 
         //TODO: Adjust the vSlides parameters
         vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
@@ -133,7 +112,6 @@ public class SilverKnightBlueAutoSample extends OpMode{
         vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
 
         intakeRotateRight.setInverted(true);
-        linSlideLeft.setDirection(CRServo.Direction.REVERSE);
         intakeLeft.setDirection(CRServo.Direction.REVERSE);
         clawRotateLeft.setInverted(false);
         clawRotateRight.setInverted(true);;
@@ -151,10 +129,13 @@ public class SilverKnightBlueAutoSample extends OpMode{
         switch (pathState) {
             case 0:
                 setPathState(1);
+                intakeLeft.setPower(1);
+                intakeRight.setPower(1);
                 follower.followPath(pickUp1, true);
+                telemetry.addLine("pathState 0");
                 break;
             case 1:
-                if (follower.getPose().getX() > (pickupPose1.getX() - 1) && follower.getPose().getY() > (pickupPose1.getY() - 1)) {
+                if (!follower.isBusy()) {
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
                     intakeLeft.setPower(1);
@@ -165,12 +146,15 @@ public class SilverKnightBlueAutoSample extends OpMode{
                     claw.setPosition(1);
                     follower.followPath(score1, true);
                     setPathState(2);
+                    telemetry.addLine("pathState 1");
                 }
                 break;
             case 2:
-                if (follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
+                if (!follower.isBusy()) {
                     intakeRotateLeft.setPosition(0);
                     intakeRotateRight.setPosition(0);
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
                     //targetDistance = 5;
                     //vSlides.set(power);
                     clawRotateLeft.setPosition(.833);
@@ -179,10 +163,11 @@ public class SilverKnightBlueAutoSample extends OpMode{
                     claw.setPosition(0);
                     follower.followPath(pickUp2, true);
                     setPathState(3);
+                    telemetry.addLine("pathState 2");
                 }
                 break;
             case 3:
-                if (follower.getPose().getX() > (pickUpPose2.getX() - 1) && follower.getPose().getY() > (pickUpPose2.getY() - 1)) {
+                if (!follower.isBusy()) {
                    // targetDistance = 0;
                    // vSlides.set(power);
                     intakeRotateLeft.setPosition(.025);
@@ -195,12 +180,15 @@ public class SilverKnightBlueAutoSample extends OpMode{
                     claw.setPosition(1);
                     follower.followPath(score2, true);
                     setPathState(4);
+                    telemetry.addLine("pathState 3");
                 }
                 break;
             case 4:
-                if (follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
+                if (!follower.isBusy()) {
                     intakeRotateLeft.setPosition(0);
                     intakeRotateRight.setPosition(0);
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
                    // targetDistance = 5;
                    // vSlides.set(power);
                     clawRotateLeft.setPosition(.833);
@@ -209,35 +197,43 @@ public class SilverKnightBlueAutoSample extends OpMode{
                     claw.setPosition(0);
                     follower.followPath(pushPickUp, true);
                     setPathState(5);
+                    telemetry.addLine("pathState 4");
                 }
                 break;
             case 5:
-                if (follower.getPose().getX() > (pushPickUpPose.getX() - 1) && follower.getPose().getY() > (pushPickUpPose.getY() - 1)) {
+                if (!follower.isBusy()) {
                   //  targetDistance = 0;
                    // vSlides.set(power);
                     intakeRotateLeft.setPosition(0);
                     intakeRotateRight.setPosition(0);
-                    intakeLeft.setPower(0);
-                    intakeRight.setPower(0);
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
                     clawRotateLeft.setPosition(0);
                     clawRotateRight.setPosition(0);
                     clawAdjust.setPosition(.12 - .0277);
                     follower.followPath(pushScore, true);
+                    telemetry.addLine("pathState 5");
                     setPathState(6);
                 }
                 break;
             case 6:
-                if (follower.getPose().getX() > (pushScorePose.getX() - 1) && follower.getPose().getY() > (pushScorePose.getY() - 1)) {
+                if (!follower.isBusy()) {
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
                     follower.followPath(hang, true);
                     setPathState(7);
+                    telemetry.addLine("pathState 6");
                 }
                 break;
             case 7:
-                if (follower.getPose().getX() > (hangPose.getX() - 1) && follower.getPose().getY() > (hangPose.getY() - 1)) {
+                if (!follower.isBusy()) {
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
                     clawRotateLeft.setPosition(1);
                     clawRotateRight.setPosition(1);
                     clawAdjust.setPosition(1);
                     setPathState(8);
+                    telemetry.addLine("pathState 7");
                 }
                 break;
         }
@@ -253,58 +249,31 @@ public class SilverKnightBlueAutoSample extends OpMode{
         MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
         MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
         MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
-//        DcMotorEx frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
-//        DcMotorEx frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
-//        DcMotorEx backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
-//        DcMotorEx backRight = hardwareMap.get(DcMotorEx.class, "backRight");
-
-        //poseUpdater = new PoseUpdater(hardwareMap);
-
-        //dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
 
         // These loop the movements of the robot
         follower.update();
         //dashboardPoseTracker.update();
         autonomousPathUpdate();
 
-        /*
-        while (!vSlides.atTargetPosition()) {
-            vSlides.set(1);
-        }
-         */
 
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
-//        Drawing.drawPoseHistory(dashboardPoseTracker, "#4CAF50");
-//        Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
-//        Drawing.sendPacket();
         telemetry.update();
 
     }
 
     @Override
     public void init() {
-//        DcMotorEx frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
-//        DcMotorEx frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
-//        DcMotorEx backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
-//        DcMotorEx backRight = hardwareMap.get(DcMotorEx.class, "backRight");
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-
-        //poseUpdater = new PoseUpdater(hardwareMap);
-
-        //dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
         buildPaths();
-
-        //Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
-        //Drawing.sendPacket();
 
         telemetry.addLine("Align on the field tile next to the basket, with the edge of the robot aligned with the edge of the field tile facing the observation zone");
         telemetry.addLine("There should be 1 tile to the left of the robot and 4 to the right");
