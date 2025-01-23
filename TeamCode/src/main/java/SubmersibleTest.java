@@ -32,8 +32,6 @@ import pedroPathing.constants.LConstants;
 
 @Autonomous(name = "Blue Net Sample - Silver Knight", group = "Silver Knight")
 public class SubmersibleTest extends OpMode{
-    //private PoseUpdater poseUpdater;
-    //private DashboardPoseTracker dashboardPoseTracker;
     PIDFController pidf = new PIDFController(0, 0, 0, 0);
     //hardware
     //auto stuff
