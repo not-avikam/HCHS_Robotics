@@ -24,7 +24,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@Autonomous(name = "Blue Net Sample - Silver Knight", group = "Silver Knight")
+@Autonomous(name = "Blue Observation Sample - Silver Knight", group = "Silver Knight")
 public class SilverKnightAutoSampleBlueObservation extends OpMode{
     //private PoseUpdater poseUpdater;
     //private DashboardPoseTracker dashboardPoseTracker;

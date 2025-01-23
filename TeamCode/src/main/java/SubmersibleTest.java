@@ -30,7 +30,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@Autonomous(name = "Blue Net Sample - Silver Knight", group = "Silver Knight")
+@Autonomous(name = "Submersible Test - Silver Knight", group = "Silver Knight")
 public class SubmersibleTest extends OpMode{
     PIDFController pidf = new PIDFController(0, 0, 0, 0);
     //hardware
@@ -47,7 +47,6 @@ public class SubmersibleTest extends OpMode{
     private final Pose pushScorePose = new Pose(17, 133, Math.toRadians(45));
     private final Pose hangPose = new Pose(59, 96, Math.toRadians(90));
     private final Pose submersiblePose = new Pose(58, 96, Math.toRadians(-90));
-    private final Pose searchPose = new Pose (follower.getPose().getX()+1, follower.getPose().getY());
     private PathChain pickUp1, score1, pickUp2, score2, pushPickUp, pushScore, hang, submersible, search, scoreInBasket;
     public void buildPaths() {
         pickUp1 = follower.pathBuilder()
@@ -80,24 +79,9 @@ public class SubmersibleTest extends OpMode{
                 .setLinearHeadingInterpolation(pushPickUpPose.getHeading(), pushScorePose.getHeading())
                 .build();
 
-        hang = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(follower.getPose()), new Point(hangPose)))
-                .setLinearHeadingInterpolation(pushScorePose.getHeading(), hangPose.getHeading())
-                .build();
-
         submersible = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(pushScorePose), new Point(submersiblePose)))
                 .setLinearHeadingInterpolation(pushScorePose.getHeading(), submersiblePose.getHeading())
-                .build();
-
-        search = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(submersiblePose), new Point(searchPose)))
-                .setLinearHeadingInterpolation(submersiblePose.getHeading(), searchPose.getHeading())
-                .build();
-
-        scoreInBasket = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(follower.getPose()), new Point(searchPose)))
-                .setLinearHeadingInterpolation(submersiblePose.getHeading(), searchPose.getHeading())
                 .build();
 
     }
@@ -244,19 +228,28 @@ public class SubmersibleTest extends OpMode{
                 break;
             case 7:
                 if (!follower.isBusy()) {
+                    final Pose searchPose = new Pose (follower.getPose().getX()+1, follower.getPose().getY());
+                    search = follower.pathBuilder()
+                            .addPath(new BezierLine(new Point(submersiblePose), new Point(searchPose)))
+                            .setLinearHeadingInterpolation(submersiblePose.getHeading(), searchPose.getHeading())
+                            .build();
                     linSlideLeft.setPower(.7);
                     linSlideRight.setPower(.7);
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
                     claw.setPosition(1);
                     follower.followPath(search, true);
-                    setPathState(8);
+                    setPathState(7);
                     telemetry.addLine("pathState 7");
                 }
                 break;
 
             case 8:
                 if(pathTimer.getElapsedTimeSeconds() > 25) {
+                    hang = follower.pathBuilder()
+                            .addPath(new BezierLine(new Point(follower.getPose()), new Point(hangPose)))
+                            .setLinearHeadingInterpolation(pushScorePose.getHeading(), hangPose.getHeading())
+                            .build();
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
                     clawRotateLeft.setPosition(1);
@@ -264,7 +257,7 @@ public class SubmersibleTest extends OpMode{
                     clawAdjust.setPosition(1);
                     follower.followPath(hang, true);
                     setPathState(10);
-                }
+                } break;
 
             case 9:
                 intakeRotateLeft.setPosition(0);
@@ -278,6 +271,7 @@ public class SubmersibleTest extends OpMode{
                 clawAdjust.setPosition(.75);
                 claw.setPosition(0);
                 setPathState(7);
+                break;
         }
     }
 
@@ -320,7 +314,16 @@ public class SubmersibleTest extends OpMode{
         if (result.closestSwatch == PredominantColorProcessor.Swatch.BLUE) {
             intakeLeft.setPower(1);
             intakeRight.setPower(1);
+            scoreInBasket = follower.pathBuilder()
+                    .addPath(new BezierLine(new Point(follower.getPose()), new Point(scorePose)))
+                    .setLinearHeadingInterpolation(follower.getPose().getHeading(), scorePose.getHeading())
+                    .build();
+            follower.followPath(scoreInBasket, true);
             setPathState(9);
+        }
+
+        if(pathTimer.getElapsedTimeSeconds() > 25) {
+            setPathState(8);
         }
 
 
