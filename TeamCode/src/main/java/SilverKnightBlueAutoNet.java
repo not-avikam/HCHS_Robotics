@@ -1,3 +1,4 @@
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.hardware.RevIMU;
 import com.arcrobotics.ftclib.hardware.ServoEx;
@@ -179,6 +180,8 @@ public class SilverKnightBlueAutoNet extends OpMode{
         vSlides.setInverted(true);
         vSlideRight.setInverted(false);
 
+        double targetDistance = 0;
+
         switch (pathState) {
             case 0:
                 setPathState(1);
@@ -235,8 +238,8 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 break;
             case 7:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.11);
-                    clawRotateRight.setPosition(.11);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
                     clawAdjust.setPosition(0.5);
                     vSlides.setTargetPosition(1);
                     vSlides.set(-1);
@@ -263,8 +266,8 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 break;
             case 9:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.11);
-                    clawRotateRight.setPosition(.11);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
                     clawAdjust.setPosition(0.5);
                     vSlides.setTargetPosition(1);
                     vSlides.set(-1);
@@ -291,8 +294,8 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 break;
             case 11:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.11);
-                    clawRotateRight.setPosition(.11);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
                     clawAdjust.setPosition(0.5);
                     vSlides.setTargetPosition(1);
                     vSlides.set(-1);
@@ -319,8 +322,8 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 break;
             case 13:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.11);
-                    clawRotateRight.setPosition(.11);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
                     clawAdjust.setPosition(0.5);
                     vSlides.setTargetPosition(1);
                     vSlides.set(-1);
@@ -348,6 +351,16 @@ public class SilverKnightBlueAutoNet extends OpMode{
                 }
                 break;
         }
+        PIDFController pidf = new PIDFController(0, 0, 0, 0);
+        pidf.setSetPoint(targetDistance);
+        while (!pidf.atSetPoint()) {
+            double output = pidf.calculate(
+                    vSlides.getCurrentPosition()
+            );
+            vSlideLeft.setVelocity(output);
+            vSlideRight.setVelocity(output);
+        }
+        vSlides.stopMotor();
     }
 
     public void setPathState(int pState) {

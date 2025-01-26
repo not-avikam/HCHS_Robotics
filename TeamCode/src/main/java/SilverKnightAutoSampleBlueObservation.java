@@ -26,15 +26,10 @@ import pedroPathing.constants.LConstants;
 
 @Autonomous(name = "Blue Observation Sample - Silver Knight", group = "Silver Knight")
 public class SilverKnightAutoSampleBlueObservation extends OpMode{
-    //private PoseUpdater poseUpdater;
-    //private DashboardPoseTracker dashboardPoseTracker;
-    PIDFController pidf = new PIDFController(0, 0, 0, 0);
-    //hardware
-    //auto stuff
     private Timer pathTimer, actionTimer, opmodeTimer;
     private Follower follower;
     private int pathState;
-    private final Pose startPose = new Pose(8, 56, Math.toRadians(0));  // Starting position
+    private final Pose startPose = new Pose(10, 57, Math.toRadians(0));  // Starting position
     private final Pose scorePose = new Pose(14, 130, Math.toRadians(-45));
     private final Pose pickupPose1 = new Pose(36, 121, Math.toRadians(0));
     private final Pose pickUpPose2 = new Pose(36, 131, Math.toRadians(0));
@@ -111,12 +106,6 @@ public class SilverKnightAutoSampleBlueObservation extends OpMode{
         vSlideRight.setInverted(true);
 
         double targetDistance = 0;
-
-        //double power = pidf.calculate(vSlides.getCurrentPosition());  // Adjust power based on how fast you want to move
-
-        //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
-        //double distanceRemaining = targetDistance - currentDistance;
-        pidf.setSetPoint(targetDistance);
 
         switch (pathState) {
             case 0:
@@ -229,6 +218,16 @@ public class SilverKnightAutoSampleBlueObservation extends OpMode{
                 }
                 break;
         }
+        PIDFController pidf = new PIDFController(0, 0, 0, 0);
+        pidf.setSetPoint(targetDistance);
+        while (!pidf.atSetPoint()) {
+            double output = pidf.calculate(
+                    vSlides.getCurrentPosition()
+            );
+            vSlideLeft.setVelocity(output);
+            vSlideRight.setVelocity(output);
+        }
+        vSlides.stopMotor();
     }
 
     public void setPathState(int pState) {

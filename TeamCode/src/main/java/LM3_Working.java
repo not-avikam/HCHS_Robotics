@@ -45,7 +45,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@TeleOp(name="LM3 Working", group="LM3")
+@TeleOp(name="LM3 Working", group="Silver Knight")
 public class LM3_Working extends LinearOpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     private Follower follower;
@@ -141,6 +141,7 @@ public class LM3_Working extends LinearOpMode {
             telemetry.addLine("ROBOT CENTRIC MODE ACTIVE");
 
             follower.update();
+            //Avikam worked a lot on this code
 
             double max;
 
@@ -199,8 +200,8 @@ public class LM3_Working extends LinearOpMode {
                 clawAdjust.setPosition(.2);
                 telemetry.addLine("Resetting claw to intake");
             } else if (gamepad2.dpad_left) {
-                clawRotateLeft.setPosition(.1556);
-                clawRotateRight.setPosition(.1556);
+                clawRotateLeft.setPosition(.09);
+                clawRotateRight.setPosition(.09);
                 clawAdjust.setPosition(.5);
                 telemetry.addLine("Specimen scoring");
             }

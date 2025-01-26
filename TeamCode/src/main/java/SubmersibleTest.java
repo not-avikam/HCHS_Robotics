@@ -1,5 +1,3 @@
-
-
 import android.util.Size;
 
 import com.arcrobotics.ftclib.controller.PIDFController;
@@ -19,6 +17,7 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -29,10 +28,25 @@ import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-
 @Autonomous(name = "Submersible Test - Silver Knight", group = "Silver Knight")
 public class SubmersibleTest extends OpMode{
-    PIDFController pidf = new PIDFController(0, 0, 0, 0);
+    PredominantColorProcessor colorSensor = new PredominantColorProcessor.Builder()
+            .setRoi(ImageRegion.asUnityCenterCoordinates(-0.1, 0.1, 0.1, -0.1))
+            .setSwatches(
+                    PredominantColorProcessor.Swatch.RED,
+                    PredominantColorProcessor.Swatch.BLUE,
+                    PredominantColorProcessor.Swatch.YELLOW,
+                    PredominantColorProcessor.Swatch.BLACK,
+                    PredominantColorProcessor.Swatch.WHITE)
+            .build();
+
+    VisionPortal portal = new VisionPortal.Builder()
+            .addProcessor(colorSensor)
+            .setCameraResolution(new Size(320, 240))
+            .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+            .build();
+    PredominantColorProcessor.Result result = colorSensor.getAnalysis();
+
     //hardware
     //auto stuff
     private Timer pathTimer, actionTimer, opmodeTimer;
@@ -121,12 +135,6 @@ public class SubmersibleTest extends OpMode{
 
         double targetDistance = 0;
 
-        //double power = pidf.calculate(vSlides.getCurrentPosition());  // Adjust power based on how fast you want to move
-
-        //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
-        //double distanceRemaining = targetDistance - currentDistance;
-        pidf.setSetPoint(targetDistance);
-
         switch (pathState) {
             case 0:
                 setPathState(1);
@@ -157,7 +165,6 @@ public class SubmersibleTest extends OpMode{
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
                     //targetDistance = 5;
-                    //vSlides.set(power);
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
@@ -169,8 +176,7 @@ public class SubmersibleTest extends OpMode{
                 break;
             case 3:
                 if (!follower.isBusy()) {
-                   // targetDistance = 0;
-                   // vSlides.set(power);
+                    //targetDistance = 0;
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
                     intakeLeft.setPower(1);
@@ -190,8 +196,7 @@ public class SubmersibleTest extends OpMode{
                     intakeRotateRight.setPosition(0);
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
-                   // targetDistance = 5;
-                   // vSlides.set(power);
+                    //targetDistance = 5;
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
@@ -203,8 +208,7 @@ public class SubmersibleTest extends OpMode{
                 break;
             case 5:
                 if (!follower.isBusy()) {
-                  //  targetDistance = 0;
-                   // vSlides.set(power);
+                    //targetDistance = 0;
                     intakeRotateLeft.setPosition(0);
                     intakeRotateRight.setPosition(0);
                     intakeLeft.setPower(1);
@@ -265,7 +269,6 @@ public class SubmersibleTest extends OpMode{
                 intakeLeft.setPower(1);
                 intakeRight.setPower(1);
                 //targetDistance = 5;
-                //vSlides.set(power);
                 clawRotateLeft.setPosition(.833);
                 clawRotateRight.setPosition(.833);
                 clawAdjust.setPosition(.75);
@@ -273,6 +276,16 @@ public class SubmersibleTest extends OpMode{
                 setPathState(7);
                 break;
         }
+        PIDFController pidf = new PIDFController(0, 0, 0, 0);
+        pidf.setSetPoint(targetDistance);
+        while (!pidf.atSetPoint()) {
+            double output = pidf.calculate(
+                    vSlides.getCurrentPosition()
+            );
+            vSlideLeft.setVelocity(output);
+            vSlideRight.setVelocity(output);
+        }
+        vSlides.stopMotor();
     }
 
     public void setPathState(int pState) {
@@ -288,28 +301,10 @@ public class SubmersibleTest extends OpMode{
         CRServo intakeLeft = hardwareMap.get(CRServo.class, "iL");
         CRServo intakeRight = hardwareMap.get(CRServo.class, "iR");
 
-        PredominantColorProcessor colorSensor = new PredominantColorProcessor.Builder()
-                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.1, 0.1, 0.1, -0.1))
-                .setSwatches(
-                        PredominantColorProcessor.Swatch.RED,
-                        PredominantColorProcessor.Swatch.BLUE,
-                        PredominantColorProcessor.Swatch.YELLOW,
-                        PredominantColorProcessor.Swatch.BLACK,
-                        PredominantColorProcessor.Swatch.WHITE)
-                .build();
-
-        VisionPortal portal = new VisionPortal.Builder()
-                .addProcessor(colorSensor)
-                .setCameraResolution(new Size(320, 240))
-                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-                .build();
-
         // These loop the movements of the robot
         follower.update();
         //dashboardPoseTracker.update();
         autonomousPathUpdate();
-
-        PredominantColorProcessor.Result result = colorSensor.getAnalysis();
 
         if (result.closestSwatch == PredominantColorProcessor.Swatch.BLUE) {
             intakeLeft.setPower(1);
@@ -331,6 +326,7 @@ public class SubmersibleTest extends OpMode{
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("preview on/off", "... Camera Stream\n");
         telemetry.update();
 
     }

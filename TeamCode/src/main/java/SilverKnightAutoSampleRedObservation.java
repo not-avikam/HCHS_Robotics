@@ -26,11 +26,6 @@ import pedroPathing.constants.LConstants;
 
 @Autonomous(name = "Red Observation Sample - Silver Knight", group = "Silver Knight")
 public class SilverKnightAutoSampleRedObservation extends OpMode{
-    //private PoseUpdater poseUpdater;
-    //private DashboardPoseTracker dashboardPoseTracker;
-    PIDFController pidf = new PIDFController(0, 0, 0, 0);
-    //hardware
-    //auto stuff
     private Timer pathTimer, actionTimer, opmodeTimer;
     private Follower follower;
     private int pathState;
@@ -111,12 +106,6 @@ public class SilverKnightAutoSampleRedObservation extends OpMode{
         vSlideRight.setInverted(true);
 
         double targetDistance = 0;
-
-        //double power = pidf.calculate(vSlides.getCurrentPosition());  // Adjust power based on how fast you want to move
-
-        //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
-        //double distanceRemaining = targetDistance - currentDistance;
-        pidf.setSetPoint(targetDistance);
 
         switch (pathState) {
             case 0:
@@ -229,6 +218,16 @@ public class SilverKnightAutoSampleRedObservation extends OpMode{
                 }
                 break;
         }
+        PIDFController pidf = new PIDFController(0, 0, 0, 0);
+        pidf.setSetPoint(targetDistance);
+        while (!pidf.atSetPoint()) {
+            double output = pidf.calculate(
+                    vSlides.getCurrentPosition()
+            );
+            vSlideLeft.setVelocity(output);
+            vSlideRight.setVelocity(output);
+        }
+        vSlides.stopMotor();
     }
 
     public void setPathState(int pState) {

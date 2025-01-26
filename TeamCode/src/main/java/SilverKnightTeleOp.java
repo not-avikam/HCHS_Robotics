@@ -44,7 +44,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@TeleOp(name="TeleOp for Silver Knight", group="Sliver Knight")
+@TeleOp(name="TeleOp for Silver Knight", group="Silver Knight")
 public class SilverKnightTeleOp extends LinearOpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     private Follower follower;
@@ -198,8 +198,8 @@ public class SilverKnightTeleOp extends LinearOpMode {
                 clawAdjust.setPosition(.12-.0277);
                 telemetry.addLine("Resetting claw to intake");
             } else if (gamepad2.dpad_left) {
-                clawRotateLeft.setPosition(.11);
-                clawRotateRight.setPosition(.11);
+                clawRotateLeft.setPosition(.09);
+                clawRotateRight.setPosition(.09);
                 clawAdjust.setPosition(0.5);
                 telemetry.addLine("Specimen pickup");
             }

@@ -15,12 +15,9 @@
     import com.arcrobotics.ftclib.hardware.motors.Motor;
     import com.arcrobotics.ftclib.hardware.motors.MotorEx;
     import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
-    import com.qualcomm.ftccommon.SoundPlayer;
     import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
     import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
     import com.qualcomm.robotcore.hardware.CRServo;
-    import com.qualcomm.robotcore.hardware.DcMotorSimple;
-    import com.qualcomm.robotcore.hardware.Servo;
     import com.qualcomm.robotcore.hardware.ServoImplEx;
     import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -39,18 +36,17 @@
 
     import java.io.File;
 
-    @TeleOp(name="blue-experimental", group="Silver Knight")
-    public class blue extends LinearOpMode {
+    @TeleOp(name="Blue Park TeleOp", group="Silver Knight")
+    public class BlueTeleOpPark extends LinearOpMode {
         PIDFController pidf = new PIDFController(0, 0, 0, 0);
         private final ElapsedTime runtime = new ElapsedTime();
         private final String soundPath = "/FIRST/blocks/sounds";
         private final File Alert  = new File( soundPath + "/alert.wav");
 
         //TODO: Make this correct
-        private final Pose startPose = new Pose(64, 80, Math.toRadians(0));
+        private final Pose startPose = new Pose(18, 24, Math.toRadians(0));
         private final Pose observationZone = new Pose(0, 0);
         private final Pose basket = new Pose(0, 144);
-        private Follower follower;
 
         @Override
         public void runOpMode() {
@@ -58,7 +54,7 @@
             // Initialize the hardware variables. Note that the strings used here must correspond
             // to the names assigned during the robot configuration step on the DS or RC devices.
             Constants.setConstants(FConstants.class, LConstants.class);
-            follower = new Follower(hardwareMap);
+            Follower follower = new Follower(hardwareMap);
             follower.startTeleopDrive();
             follower.setStartingPose(startPose);
             MecanumDrive drive = new MecanumDrive(
@@ -104,48 +100,13 @@
             boolean AlertFound   = Alert.exists();
             telemetry.addData("Alert sound",   AlertFound ?   "Found" : "NOT Found \nCopy alert.wav to " + soundPath  );
 
-            ToggleButtonReader robotCentricReader = new ToggleButtonReader(
-                    driverOp, GamepadKeys.Button.LEFT_STICK_BUTTON
-            );
-
-            ToggleButtonReader hangModeRight = new ToggleButtonReader(
-                    clawOp, GamepadKeys.Button.RIGHT_STICK_BUTTON
-            );
-
-            ToggleButtonReader hangModeLeft = new ToggleButtonReader(
-                    clawOp, GamepadKeys.Button.LEFT_STICK_BUTTON
-            );
-
-            ToggleButtonReader slowMode = new ToggleButtonReader(
-                    driverOp, GamepadKeys.Button.LEFT_BUMPER
-            );
-
-            ButtonReader intakeOnReader = new ButtonReader(
-                    driverOp, GamepadKeys.Button.X
-            );
-
-            TriggerReader vSlideUpReader = new TriggerReader(
-                    clawOp, GamepadKeys.Trigger.RIGHT_TRIGGER
-            );
-
-            TriggerReader vSlideDownReader = new TriggerReader(
-                    clawOp, GamepadKeys.Trigger.LEFT_TRIGGER
-            );
-
-            //TODO: Adjust the vSlides parameters
-            vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-            vSlides.setRunMode(Motor.RunMode.PositionControl);
-            vSlides.setPositionCoefficient(0.05);
-            vSlides.setDistancePerPulse(0.015);
-            vSlides.resetEncoder();
-
             vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
 
             intakeRotateRight.setDirection(ServoImplEx.Direction.REVERSE);
             linSlideLeft.setDirection(CRServo.Direction.REVERSE);
             intakeLeft.setDirection(CRServo.Direction.REVERSE);
             clawRotateLeft.setInverted(false);
-            clawRotateRight.setInverted(true);;
+            clawRotateRight.setInverted(true);
             claw.setDirection(ServoImplEx.Direction.REVERSE);
             vSlideRight.setInverted(true);
 
@@ -161,13 +122,35 @@
             // run until the end of the match (driver presses STOP)
             while (opModeIsActive()) {
 
-                if (robotCentricReader.wasJustPressed()) {
+                ToggleButtonReader robotCentricReader = new ToggleButtonReader(
+                        driverOp, GamepadKeys.Button.LEFT_STICK_BUTTON
+                );
+
+                ToggleButtonReader hangModeRight = new ToggleButtonReader(
+                        clawOp, GamepadKeys.Button.RIGHT_STICK_BUTTON
+                );
+
+                ToggleButtonReader hangModeLeft = new ToggleButtonReader(
+                        clawOp, GamepadKeys.Button.LEFT_STICK_BUTTON
+                );
+
+                TriggerReader vSlideUpReader = new TriggerReader(
+                        clawOp, GamepadKeys.Trigger.RIGHT_TRIGGER
+                );
+
+                TriggerReader vSlideDownReader = new TriggerReader(
+                        clawOp, GamepadKeys.Trigger.LEFT_TRIGGER
+                );
+
+                //follower.setStartingPose(follower.getPose());
+
+                if (robotCentricReader.getState()) {
                     follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
                     follower.update();
-                } else if (slowMode.wasJustPressed()) {
+                } else if (gamepad1.left_bumper) {
                     follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), false);
                     follower.update();
-                } else if (robotCentricReader.wasJustPressed() && (slowMode.wasJustPressed())) {
+                } else if (robotCentricReader.wasJustPressed() && gamepad1.left_bumper) {
                     follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), true);
                     follower.update();
                 } else {
@@ -210,22 +193,22 @@
                     clawAdjust.setPosition(.12 - .0277);
                     telemetry.addLine("Resetting claw to intake");
                 } else if (gamepad2.dpad_left) {
-                    clawRotateLeft.setPosition(.11);
-                    clawRotateRight.setPosition(.11);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
                     clawAdjust.setPosition(0.5);
                     telemetry.addLine("Specimen pickup");
                 }
 
                 if (gamepad2.right_trigger != 0) {
                     targetDistance = 5;
-                    //vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
+                    vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
                 } else if (gamepad2.left_trigger != 0) {
                     targetDistance = -5;
-                    //vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
+                    vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
                 } else if (vSlideUpReader.wasJustReleased()) {
-                    //vSlides.set(0);
+                    vSlides.set(0);
                 } else if (vSlideDownReader.wasJustReleased()) {
-                    //vSlides.set(0);
+                    vSlides.set(0);
                 }
 
                 if (gamepad2.y) {
@@ -279,8 +262,8 @@
                 }
 
                 if (follower.getPose().getX() < (observationZone.getX() + 25) && follower.getPose().getY() < (observationZone.getY() + 31)) {
-                    clawRotateLeft.setPosition(.11);
-                    clawRotateRight.setPosition(.11);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
                     clawAdjust.setPosition(0.5);
                     targetDistance = 1;
                     telemetry.addLine("Specimen pickup");
@@ -319,6 +302,7 @@
                 //telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
                 //telemetry.addData("Vslides distance", "%.2f", vSlides.getDistance());
                 telemetry.addData("Status", "Run Time: " + runtime.toString());
+                telemetry.addData("preview on/off", "... Camera Stream\n");
                 telemetry.addData("x", follower.getPose().getX());
                 telemetry.addData("y", follower.getPose().getY());
                 telemetry.addData("velocity", follower.getVelocity());

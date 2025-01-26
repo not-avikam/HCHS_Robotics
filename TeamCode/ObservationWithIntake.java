@@ -31,24 +31,24 @@ public class SilverKnightBlueAutoObservation extends OpMode{
     private Timer pathTimer, actionTimer, opmodeTimer;
     private Follower follower;
     private int pathState;
-    private final Pose startPose = new Pose(10, 56, Math.toRadians(0));  // Starting position
-    private final Pose scorePose1 = new Pose(37, 70, Math.toRadians(180));
-    private final Pose pickupPose1 = new Pose(3, 38, Math.toRadians(90));
-    private final Pose pickupPose1ControlPose1 = new Pose(3, 38);
-    private final Pose pickupPose1ControlPose2 = new Pose(105, 5);
-    private final Pose pickupPose1ControlPose3 = new Pose(38, 47);
+    private final Pose startPose = new Pose(8, 56, Math.toRadians(0));  // Starting position
+    private final Pose scorePose1 = new Pose(38, 70, Math.toRadians(180));
+    private final Pose pickupPose1 = new Pose(57, 25, Math.toRadians(90));
+    private final Pose pickupPose1ControlPose1 = new Pose(0.5, 77, Math.toRadians(90));
+    private final Pose pickupPose1ControlPose2 = new Pose(82, .8, Math.toRadians(90));
+    private final Pose pickupPose1ControlPose3 = new Pose(57, 39, Math.toRadians(90));
     private final Pose dropOff1 = new Pose(13, 27, Math.toRadians(90));
     private final Pose pickUpPose2 = new Pose(51, 17, Math.toRadians(90));
     private final Pose pickUpPose2ControlPose1 = new Pose(90, 27, Math.toRadians(90));
     private final Pose dropOff2 = new Pose(15, 19, Math.toRadians(90));
-    private final Pose dropOff3 = new Pose(15.5, 11.5, Math.toRadians(90));
+    private final Pose dropOff3 = new Pose(16, 10.6, Math.toRadians(90));
     private final Pose dropOff3ControlPose1 = new Pose(140, 7);
 
-    private final Pose pickupSpecimenPose = new Pose(11, 28, Math.toRadians(180)); // First sample pickup
-    private final Pose scorePose2 = new Pose(37, 76, Math.toRadians(180)); // Third sample pickup
-    private final Pose scorePose3 = new Pose(37, 74, Math.toRadians(0));
-    private final Pose scorePose4 = new Pose(37, 72, Math.toRadians(0));
-    private final Pose scorePose5 = new Pose(37, 68, Math.toRadians(0));
+    private final Pose pickupSpecimenPose = new Pose(10, 28, Math.toRadians(180)); // First sample pickup
+    private final Pose scorePose2 = new Pose(38, 76, Math.toRadians(0)); // Third sample pickup
+    private final Pose scorePose3 = new Pose(38, 74, Math.toRadians(0));
+    private final Pose scorePose4 = new Pose(38, 72, Math.toRadians(0));
+    private final Pose scorePose5 = new Pose(38, 68, Math.toRadians(0));
     private final Pose parkPose = new Pose(18, 24, Math.toRadians(0));
     private PathChain park, score2return, score3return, score4return, score2, score3, score4, score5, pickupSpecimen, scorePreload, pickup1, pickUpSample3, dropOffSample1, dropOffSample2, pickUpSample2;
     public void buildPaths() {
@@ -214,8 +214,8 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                 break;
             case 7:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
+                    clawRotateLeft.setPosition(.11);
+                    clawRotateRight.setPosition(.11);
                     clawAdjust.setPosition(0.5);
 //                    vSlides.setTargetPosition(1);
 //                    vSlides.set(-1);
@@ -242,8 +242,8 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                 break;
             case 9:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
+                    clawRotateLeft.setPosition(.11);
+                    clawRotateRight.setPosition(.11);
                     clawAdjust.setPosition(0.5);
 //                    vSlides.setTargetPosition(1);
 //                    vSlides.set(-1);
@@ -270,8 +270,8 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                 break;
             case 11:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
+                    clawRotateLeft.setPosition(.11);
+                    clawRotateRight.setPosition(.11);
                     clawAdjust.setPosition(0.5);
 //                    vSlides.setTargetPosition(1);
 //                    vSlides.set(-1);
@@ -298,8 +298,8 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                 break;
             case 13:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
+                    clawRotateLeft.setPosition(.11);
+                    clawRotateRight.setPosition(.11);
                     clawAdjust.setPosition(0.5);
 //                    vSlides.setTargetPosition(1);
 //                    vSlides.set(-1);

@@ -25,7 +25,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@Autonomous(name = "Blue", group = "Scrimmage")
+@Autonomous(name = "Scrimmage Blue", group = "Scrimmage")
 public class ScrimmageBlueAuto extends OpMode{
     //hardware
     private DcMotorEx leftFront;
