@@ -29,8 +29,10 @@ public class ObservationWithIntake extends OpMode{
     private Timer pathTimer, actionTimer, opmodeTimer;
     private Follower follower;
     private int pathState;
+    private MotorEx vSlideRight = null;
+    private MotorEx vSlideLeft = null;
     private final Pose startPose = new Pose(10, 56, Math.toRadians(0));  // Starting position
-    private final Pose scorePose1 = new Pose(38, 70, Math.toRadians(180));
+    private final Pose scorePose1 = new Pose(37, 70, Math.toRadians(180));
     private final Pose pickupPose1 = new Pose(34, 24, Math.toRadians(0));
     private final Pose pickupPose1ControlPose1 = new Pose(22, 44);
     private final Pose dropOff1 = new Pose(13, 27, Math.toRadians(180));
@@ -40,11 +42,11 @@ public class ObservationWithIntake extends OpMode{
     private final Pose dropOff3 = new Pose(11, 9.5, Math.toRadians(180));
     private final Pose dropOff3ControlPose1 = new Pose(90, 6);
 
-    private final Pose pickupSpecimenPose = new Pose(10, 28, Math.toRadians(180)); // First sample pickup
-    private final Pose scorePose2 = new Pose(38, 74, Math.toRadians(180)); // Third sample pickup
-    private final Pose scorePose3 = new Pose(38, 72, Math.toRadians(180));
-    private final Pose scorePose4 = new Pose(38, 68, Math.toRadians(180));
-    private final Pose scorePose5 = new Pose(38, 64, Math.toRadians(180));
+    private final Pose pickupSpecimenPose = new Pose(11, 28, Math.toRadians(180)); // First sample pickup
+    private final Pose scorePose2 = new Pose(37, 74, Math.toRadians(180)); // Third sample pickup
+    private final Pose scorePose3 = new Pose(37, 72, Math.toRadians(180));
+    private final Pose scorePose4 = new Pose(37, 68, Math.toRadians(180));
+    private final Pose scorePose5 = new Pose(37, 64, Math.toRadians(180));
     private final Pose parkPose = new Pose(18, 24, Math.toRadians(180));
     private PathChain park, dropOffSample3, score2return, score3return, score4return, score2, score3, score4, score5, pickupSpecimen, scorePreload, pickup1, pickUpSample3, dropOffSample1, dropOffSample2, pickUpSample2;
     public void buildPaths() {
@@ -75,16 +77,16 @@ public class ObservationWithIntake extends OpMode{
 
         pickUpSample3 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(dropOff2), new Point(pickUpPose3)))
-                .setLinearHeadingInterpolation(dropOff2.getHeading(), dropOff3.getHeading())
+                .setLinearHeadingInterpolation(dropOff2.getHeading(), pickUpPose3.getHeading())
                 .build();
 
         dropOffSample3 = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(pickUpPose3), new Point(dropOff3)))
-                .setLinearHeadingInterpolation(pickUpPose2.getHeading(), dropOff2.getHeading())
+                .addPath(new BezierCurve(new Point(pickUpPose3), new Point(dropOff3ControlPose1), new Point(dropOff3)))
+                .setLinearHeadingInterpolation(pickUpPose2.getHeading(), dropOff3.getHeading())
                 .build();
 
         pickupSpecimen = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(dropOff3), new Point(dropOff3ControlPose1), new Point(pickupSpecimenPose)))
+                .addPath(new BezierLine(new Point(dropOff3), new Point(pickupSpecimenPose)))
                 .setLinearHeadingInterpolation(dropOff3.getHeading(), pickupSpecimenPose.getHeading())
                 .build();
 
@@ -144,8 +146,8 @@ public class ObservationWithIntake extends OpMode{
         GamepadEx driverOp = new GamepadEx(gamepad1);
         GamepadEx clawOp = new GamepadEx(gamepad2);
         RevIMU imu = new RevIMU(hardwareMap, "imu");
-        MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
-        MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
+        vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
+        vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
         MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
 
         //TODO: Adjust the vSlides parameters
@@ -172,158 +174,280 @@ public class ObservationWithIntake extends OpMode{
                 break;
             case 1:
                 if (!follower.isBusy()) {
-                    //vSlides.setTargetPosition(5);
-                    //vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
-
+                    //targetDistance = 5;
+                    clawRotateLeft.setPosition(.833);
+                    clawRotateRight.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    intakeRotateLeft.setPosition(0);
+                    intakeRotateRight.setPosition(0);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
                     follower.followPath(pickup1, true);
                     setPathState(2);
                 }
                 break;
             case 2:
                 if (!follower.isBusy()) {
-//                    vSlides.setTargetPosition(0);
-//                    vSlides.set(-1);
+                    //targetDistance = 0;
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    clawAdjust.setPosition(0.5);
                     intakeRight.setPower(1);
                     intakeLeft.setPower(1);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
                     setPathState(3);
                     follower.followPath(dropOffSample1, true);
                 }
                 break;
             case 3:
                 if (!follower.isBusy()) {
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    clawAdjust.setPosition(0.5);
                     intakeRight.setPower(-1);
                     intakeLeft.setPower(-1);
-                    intakeRotateLeft.setPosition(.025);
-                    intakeRotateRight.setPosition(.17);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    intakeRotateLeft.setPosition(.05);
+                    intakeRotateRight.setPosition(.05);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
                     follower.followPath(pickUpSample2, true);
                     setPathState(4);
                 }
                 break;
             case 4:
                 if (!follower.isBusy()) {
+                    //targetDistance = 0;
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    clawAdjust.setPosition(0.5);
                     intakeRight.setPower(1);
                     intakeLeft.setPower(1);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
                     follower.followPath(dropOffSample2, true);
                     setPathState(5);
                 }
                 break;
             case 5:
                 if (!follower.isBusy()) {
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    clawAdjust.setPosition(0.5);
                     intakeRight.setPower(-1);
                     intakeLeft.setPower(-1);
-                    intakeRotateLeft.setPosition(.025);
-                    intakeRotateRight.setPosition(.17);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    intakeRotateLeft.setPosition(.05);
+                    intakeRotateRight.setPosition(.05);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
                     follower.followPath(pickUpSample3, true);
                     setPathState(6);
                 }
                 break;
             case 6:
                 if (!follower.isBusy()) {
-                    intakeRight.setPower(-1);
-                    intakeLeft.setPower(-1);
+                    //targetDistance = 0;
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    clawAdjust.setPosition(0.5);
+                    intakeRight.setPower(1);
+                    intakeLeft.setPower(1);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
                     follower.followPath(dropOffSample3, true);
                     setPathState(7);
                 }
                 break;
             case 7:
                 if (!follower.isBusy()) {
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    clawAdjust.setPosition(0.5);
                     intakeRight.setPower(-1);
                     intakeLeft.setPower(-1);
-                    intakeRotateLeft.setPosition(.025);
-                    intakeRotateRight.setPosition(.17);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    intakeRotateLeft.setPosition(.05);
+                    intakeRotateRight.setPosition(.05);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
                     follower.followPath(pickupSpecimen,true);
                     setPathState(8);
                 }
                 break;
             case 8:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.833);
-                    clawRotateRight.setPosition(.833);
-                    clawAdjust.setPosition(.75);
-                    claw.setPosition(0);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    clawAdjust.setPosition(0.5);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == 1) {
+                        claw.setPosition(0);
+                    }
                     follower.followPath(score2, true);
                     setPathState(9);
                 }
                 break;
             case 9:
                 if (!follower.isBusy()) {
-                    //vSlides.setTargetPosition(5);
-                    //vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
+                    //targetDistance = 5;
+                    clawRotateLeft.setPosition(.833);
+                    clawRotateRight.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    intakeRotateLeft.setPosition(0);
+                    intakeRotateRight.setPosition(0);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
                     follower.followPath(score2return,true);
                     setPathState(10);
                 }
                 break;
             case 10:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.833);
-                    clawRotateRight.setPosition(.833);
-                    clawAdjust.setPosition(.75);
-                    claw.setPosition(0);
+                    //targetDistance = 0;
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    clawAdjust.setPosition(0.5);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == 1) {
+                        claw.setPosition(0);
+                    }
                     follower.followPath(score3,true);
                     setPathState(11);
                 }
                 break;
             case 11:
                 if (!follower.isBusy()) {
-                    //vSlides.setTargetPosition(5);
-                    //vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
+                    //targetDistance = 5;
+                    clawRotateLeft.setPosition(.833);
+                    clawRotateRight.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    intakeRotateLeft.setPosition(0);
+                    intakeRotateRight.setPosition(0);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
                     follower.followPath(score3return,true);
                     setPathState(12);
                 }
                 break;
             case 12:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.833);
-                    clawRotateRight.setPosition(.833);
-                    clawAdjust.setPosition(.75);
-                    claw.setPosition(0);
+                    //targetDistance = 0;
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    clawAdjust.setPosition(0.5);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == 1) {
+                        claw.setPosition(0);
+                    }
                     follower.followPath(score4, true);
                     setPathState(13);
                 }
                 break;
             case 13:
                 if (!follower.isBusy()) {
-                    //vSlides.setTargetPosition(5);
-                    //vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
+                    //targetDistance = 5;
+                    clawRotateLeft.setPosition(.833);
+                    clawRotateRight.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    intakeRotateLeft.setPosition(0);
+                    intakeRotateRight.setPosition(0);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
                     follower.followPath(score4return,true);
                     setPathState(14);
                 }
                 break;
             case 14:
                 if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 22) {
-                    clawRotateLeft.setPosition(.833);
-                    clawRotateRight.setPosition(.833);
-                    clawAdjust.setPosition(.75);
-                    claw.setPosition(0);
+                    //targetDistance = 0;
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    clawAdjust.setPosition(0.5);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == 1) {
+                        claw.setPosition(0);
+                    }
                     follower.followPath(score5, true);
                     setPathState(15);
                 }
                 break;
             case 15:
                 if (!follower.isBusy()) {
-                    //vSlides.setTargetPosition(5);
-                    //vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
+                    //targetDistance = 5;
+                    clawRotateLeft.setPosition(.833);
+                    clawRotateRight.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    intakeRotateLeft.setPosition(0);
+                    intakeRotateRight.setPosition(0);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
                     follower.followPath(park,true);
                     setPathState(16);
                     //Sets to a non existent pathstate so that it doesn't keep running
@@ -334,13 +458,19 @@ public class ObservationWithIntake extends OpMode{
         PIDFController pidf = new PIDFController(0, 0, 0, 0);
         pidf.setSetPoint(targetDistance);
         while (!pidf.atSetPoint()) {
-            double output = pidf.calculate(
-                    vSlides.getCurrentPosition()
+            double outputLeft = pidf.calculate(
+                    vSlideLeft.getCurrentPosition()
             );
-            vSlideLeft.setVelocity(output);
-            vSlideRight.setVelocity(output);
+
+            double outputRight = pidf.calculate(
+                    vSlideRight.getCurrentPosition()
+            );
+
+            vSlideLeft.setVelocity(outputLeft);
+            vSlideRight.setVelocity(outputRight);
         }
-        vSlides.stopMotor();
+        vSlideLeft.stopMotor();
+        vSlideRight.stopMotor();
     }
 
     public void setPathState(int pState) {
@@ -377,6 +507,7 @@ public class ObservationWithIntake extends OpMode{
     public void init() {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
+        actionTimer = new Timer();
         opmodeTimer.resetTimer();
 
         Constants.setConstants(FConstants.class, LConstants.class);

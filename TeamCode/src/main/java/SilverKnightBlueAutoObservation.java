@@ -171,19 +171,24 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                 break;
             case 1:
                 if (!follower.isBusy()) {
-                    //vSlides.setTargetPosition(5);
-                    //vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
+                    //targetDistance = 5;
+                    clawRotateRight.setPosition(.833);
+                    clawRotateLeft.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
                     follower.followPath(pickup1, true);
                     setPathState(2);
                 }
                 break;
             case 2:
                 if (!follower.isBusy()) {
-//                    vSlides.setTargetPosition(0);
-//                    vSlides.set(-1);
+                    //targetDistance = 0;
+                    clawRotateRight.setPosition(0);
+                    clawRotateLeft.setPosition(0);
+                    clawAdjust.setPosition(.12 - .0277);
                     follower.followPath(dropOffSample1, true);
                     setPathState(3);
                 }
@@ -217,25 +222,21 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                     clawRotateLeft.setPosition(.09);
                     clawRotateRight.setPosition(.09);
                     clawAdjust.setPosition(0.5);
-//                    vSlides.setTargetPosition(1);
-//                    vSlides.set(-1);
+                    //targetDistance = 0;
                     follower.followPath(score2,true);
                     setPathState(8);
                 }
                 break;
             case 8:
                 if (!follower.isBusy()) {
-//                    vSlides.setTargetPosition(5);
-//                    vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
-                    //TODO: Measure the correct amount of time for this
-                    /*
-                    if(pathTimer.getElapsedTimeSeconds() > 1) {
-                        claw.setPosition(0);
+                    //targetDistance = 5;
+                    clawRotateRight.setPosition(.833);
+                    clawRotateLeft.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
                     }
-                     */
                     follower.followPath(score2return, true);
                     setPathState(9);
                 }
@@ -245,25 +246,21 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                     clawRotateLeft.setPosition(.09);
                     clawRotateRight.setPosition(.09);
                     clawAdjust.setPosition(0.5);
-//                    vSlides.setTargetPosition(1);
-//                    vSlides.set(-1);
+                    targetDistance = 0;
                     follower.followPath(score3,true);
                     setPathState(10);
                 }
                 break;
             case 10:
                 if (!follower.isBusy()) {
-//                    vSlides.setTargetPosition(5);
-//                    vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
-                    //TODO: Measure the correct amount of time for this
-                    /*
-                    if(pathTimer.getElapsedTimeSeconds() > 1) {
-                        claw.setPosition(0);
+                    //targetDistance = 5;
+                    clawRotateRight.setPosition(.833);
+                    clawRotateLeft.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
                     }
-                     */
                     follower.followPath(score3return,true);
                     setPathState(11);
                 }
@@ -273,25 +270,21 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                     clawRotateLeft.setPosition(.09);
                     clawRotateRight.setPosition(.09);
                     clawAdjust.setPosition(0.5);
-//                    vSlides.setTargetPosition(1);
-//                    vSlides.set(-1);
+                    targetDistance = 0;
                     follower.followPath(score4,true);
                     setPathState(12);
                 }
                 break;
             case 12:
                 if (!follower.isBusy()) {
-//                    vSlides.setTargetPosition(5);
-//                    vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
-                    //TODO: Measure the correct amount of time for this
-                    /*
-                    if(pathTimer.getElapsedTimeSeconds() > 1) {
-                        claw.setPosition(0);
+                    targetDistance = 5;
+                    clawRotateRight.setPosition(.833);
+                    clawRotateLeft.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
                     }
-                     */
                     follower.followPath(score4return, true);
                     setPathState(13);
                 }
@@ -301,25 +294,21 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                     clawRotateLeft.setPosition(.09);
                     clawRotateRight.setPosition(.09);
                     clawAdjust.setPosition(0.5);
-//                    vSlides.setTargetPosition(1);
-//                    vSlides.set(-1);
+                    targetDistance = 0;
                     follower.followPath(score5,true);
                     setPathState(14);
                 }
                 break;
             case 14:
-                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 22) {
-//                    vSlides.setTargetPosition(5);
-//                    vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
-                    //TODO: Measure the correct amount of time for this
-                    /*
-                    if(pathTimer.getElapsedTimeSeconds() > 1) {
-                        claw.setPosition(0);
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 25) {
+                    targetDistance = 5;
+                    clawRotateRight.setPosition(.833);
+                    clawRotateLeft.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
                     }
-                     */
                     follower.followPath(park, true);
                     //Sets to a non existent pathstate so that it doesn't keep running
                     //-Avikam ;)
@@ -330,13 +319,19 @@ public class SilverKnightBlueAutoObservation extends OpMode{
         PIDFController pidf = new PIDFController(0, 0, 0, 0);
         pidf.setSetPoint(targetDistance);
         while (!pidf.atSetPoint()) {
-            double output = pidf.calculate(
-                    vSlides.getCurrentPosition()
+            double outputLeft = pidf.calculate(
+                    vSlideLeft.getCurrentPosition()
             );
-            vSlideLeft.setVelocity(output);
-            vSlideRight.setVelocity(output);
+
+            double outputRight = pidf.calculate(
+                    vSlideRight.getCurrentPosition()
+            );
+
+            vSlideLeft.setVelocity(outputLeft);
+            vSlideRight.setVelocity(outputRight);
         }
-        vSlides.stopMotor();
+        vSlideLeft.stopMotor();
+        vSlideRight.stopMotor();
     }
 
     public void setPathState(int pState) {

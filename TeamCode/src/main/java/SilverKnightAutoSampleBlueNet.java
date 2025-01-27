@@ -29,18 +29,25 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
     private Timer pathTimer, actionTimer, opmodeTimer;
     private Follower follower;
     private int pathState;
-    private final Pose startPose = new Pose(9, 104, Math.toRadians(0));  // Starting position
-    private final Pose scorePose = new Pose(14, 130, Math.toRadians(-45));
+    private final Pose startPose = new Pose(10, 104, Math.toRadians(0));  // Starting position
+    private final Pose scorePose = new Pose(16, 128, Math.toRadians(-45));
     private final Pose pickupPose1 = new Pose(36, 121, Math.toRadians(0));
     private final Pose pickUpPose2 = new Pose(36, 131, Math.toRadians(0));
-    private final Pose pushPickUpPose = new Pose(59, 132, Math.toRadians(45));
+    private final Pose pushPickUpPose = new Pose(59, 131, Math.toRadians(45));
     private final Pose pushPickUpControl = new Pose(46, 117);
-    private final Pose pushScorePose = new Pose(17, 133, Math.toRadians(45));
-    private final Pose hangPose = new Pose(59, 96, Math.toRadians(90));
-    private PathChain pickUp1, score1, pickUp2, score2, pushPickUp, pushScore, hang;
+    private final Pose pushScorePose = new Pose(17, 131.5, Math.toRadians(45));
+    private final Pose hangPose = new Pose(65, 97, Math.toRadians(90));
+    private final Pose hangControlPose = new Pose(70, 128);
+    private final Pose specimenScorePose = new Pose(37, 76, Math.toRadians(180));
+    private PathChain pickUp1, score1, pickUp2, score2, pushPickUp, pushScore, hang, scorePreLoad;
     public void buildPaths() {
+        scorePreLoad = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(startPose), new Point(specimenScorePose)))
+                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                .build();
+
         pickUp1 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(startPose), new Point(pickupPose1)))
+                .addPath(new BezierLine(new Point(specimenScorePose), new Point(pickupPose1)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), pickupPose1.getHeading())
                 .build();
 
@@ -70,13 +77,15 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                 .build();
 
         hang = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pushScorePose), new Point(hangPose)))
+                .addPath(new BezierCurve(new Point(pushScorePose), new Point(hangControlPose), new Point(hangPose)))
                 .setLinearHeadingInterpolation(pushScorePose.getHeading(), hangPose.getHeading())
                 .build();
     }
 
     public void autonomousPathUpdate() {
 
+        CRServo linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
+        CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
         MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
         MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
         MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
@@ -112,109 +121,162 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                 setPathState(1);
                 intakeLeft.setPower(1);
                 intakeRight.setPower(1);
-                follower.followPath(pickUp1, true);
+                follower.followPath(scorePreLoad, true);
                 telemetry.addLine("pathState 0");
                 break;
             case 1:
                 if (!follower.isBusy()) {
-                    intakeRotateLeft.setPosition(.025);
-                    intakeRotateRight.setPosition(.17);
+                    //targetDistance = 5;
+                    clawRotateLeft.setPosition(.833);
+                    clawRotateRight.setPosition(.833);
+                    clawAdjust.setPosition(.75);
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
-                    clawRotateLeft.setPosition(0);
-                    clawRotateRight.setPosition(0);
-                    clawAdjust.setPosition(.12 - .0277);
-                    claw.setPosition(1);
-                    follower.followPath(score1, true);
-                    setPathState(2);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    intakeRotateLeft.setPosition(0);
+                    intakeRotateRight.setPosition(0);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
+                    follower.followPath(pickUp1, true);
                     telemetry.addLine("pathState 1");
                 }
                 break;
             case 2:
                 if (!follower.isBusy()) {
-                    intakeRotateLeft.setPosition(0);
-                    intakeRotateRight.setPosition(0);
+                    //targetDistance = 0;
+                    clawRotateLeft.setPosition(0);
+                    clawRotateRight.setPosition(0);
+                    //clawAdjust.setPosition(O.25)
+                    clawAdjust.setPosition(.12-.0277);
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
-                    //targetDistance = 5;
-                    //vSlides.set(power);
-                    clawRotateLeft.setPosition(.833);
-                    clawRotateRight.setPosition(.833);
-                    clawAdjust.setPosition(.75);
-                    claw.setPosition(0);
-                    follower.followPath(pickUp2, true);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    intakeRotateLeft.setPosition(.025);
+                    intakeRotateRight.setPosition(.17);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == 1) {
+                        claw.setPosition(0);
+                    }
+                    follower.followPath(score1, true);
                     setPathState(3);
                     telemetry.addLine("pathState 2");
                 }
                 break;
             case 3:
                 if (!follower.isBusy()) {
-                   // targetDistance = 0;
-                   // vSlides.set(power);
-                    intakeRotateLeft.setPosition(.025);
-                    intakeRotateRight.setPosition(.17);
-                    intakeLeft.setPower(1);
-                    intakeRight.setPower(1);
-                    clawRotateLeft.setPosition(0);
-                    clawRotateRight.setPosition(0);
-                    clawAdjust.setPosition(.12 - .0277);
-                    claw.setPosition(1);
-                    follower.followPath(score2, true);
+                   // targetDistance = 5;
+                    intakeRotateLeft.setPosition(.05);
+                    intakeRotateRight.setPosition(.05);
+                    intakeLeft.setPower(-1);
+                    intakeRight.setPower(-1);
+                    clawRotateLeft.setPosition(.833);
+                    clawRotateRight.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
+                    follower.followPath(pickUp2, true);
                     setPathState(4);
                     telemetry.addLine("pathState 3");
                 }
                 break;
             case 4:
                 if (!follower.isBusy()) {
-                    intakeRotateLeft.setPosition(0);
-                    intakeRotateRight.setPosition(0);
+                    //targetDistance = 0;
+                    clawRotateLeft.setPosition(0);
+                    clawRotateRight.setPosition(0);
+                    //clawAdjust.setPosition(O.25)
+                    clawAdjust.setPosition(.12-.0277);
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
-                   // targetDistance = 5;
-                   // vSlides.set(power);
-                    clawRotateLeft.setPosition(.833);
-                    clawRotateRight.setPosition(.833);
-                    clawAdjust.setPosition(.75);
-                    claw.setPosition(0);
-                    follower.followPath(pushPickUp, true);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    intakeRotateLeft.setPosition(.025);
+                    intakeRotateRight.setPosition(.17);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == 1) {
+                        claw.setPosition(0);
+                    }
+                    follower.followPath(score2, true);
                     setPathState(5);
                     telemetry.addLine("pathState 4");
                 }
                 break;
             case 5:
                 if (!follower.isBusy()) {
-                  //  targetDistance = 0;
-                   // vSlides.set(power);
-                    intakeRotateLeft.setPosition(0);
-                    intakeRotateRight.setPosition(0);
-                    intakeLeft.setPower(1);
-                    intakeRight.setPower(1);
-                    clawRotateLeft.setPosition(0);
-                    clawRotateRight.setPosition(0);
-                    clawAdjust.setPosition(.12 - .0277);
-                    follower.followPath(pushScore, true);
+                    // targetDistance = 5;
+                    intakeRotateLeft.setPosition(.05);
+                    intakeRotateRight.setPosition(.05);
+                    intakeLeft.setPower(-1);
+                    intakeRight.setPower(-1);
+                    clawRotateLeft.setPosition(.833);
+                    clawRotateRight.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
+                    follower.followPath(pushPickUp, true);
                     telemetry.addLine("pathState 5");
                     setPathState(6);
                 }
                 break;
             case 6:
                 if (!follower.isBusy()) {
+                    //targetDistance = 0;
+                    clawRotateLeft.setPosition(0);
+                    clawRotateRight.setPosition(0);
+                    //clawAdjust.setPosition(O.25)
+                    clawAdjust.setPosition(.12-.0277);
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
-                    follower.followPath(hang, true);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    intakeRotateLeft.setPosition(.025);
+                    intakeRotateRight.setPosition(.17);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == 1) {
+                        claw.setPosition(0);
+                    }
                     setPathState(7);
+                    follower.followPath(pushScore, true);
                     telemetry.addLine("pathState 6");
                 }
                 break;
+
             case 7:
+                if (!follower.isBusy()) {
+                    // targetDistance = 0;
+                    intakeRotateLeft.setPosition(.05);
+                    intakeRotateRight.setPosition(.05);
+                    intakeLeft.setPower(-1);
+                    intakeRight.setPower(-1);
+                    clawRotateLeft.setPosition(0);
+                    clawRotateRight.setPosition(0);
+                    clawAdjust.setPosition(.75);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == 1) {
+                        claw.setPosition(0);
+                    }
+                    follower.followPath(hang, true);
+                    telemetry.addLine("pathState 7");
+                    setPathState(6);
+                }
+                break;
+            case 8:
                 if (!follower.isBusy()) {
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
                     clawRotateLeft.setPosition(1);
                     clawRotateRight.setPosition(1);
-                    clawAdjust.setPosition(1);
-                    setPathState(8);
-                    telemetry.addLine("pathState 7");
+                    clawAdjust.setPosition(0);
+                    setPathState(9);
+                    telemetry.addLine("pathState 8");
                 }
                 break;
         }
