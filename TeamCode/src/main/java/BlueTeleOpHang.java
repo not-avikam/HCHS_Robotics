@@ -166,8 +166,8 @@ import pedroPathing.constants.LConstants;
                     linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
                     linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
                 } else if (follower.getVelocityMagnitude() >= 1.5){
-                    linSlideLeft.setPower(-1 * ((Math.abs((Math.pow(follower.getVelocityMagnitude(), 2) * .2 / .55)/1.79)*2) * 100));
-                    linSlideRight.setPower(-1 * ((Math.abs((Math.pow(follower.getVelocityMagnitude(), 2) * .2 / .55)/1.79)*2) * 100));
+                    linSlideLeft.setPower(-1 * ((Math.abs((Math.pow(follower.getVelocityMagnitude(), 2) * .55 / .2)/1.79)*2) * 100));
+                    linSlideRight.setPower(-1 * ((Math.abs((Math.pow(follower.getVelocityMagnitude(), 2) * .55 / .2)/1.79)*2) * 100));
                 } else {
                     linSlideLeft.setPower(0);
                     linSlideRight.setPower(0);
