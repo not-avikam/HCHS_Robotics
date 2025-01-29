@@ -44,7 +44,7 @@
         private final File Alert  = new File( soundPath + "/alert.wav");
 
         //TODO: Make this correct
-        private final Pose startPose = new Pose(18, 24, Math.toRadians(0));
+        private final Pose startPose = new Pose(18, 24, Math.toRadians(180));
         private final Pose observationZone = new Pose(0, 0);
         private final Pose basket = new Pose(0, 144);
 
@@ -169,8 +169,8 @@
                     linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
                     linSlideRight.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
                 } else if (follower.getVelocityMagnitude() >= 1.5){
-                    linSlideLeft.setPower(-1 * ((Math.abs((Math.pow(follower.getVelocityMagnitude(), 2) * .55 / .2)/1.79)*2) * 100));
-                    linSlideRight.setPower(-1 * ((Math.abs((Math.pow(follower.getVelocityMagnitude(), 2) * .55 / .2)/1.79)*2) * 100));
+                    linSlideLeft.setPower(-1 * ((Math.abs((Math.pow(follower.getVelocityMagnitude(), 2) * .55 / .2)/1.79)/2) * 100));
+                    linSlideRight.setPower(-1 * ((Math.abs((Math.pow(follower.getVelocityMagnitude(), 2) * .55 / .2)/1.79)/2) * 100));
                 } else {
                     linSlideLeft.setPower(0);
                     linSlideRight.setPower(0);
@@ -219,15 +219,14 @@
                     telemetry.addLine("Claw closed | MANUAL OPERATION OF CLAW");
                 }
 
-                if (hangModeRight.wasJustReleased() && hangModeLeft.wasJustReleased()) {
+                if (gamepad2.right_stick_button && gamepad2.left_stick_button) {
                     vSlides.setRunMode(Motor.RunMode.RawPower);
-                    vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
-                    linSlideLeft.setPower(-.053);
-                    linSlideRight.setPower(-.053);
+                    vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
+                    linSlideLeft.setPower(-1 * ((Math.abs(6/1.79)/2)/100));
+                    linSlideRight.setPower(-1 * ((Math.abs(6/1.79)/2)/100));
                     claw.setPwmDisable();
-                    //TODO
-                    //clawRotateLeft.setPwmDisable();
-                    //clawRotateRight.setPwmDisable();
+                    clawRotateLeft.disable();
+                    clawRotateRight.disable();
                     clawAdjust.setPwmDisable();
                     intakeLeft.setPower(0);
                     intakeRight.setPower(0);
