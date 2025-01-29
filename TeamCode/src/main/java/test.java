@@ -1,4 +1,6 @@
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.hardware.RevIMU;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -131,9 +133,8 @@ public class test extends OpMode{
 
     public void autonomousPathUpdate() {
 
-        MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
-        MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
-        MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
+        CRServo linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
+        CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
         CRServo intakeLeft = hardwareMap.get(CRServo.class, "iL");
         CRServo intakeRight = hardwareMap.get(CRServo.class, "iR");
         ServoEx claw = new SimpleServo(hardwareMap, "claw", 0, 180, AngleUnit.DEGREES);
@@ -142,31 +143,30 @@ public class test extends OpMode{
         ServoEx clawRotateRight = new SimpleServo(hardwareMap, "cRR", 0, 270, AngleUnit.DEGREES);
         ServoEx intakeRotateLeft = new SimpleServo(hardwareMap, "iRL", 0, 300, AngleUnit.DEGREES);
         ServoEx intakeRotateRight = new SimpleServo(hardwareMap, "iRR", 0, 300, AngleUnit.DEGREES);
+        //BNO055IMUNew imu = hardwareMap.get(BNO055IMUNew.class, "imu");
+        GamepadEx driverOp = new GamepadEx(gamepad1);
+        GamepadEx clawOp = new GamepadEx(gamepad2);
+        RevIMU imu = new RevIMU(hardwareMap, "imu");
+        MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
+        MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
+        MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
 
         //TODO: Adjust the vSlides parameters
-        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-        vSlides.setRunMode(Motor.RunMode.PositionControl);
-        vSlides.setPositionCoefficient(0.05);
-        vSlides.setDistancePerPulse(0.015);
-        vSlides.stopAndResetEncoder();
+//        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+//        vSlides.setRunMode(Motor.RunMode.PositionControl);
+//        vSlides.setPositionCoefficient(0.05);
+//        vSlides.setDistancePerPulse(0.015);
+//        vSlides.stopAndResetEncoder();
 
-        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-
-        intakeRotateRight.setInverted(true);
+        linSlideLeft.setDirection(CRServo.Direction.REVERSE);
         intakeLeft.setDirection(CRServo.Direction.REVERSE);
-        clawRotateLeft.setInverted(false);
-        clawRotateRight.setInverted(true);;
+        intakeRotateLeft.setInverted(true);
+        clawRotateLeft.setInverted(true);
         claw.setInverted(true);
-        vSlideRight.setInverted(true);
+        vSlides.setInverted(true);
+        vSlideRight.setInverted(false);
 
         double targetDistance = 0;
-
-        //double power = pidf.calculate(vSlides.getCurrentPosition());  // Adjust power based on how fast you want to move
-
-        //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
-        //double distanceRemaining = targetDistance - currentDistance;
-        pidf.setSetPoint(targetDistance);
-
         switch (pathState) {
             case 0:
                 setPathState(1);
@@ -174,19 +174,24 @@ public class test extends OpMode{
                 break;
             case 1:
                 if (!follower.isBusy()) {
-                    //vSlides.setTargetPosition(5);
-                    //vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
+                    //targetDistance = 5;
+                    clawRotateRight.setPosition(.833);
+                    clawRotateLeft.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
                     follower.followPath(pickup1, true);
                     setPathState(2);
                 }
                 break;
             case 2:
                 if (!follower.isBusy()) {
-//                    vSlides.setTargetPosition(0);
-//                    vSlides.set(-1);
+                    //targetDistance = 0;
+                    clawRotateRight.setPosition(0);
+                    clawRotateLeft.setPosition(0);
+                    clawAdjust.setPosition(.12 - .0277);
                     follower.followPath(dropOffSample1, true);
                     setPathState(3);
                 }
@@ -217,84 +222,72 @@ public class test extends OpMode{
                 break;
             case 7:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.11);
-                    clawRotateRight.setPosition(.11);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
                     clawAdjust.setPosition(0.5);
-//                    vSlides.setTargetPosition(1);
-//                    vSlides.set(-1);
+                    //targetDistance = 0;
                     follower.followPath(score2,true);
                     setPathState(8);
                 }
                 break;
             case 8:
                 if (!follower.isBusy()) {
-//                    vSlides.setTargetPosition(5);
-//                    vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
-                    //TODO: Measure the correct amount of time for this
-                    /*
-                    if(pathTimer.getElapsedTimeSeconds() > 1) {
-                        claw.setPosition(0);
+                    //targetDistance = 5;
+                    clawRotateRight.setPosition(.833);
+                    clawRotateLeft.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
                     }
-                     */
                     follower.followPath(score2return, true);
                     setPathState(9);
                 }
                 break;
             case 9:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.11);
-                    clawRotateRight.setPosition(.11);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
                     clawAdjust.setPosition(0.5);
-//                    vSlides.setTargetPosition(1);
-//                    vSlides.set(-1);
+                    //targetDistance = 0;
                     follower.followPath(score3,true);
                     setPathState(10);
                 }
                 break;
             case 10:
                 if (!follower.isBusy()) {
-//                    vSlides.setTargetPosition(5);
-//                    vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
-                    //TODO: Measure the correct amount of time for this
-                    /*
-                    if(pathTimer.getElapsedTimeSeconds() > 1) {
-                        claw.setPosition(0);
+                    //targetDistance = 5;
+                    clawRotateRight.setPosition(.833);
+                    clawRotateLeft.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
                     }
-                     */
                     follower.followPath(score3return,true);
                     setPathState(11);
                 }
                 break;
             case 11:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.11);
-                    clawRotateRight.setPosition(.11);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
                     clawAdjust.setPosition(0.5);
-//                    vSlides.setTargetPosition(1);
-//                    vSlides.set(-1);
+                    //targetDistance = 0;
                     follower.followPath(score4,true);
                     setPathState(12);
                 }
                 break;
             case 12:
                 if (!follower.isBusy()) {
-//                    vSlides.setTargetPosition(5);
-//                    vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
-                    //TODO: Measure the correct amount of time for this
-                    /*
-                    if(pathTimer.getElapsedTimeSeconds() > 1) {
-                        claw.setPosition(0);
+                    //targetDistance = 5;
+                    clawRotateRight.setPosition(.833);
+                    clawRotateLeft.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
                     }
-                     */
                     follower.followPath(score4return, true);
                     setPathState(13);
                 }
@@ -302,28 +295,24 @@ public class test extends OpMode{
 
             case 13:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.11);
-                    clawRotateRight.setPosition(.11);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
                     clawAdjust.setPosition(0.5);
-//                    vSlides.setTargetPosition(1);
-//                    vSlides.set(-1);
+                    //targetDistance = 0;
                     follower.followPath(score5,true);
                     setPathState(14);
                 }
                 break;
             case 14:
-                if (!follower.isBusy()) {
-//                    vSlides.setTargetPosition(5);
-//                    vSlides.set(1);
-                    clawRotateRight.setPosition(.65);
-                    clawRotateLeft.setPosition(.65);
-                    clawAdjust.setPosition(1);
-                    //TODO: Measure the correct amount of time for this
-                    /*
-                    if(pathTimer.getElapsedTimeSeconds() > 1) {
-                        claw.setPosition(0);
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 25) {
+                    //targetDistance = 5;
+                    clawRotateRight.setPosition(.833);
+                    clawRotateLeft.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
                     }
-                     */
                     follower.followPath(park, true);
                     //Sets to a non existent pathstate so that it doesn't keep running
                     //-Avikam ;)
@@ -331,6 +320,23 @@ public class test extends OpMode{
                 }
                 break;
         }
+
+        PIDFController pidf = new PIDFController(0, 0, 0, 0);
+        pidf.setSetPoint(targetDistance);
+        while (!pidf.atSetPoint()) {
+            double outputLeft = pidf.calculate(
+                    vSlideLeft.getCurrentPosition()
+            );
+
+            double outputRight = pidf.calculate(
+                    vSlideRight.getCurrentPosition()
+            );
+
+            vSlideLeft.setVelocity(outputLeft);
+            vSlideRight.setVelocity(outputRight);
+        }
+        vSlideLeft.stopMotor();
+        vSlideRight.stopMotor();
     }
 
     public void setPathState(int pState) {
@@ -340,9 +346,6 @@ public class test extends OpMode{
 
     @Override
     public void loop() {
-        MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
-        MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
-        MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
 
         // These loop the movements of the robot
         follower.update();
@@ -362,6 +365,7 @@ public class test extends OpMode{
     public void init() {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
+        actionTimer = new Timer();
         opmodeTimer.resetTimer();
 
         Constants.setConstants(FConstants.class, LConstants.class);

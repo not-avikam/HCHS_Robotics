@@ -342,19 +342,15 @@ public class SilverKnightBlueAutoObservation extends OpMode{
     @Override
     public void loop() {
 
+        /*
         if (pathTimer.getElapsedTime() > 22) {
             setPathState(14);
         }
+         */
 
         // These loop the movements of the robot
         follower.update();
         autonomousPathUpdate();
-
-        /*
-        while (!vSlides.atTargetPosition()) {
-            vSlides.set(1);
-        }
-         */
 
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
@@ -368,6 +364,7 @@ public class SilverKnightBlueAutoObservation extends OpMode{
     public void init() {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
+        actionTimer = new Timer();
         opmodeTimer.resetTimer();
 
         Constants.setConstants(FConstants.class, LConstants.class);
