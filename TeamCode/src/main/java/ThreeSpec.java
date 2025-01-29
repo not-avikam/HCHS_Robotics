@@ -17,8 +17,6 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
@@ -26,32 +24,30 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@Autonomous(name = "Blue Autonomous Observation - Silver Knight", group = "Silver Knight")
-public class SilverKnightBlueAutoObservation extends OpMode{
+@Autonomous(name = "3+0", group = "Silver Knight")
+public class ThreeSpec extends OpMode{
+    //private PoseUpdater poseUpdater;
+    //private DashboardPoseTracker dashboardPoseTracker;
+    PIDFController pidf = new PIDFController(0, 0, 0, 0);
+    //hardware
+    //auto stuff
     private Timer pathTimer, actionTimer, opmodeTimer;
     private Follower follower;
     private int pathState;
-    private final Pose startPose = new Pose(10, 56, Math.toRadians(0));  // Starting position
-    private final Pose scorePose1 = new Pose(37, 70, Math.toRadians(180));
-    private final Pose pickupPose1 = new Pose(3, 38, Math.toRadians(90));
+    private final Pose startPose = new Pose(9.5, 56, Math.toRadians(0));  // Starting position
+    private final Pose scorePose1 = new Pose(38, 68, Math.toRadians(180));
+    private final Pose pickupPose1 = new Pose(67, 22, Math.toRadians(90));
     private final Pose pickupPose1ControlPose1 = new Pose(3, 38);
     private final Pose pickupPose1ControlPose2 = new Pose(105, 5);
     private final Pose pickupPose1ControlPose3 = new Pose(38, 47);
-    private final Pose dropOff1 = new Pose(13, 27, Math.toRadians(90));
-    private final Pose pickUpPose2 = new Pose(51, 17, Math.toRadians(90));
-    private final Pose pickUpPose2ControlPose1 = new Pose(90, 27, Math.toRadians(90));
-    private final Pose dropOff2 = new Pose(15, 19, Math.toRadians(90));
-    private final Pose dropOff3 = new Pose(15.5, 11.5, Math.toRadians(90));
-    private final Pose dropOff3ControlPose1 = new Pose(140, 7);
-
-    private final Pose pickupSpecimenPose = new Pose(11, 28, Math.toRadians(180)); // First sample pickup
-    private final Pose scorePose2 = new Pose(37, 76, Math.toRadians(180)); // Third sample pickup
-    private final Pose scorePose3 = new Pose(37, 74, Math.toRadians(0));
-    private final Pose scorePose4 = new Pose(37, 72, Math.toRadians(0));
-    private final Pose scorePose5 = new Pose(37, 68, Math.toRadians(0));
-    private final Pose parkPose = new Pose(18, 24, Math.toRadians(0));
-    private PathChain park, score2return, score3return, score4return, score2, score3, score4, score5, pickupSpecimen, scorePreload, pickup1, pickUpSample3, dropOffSample1, dropOffSample2, pickUpSample2;
+    private final Pose dropOff1 = new Pose(19, 22, Math.toRadians(90));
+    private final Pose pickupSpecimenPose = new Pose(10, 23, Math.toRadians(180)); // First sample pickup
+    private final Pose scorePose2 = new Pose(38, 64, Math.toRadians(180)); // Third sample pickup
+    private final Pose scorePose3 = new Pose(38, 72, Math.toRadians(180));
+    private final Pose parkPose = new Pose(18, 24, Math.toRadians(180));
+    private PathChain park, score2, score3, scorePreload, pickup1, dropOffSample1, pickupSpecimen1, pickupSpecimen2;
     public void buildPaths() {
+
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(scorePose1)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose1.getHeading())
@@ -67,24 +63,9 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                 .setLinearHeadingInterpolation(pickupPose1.getHeading(), dropOff1.getHeading())
                 .build();
 
-        pickUpSample2 = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(dropOff1), new Point(pickUpPose2ControlPose1), new Point(pickUpPose2)))
-                .setLinearHeadingInterpolation(dropOff1.getHeading(), pickUpPose2.getHeading())
-                .build();
-
-        dropOffSample2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickUpPose2), new Point(dropOff2)))
-                .setLinearHeadingInterpolation(pickUpPose2.getHeading(), dropOff2.getHeading())
-                .build();
-
-        pickUpSample3 = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(dropOff2),new Point(dropOff3ControlPose1), new Point(dropOff3)))
-                .setLinearHeadingInterpolation(dropOff2.getHeading(), dropOff3.getHeading())
-                .build();
-
-        pickupSpecimen = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(dropOff3), new Point(pickupSpecimenPose)))
-                .setLinearHeadingInterpolation(dropOff3.getHeading(), pickupSpecimenPose.getHeading())
+        pickupSpecimen1 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(dropOff1), new Point(pickupSpecimenPose)))
+                .setLinearHeadingInterpolation(dropOff1.getHeading(), pickupSpecimenPose.getHeading())
                 .build();
 
         score2 = follower.pathBuilder()
@@ -92,8 +73,8 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                 .setLinearHeadingInterpolation(pickupSpecimenPose.getHeading(), scorePose2.getHeading())
                 .build();
 
-        score2return = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose2), new Point(pickupSpecimenPose)))
+        pickupSpecimen2 = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(scorePose2),new Point(pickupSpecimenPose)))
                 .setLinearHeadingInterpolation(scorePose2.getHeading(), pickupSpecimenPose.getHeading())
                 .build();
 
@@ -102,33 +83,14 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                 .setLinearHeadingInterpolation(pickupSpecimenPose.getHeading(), scorePose3.getHeading())
                 .build();
 
-        score3return = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose3), new Point(pickupSpecimenPose)))
-                .setLinearHeadingInterpolation(scorePose3.getHeading(), pickupSpecimenPose.getHeading())
-                .build();
-
-        score4 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickupSpecimenPose), new Point(scorePose4)))
-                .setLinearHeadingInterpolation(pickupSpecimenPose.getHeading(), scorePose4.getHeading())
-                .build();
-
-        score4return = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose4), new Point(pickupSpecimenPose)))
-                .setLinearHeadingInterpolation(scorePose4.getHeading(), pickupSpecimenPose.getHeading())
-                .build();
-
-        score5 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickupSpecimenPose), new Point(scorePose5)))
-                .setLinearHeadingInterpolation(pickupSpecimenPose.getHeading(), scorePose5.getHeading())
-                .build();
-
         park = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose5), new Point(parkPose)))
-                .setConstantHeadingInterpolation(parkPose.getHeading())
+                .addPath(new BezierLine(new Point(scorePose3), new Point(parkPose)))
+                .setLinearHeadingInterpolation(scorePose3.getHeading(), parkPose.getHeading())
                 .build();
     }
 
     public void autonomousPathUpdate() {
+
         CRServo linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
         CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
         CRServo intakeLeft = hardwareMap.get(CRServo.class, "iL");
@@ -145,14 +107,14 @@ public class SilverKnightBlueAutoObservation extends OpMode{
         RevIMU imu = new RevIMU(hardwareMap, "imu");
         MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
         MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
+
         MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
 
         //TODO: Adjust the vSlides parameters
-//        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-//        vSlides.setRunMode(Motor.RunMode.PositionControl);
-//        vSlides.setPositionCoefficient(0.05);
-//        vSlides.setDistancePerPulse(0.015);
-//        vSlides.stopAndResetEncoder();
+        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+        vSlides.setRunMode(Motor.RunMode.PositionControl);
+        vSlides.encoder.setDistancePerPulse(0.00102);
+        vSlides.stopAndResetEncoder();
 
         linSlideLeft.setDirection(CRServo.Direction.REVERSE);
         intakeLeft.setDirection(CRServo.Direction.REVERSE);
@@ -163,7 +125,6 @@ public class SilverKnightBlueAutoObservation extends OpMode{
         vSlideRight.setInverted(false);
 
         double targetDistance = 0;
-
         switch (pathState) {
             case 0:
                 setPathState(1);
@@ -171,7 +132,8 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                 break;
             case 1:
                 if (!follower.isBusy()) {
-                    //targetDistance = 5;
+                    //TODO: subtract retracted height
+                    targetDistance = 2.16667;
                     clawRotateRight.setPosition(.833);
                     clawRotateLeft.setPosition(.833);
                     clawAdjust.setPosition(.75);
@@ -185,7 +147,7 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                 break;
             case 2:
                 if (!follower.isBusy()) {
-                    //targetDistance = 0;
+                    targetDistance = 0;
                     clawRotateRight.setPosition(0);
                     clawRotateLeft.setPosition(0);
                     clawAdjust.setPosition(.12 - .0277);
@@ -195,129 +157,57 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                 break;
             case 3:
                 if (!follower.isBusy()) {
-                    follower.followPath(pickUpSample2, true);
+                    follower.followPath(pickupSpecimen1, true);
                     setPathState(4);
                 }
                 break;
             case 4:
                 if (!follower.isBusy()) {
-                    follower.followPath(dropOffSample2, true);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    clawAdjust.setPosition(0.5);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(0);
+                    }
+                    targetDistance = 0;
+                    follower.followPath(score2,true);
                     setPathState(5);
                 }
                 break;
             case 5:
                 if (!follower.isBusy()) {
-                    follower.followPath(pickUpSample3, true);
+                    //TODO: subtract distance of retracted slides
+                    targetDistance = 2.16667;
+                    clawRotateRight.setPosition(.833);
+                    clawRotateLeft.setPosition(.833);
+                    clawAdjust.setPosition(.75);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(1);
+                    }
+                    follower.followPath(pickupSpecimen2, true);
                     setPathState(6);
                 }
                 break;
             case 6:
                 if (!follower.isBusy()) {
-                    follower.followPath(pickupSpecimen, true);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    clawAdjust.setPosition(0.5);
+                    actionTimer.resetTimer();
+                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                        claw.setPosition(0);
+                    }
+                    targetDistance = 0;
+                    follower.followPath(score3,true);
                     setPathState(7);
                 }
                 break;
             case 7:
-                if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
-                    clawAdjust.setPosition(0.5);
-                    //targetDistance = 0;
-                    actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
-                        claw.setPosition(0);
-                    }
-                    follower.followPath(score2,true);
-                    setPathState(8);
-                }
-                break;
-            case 8:
-                if (!follower.isBusy()) {
-                    //targetDistance = 5;
-                    clawRotateRight.setPosition(.833);
-                    clawRotateLeft.setPosition(.833);
-                    clawAdjust.setPosition(.75);
-                    actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
-                        claw.setPosition(1);
-                    }
-                    follower.followPath(score2return, true);
-                    setPathState(9);
-                }
-                break;
-            case 9:
-                if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
-                    clawAdjust.setPosition(0.5);
-                    targetDistance = 0;
-                    actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
-                        claw.setPosition(0);
-                    }
-                    follower.followPath(score3,true);
-                    setPathState(10);
-                }
-                break;
-            case 10:
-                if (!follower.isBusy()) {
-                    //targetDistance = 5;
-                    clawRotateRight.setPosition(.833);
-                    clawRotateLeft.setPosition(.833);
-                    clawAdjust.setPosition(.75);
-                    actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
-                        claw.setPosition(1);
-                    }
-                    follower.followPath(score3return,true);
-                    setPathState(11);
-                }
-                break;
-            case 11:
-                if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
-                    clawAdjust.setPosition(0.5);
-                    targetDistance = 0;
-                    actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
-                        claw.setPosition(0);
-                    }
-                    follower.followPath(score4,true);
-                    setPathState(12);
-                }
-                break;
-            case 12:
-                if (!follower.isBusy()) {
-                    targetDistance = 5;
-                    clawRotateRight.setPosition(.833);
-                    clawRotateLeft.setPosition(.833);
-                    clawAdjust.setPosition(.75);
-                    actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
-                        claw.setPosition(1);
-                    }
-                    follower.followPath(score4return, true);
-                    setPathState(13);
-                }
-                break;
-            case 13:
-                if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
-                    clawAdjust.setPosition(0.5);
-                    targetDistance = 0;
-                    actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
-                        claw.setPosition(0);
-                    }
-                    follower.followPath(score5,true);
-                    setPathState(14);
-                }
-                break;
-            case 14:
                 if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 25) {
-                    targetDistance = 5;
+                    //TODO: subtract distance of retracted slides
+                    targetDistance = 2.16667;
                     clawRotateRight.setPosition(.833);
                     clawRotateLeft.setPosition(.833);
                     clawAdjust.setPosition(.75);
@@ -328,19 +218,20 @@ public class SilverKnightBlueAutoObservation extends OpMode{
                     follower.followPath(park, true);
                     //Sets to a non existent pathstate so that it doesn't keep running
                     //-Avikam ;)
-                    setPathState(15);
+                    setPathState(8);
                 }
                 break;
         }
+
         PIDFController pidf = new PIDFController(0, 0, 0, 0);
         pidf.setSetPoint(targetDistance);
         while (!pidf.atSetPoint()) {
             double outputLeft = pidf.calculate(
-                    vSlideLeft.getCurrentPosition()
+                    vSlideLeft.encoder.getPosition()
             );
 
             double outputRight = pidf.calculate(
-                    vSlideRight.getCurrentPosition()
+                    vSlideRight.encoder.getPosition()
             );
 
             vSlideLeft.setVelocity(outputLeft);
@@ -358,15 +249,11 @@ public class SilverKnightBlueAutoObservation extends OpMode{
     @Override
     public void loop() {
 
-        /*
-        if (pathTimer.getElapsedTime() > 22) {
-            setPathState(14);
-        }
-         */
-
         // These loop the movements of the robot
         follower.update();
+        //dashboardPoseTracker.update();
         autonomousPathUpdate();
+
 
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
@@ -403,6 +290,5 @@ public class SilverKnightBlueAutoObservation extends OpMode{
     }
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 }

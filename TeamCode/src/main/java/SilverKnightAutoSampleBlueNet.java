@@ -169,16 +169,18 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
             case 3:
                 if (!follower.isBusy()) {
                    // targetDistance = 5;
-                    intakeRotateLeft.setPosition(.05);
-                    intakeRotateRight.setPosition(.05);
-                    intakeLeft.setPower(-1);
-                    intakeRight.setPower(-1);
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
                     actionTimer.resetTimer();
                     if (actionTimer.getElapsedTimeSeconds() == .5) {
                         claw.setPosition(1);
+                    }
+                    if (actionTimer.getElapsedTimeSeconds() >= .2) {
+                        intakeRotateLeft.setPosition(.05);
+                        intakeRotateRight.setPosition(.05);
+                        intakeLeft.setPower(-1);
+                        intakeRight.setPower(-1);
                     }
                     follower.followPath(pickUp2, true);
                     setPathState(4);
@@ -210,16 +212,18 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
             case 5:
                 if (!follower.isBusy()) {
                     // targetDistance = 5;
-                    intakeRotateLeft.setPosition(.05);
-                    intakeRotateRight.setPosition(.05);
-                    intakeLeft.setPower(-1);
-                    intakeRight.setPower(-1);
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
                     actionTimer.resetTimer();
                     if (actionTimer.getElapsedTimeSeconds() == .5) {
                         claw.setPosition(1);
+                    }
+                    if (actionTimer.getElapsedTimeSeconds() >= .2) {
+                        intakeRotateLeft.setPosition(.05);
+                        intakeRotateRight.setPosition(.05);
+                        intakeLeft.setPower(-1);
+                        intakeRight.setPower(-1);
                     }
                     follower.followPath(pushPickUp, true);
                     telemetry.addLine("pathState 5");
@@ -299,9 +303,6 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
 
     @Override
     public void loop() {
-        MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
-        MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
-        MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
 
         // These loop the movements of the robot
         follower.update();
