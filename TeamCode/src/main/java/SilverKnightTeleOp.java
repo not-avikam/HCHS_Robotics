@@ -74,9 +74,6 @@ public class SilverKnightTeleOp extends LinearOpMode {
         ServoImplEx intakeRotateLeft = hardwareMap.get(ServoImplEx.class, "iRL");
         ServoImplEx intakeRotateRight = hardwareMap.get(ServoImplEx.class, "iRR");
         //BNO055IMUNew imu = hardwareMap.get(BNO055IMUNew.class, "imu");
-        GamepadEx driverOp = new GamepadEx(gamepad1);
-        GamepadEx clawOp = new GamepadEx(gamepad2);
-
         boolean AlertFound   = Alert.exists();
         telemetry.addData("Alert sound",   AlertFound ?   "Found" : "NOT Found \nCopy alert.wav to " + soundPath  );
 
@@ -102,43 +99,13 @@ public class SilverKnightTeleOp extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            ToggleButtonReader robotCentricReader = new ToggleButtonReader(
-                    driverOp, GamepadKeys.Button.LEFT_STICK_BUTTON
-            );
-
-            ToggleButtonReader hangModeRight = new ToggleButtonReader(
-                    clawOp, GamepadKeys.Button.RIGHT_STICK_BUTTON
-            );
-
-            ToggleButtonReader hangModeLeft = new ToggleButtonReader(
-                    clawOp, GamepadKeys.Button.LEFT_STICK_BUTTON
-            );
-
-            ToggleButtonReader slowMode = new ToggleButtonReader(
-                    driverOp, GamepadKeys.Button.LEFT_BUMPER
-            );
-
-            ButtonReader intakeOnReader = new ButtonReader(
-                    driverOp, GamepadKeys.Button.X
-            );
-
-            TriggerReader vSlideUpReader = new TriggerReader(
-                    clawOp, GamepadKeys.Trigger.RIGHT_TRIGGER
-            );
-
-            TriggerReader vSlideDownReader = new TriggerReader(
-                    clawOp, GamepadKeys.Trigger.LEFT_TRIGGER
-            );
-
-            //follower.setStartingPose(follower.getPose());
-
-            if (robotCentricReader.getState()) {
+            if (gamepad1.right_stick_button) {
                 follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
                 follower.update();
             } else if (gamepad1.left_bumper) {
                 follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), false);
                 follower.update();
-            } else if (robotCentricReader.wasJustPressed() && gamepad1.left_bumper) {
+            } else if (gamepad1.right_stick_button && gamepad1.left_bumper) {
                 follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), true);
                 follower.update();
             } else {
@@ -207,6 +174,26 @@ public class SilverKnightTeleOp extends LinearOpMode {
                 telemetry.addLine("Claw closed | MANUAL OPERATION OF CLAW");
             }
 
+            if (gamepad2.right_stick_button && gamepad2.left_stick_button) {
+                vSlides.setRunMode(Motor.RunMode.RawPower);
+                vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
+                linSlideLeft.setPower(-.053);
+                linSlideRight.setPower(-.053);
+                claw.setPwmDisable();
+                //TODO
+                //clawRotateLeft.setPwmDisable();
+                //clawRotateRight.setPwmDisable();
+                clawAdjust.setPwmDisable();
+                intakeLeft.setPower(0);
+                intakeRight.setPower(0);
+                intakeRotateLeft.setPwmDisable();
+                intakeRotateRight.setPwmDisable();
+                telemetry.addLine("Hang mode");
+            }
+
+            //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
+            //double distanceRemaining = targetDistance - currentDistance;
+            pidf.setSetPoint(targetDistance);
 
             if (gamepad1.x) {
                 intakeRotateLeft.setPosition(.025);
@@ -225,27 +212,6 @@ public class SilverKnightTeleOp extends LinearOpMode {
                 intakeRotateRight.setPosition(0);
                 telemetry.addLine("In position for claw pickup");
             }
-
-            if (hangModeRight.wasJustReleased() && hangModeLeft.wasJustReleased()) {
-                vSlides.setRunMode(Motor.RunMode.RawPower);
-                vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
-                linSlideLeft.setPower(-.053);
-                linSlideRight.setPower(-.053);
-                claw.setPwmDisable();
-                //TODO
-                //clawRotateLeft.setPwmDisable();
-                //clawRotateRight.setPwmDisable();
-                clawAdjust.setPwmDisable();
-                intakeLeft.setPower(0);
-                intakeRight.setPower(0);
-                intakeRotateLeft.setPwmDisable();
-                intakeRotateRight.setPwmDisable();
-                telemetry.addLine("Hang mode");
-            }
-
-            //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
-            //double distanceRemaining = targetDistance - currentDistance;
-            pidf.setSetPoint(targetDistance);
 
             //telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
             //telemetry.addData("Vslides distance", "%.2f", vSlides.getDistance());

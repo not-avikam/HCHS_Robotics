@@ -119,35 +119,13 @@ import pedroPathing.constants.LConstants;
             // run until the end of the match (driver presses STOP)
             while (opModeIsActive()) {
 
-                ToggleButtonReader robotCentricReader = new ToggleButtonReader(
-                        driverOp, GamepadKeys.Button.LEFT_STICK_BUTTON
-                );
-
-                ToggleButtonReader hangModeRight = new ToggleButtonReader(
-                        clawOp, GamepadKeys.Button.RIGHT_STICK_BUTTON
-                );
-
-                ToggleButtonReader hangModeLeft = new ToggleButtonReader(
-                        clawOp, GamepadKeys.Button.LEFT_STICK_BUTTON
-                );
-
-                TriggerReader vSlideUpReader = new TriggerReader(
-                        clawOp, GamepadKeys.Trigger.RIGHT_TRIGGER
-                );
-
-                TriggerReader vSlideDownReader = new TriggerReader(
-                        clawOp, GamepadKeys.Trigger.LEFT_TRIGGER
-                );
-
-                //follower.setStartingPose(follower.getPose());
-
-                if (robotCentricReader.getState()) {
+                if (gamepad1.right_stick_button) {
                     follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
                     follower.update();
                 } else if (gamepad1.left_bumper) {
                     follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), false);
                     follower.update();
-                } else if (robotCentricReader.wasJustPressed() && gamepad1.left_bumper) {
+                } else if (gamepad1.right_stick_button && gamepad1.left_bumper) {
                     follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), true);
                     follower.update();
                 } else {
@@ -216,6 +194,39 @@ import pedroPathing.constants.LConstants;
                     telemetry.addLine("Claw closed | MANUAL OPERATION OF CLAW");
                 }
 
+                if (gamepad2.right_stick_button && gamepad2.left_stick_button) {
+                    vSlides.setRunMode(Motor.RunMode.RawPower);
+                    vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
+                    linSlideLeft.setPower(-.053);
+                    linSlideRight.setPower(-.053);
+                    claw.setPwmDisable();
+                    //TODO
+                    //clawRotateLeft.setPwmDisable();
+                    //clawRotateRight.setPwmDisable();
+                    clawAdjust.setPwmDisable();
+                    intakeLeft.setPower(0);
+                    intakeRight.setPower(0);
+                    intakeRotateLeft.setPwmDisable();
+                    intakeRotateRight.setPwmDisable();
+                    telemetry.addLine("Hang mode");
+                }
+
+                //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
+                //double distanceRemaining = targetDistance - currentDistance;
+                pidf.setSetPoint(targetDistance);
+
+                if (follower.getPose().getX() < (observationZone.getX() + 25) && follower.getPose().getY() < (observationZone.getY() + 31)) {
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    telemetry.addLine("Specimen pickup");
+                }
+
+                if (follower.getPose().getX() < (basket.getX() + 24) && follower.getPose().getY() > (basket.getY()) - 24) {
+                    clawRotateLeft.setPosition(.833);
+                    clawRotateRight.setPosition(.833);
+                }
+
+
                 PredominantColorProcessor.Result result = colorSensor.getAnalysis();
 
 
@@ -258,37 +269,6 @@ import pedroPathing.constants.LConstants;
                     telemetry.addLine("In position for claw pickup");
                 }
 
-                if (follower.getPose().getX() < (observationZone.getX() + 25) && follower.getPose().getY() < (observationZone.getY() + 31)) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
-                    telemetry.addLine("Specimen pickup");
-                }
-
-                if (follower.getPose().getX() < (basket.getX() + 24) && follower.getPose().getY() > (basket.getY()) - 24) {
-                    clawRotateLeft.setPosition(.833);
-                    clawRotateRight.setPosition(.833);
-                }
-
-                if (hangModeRight.wasJustReleased() && hangModeLeft.wasJustReleased()) {
-                    vSlides.setRunMode(Motor.RunMode.RawPower);
-                    vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
-                    linSlideLeft.setPower(-.053);
-                    linSlideRight.setPower(-.053);
-                    claw.setPwmDisable();
-                    //TODO
-                    //clawRotateLeft.setPwmDisable();
-                    //clawRotateRight.setPwmDisable();
-                    clawAdjust.setPwmDisable();
-                    intakeLeft.setPower(0);
-                    intakeRight.setPower(0);
-                    intakeRotateLeft.setPwmDisable();
-                    intakeRotateRight.setPwmDisable();
-                    telemetry.addLine("Hang mode");
-                }
-
-                //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
-                //double distanceRemaining = targetDistance - currentDistance;
-                pidf.setSetPoint(targetDistance);
 
                 //telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
                 //telemetry.addData("Vslides distance", "%.2f", vSlides.getDistance());

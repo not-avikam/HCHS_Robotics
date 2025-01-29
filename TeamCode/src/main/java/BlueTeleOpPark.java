@@ -219,6 +219,27 @@
                     telemetry.addLine("Claw closed | MANUAL OPERATION OF CLAW");
                 }
 
+                if (hangModeRight.wasJustReleased() && hangModeLeft.wasJustReleased()) {
+                    vSlides.setRunMode(Motor.RunMode.RawPower);
+                    vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
+                    linSlideLeft.setPower(-.053);
+                    linSlideRight.setPower(-.053);
+                    claw.setPwmDisable();
+                    //TODO
+                    //clawRotateLeft.setPwmDisable();
+                    //clawRotateRight.setPwmDisable();
+                    clawAdjust.setPwmDisable();
+                    intakeLeft.setPower(0);
+                    intakeRight.setPower(0);
+                    intakeRotateLeft.setPwmDisable();
+                    intakeRotateRight.setPwmDisable();
+                    telemetry.addLine("Hang mode");
+                }
+
+                //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
+                //double distanceRemaining = targetDistance - currentDistance;
+                pidf.setSetPoint(targetDistance);
+
                 PredominantColorProcessor.Result result = colorSensor.getAnalysis();
 
 
@@ -271,27 +292,6 @@
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                 }
-
-                if (hangModeRight.wasJustReleased() && hangModeLeft.wasJustReleased()) {
-                    vSlides.setRunMode(Motor.RunMode.RawPower);
-                    vSlides.set(clawOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - clawOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
-                    linSlideLeft.setPower(-.053);
-                    linSlideRight.setPower(-.053);
-                    claw.setPwmDisable();
-                    //TODO
-                    //clawRotateLeft.setPwmDisable();
-                    //clawRotateRight.setPwmDisable();
-                    clawAdjust.setPwmDisable();
-                    intakeLeft.setPower(0);
-                    intakeRight.setPower(0);
-                    intakeRotateLeft.setPwmDisable();
-                    intakeRotateRight.setPwmDisable();
-                    telemetry.addLine("Hang mode");
-                }
-
-                //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
-                //double distanceRemaining = targetDistance - currentDistance;
-                pidf.setSetPoint(targetDistance);
 
                 //telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
                 //telemetry.addData("Vslides distance", "%.2f", vSlides.getDistance());
