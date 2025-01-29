@@ -316,6 +316,8 @@ public class SubmersibleTest extends OpMode{
 
             case 8:
                 follower.followPath(search, true);
+                linSlideLeft.setPower(.5);
+                linSlideRight.setPower(.5);
                 clawRotateLeft.setPosition(.5);
                 clawRotateRight.setPosition(.5);
                 clawAdjust.setPosition(.5);

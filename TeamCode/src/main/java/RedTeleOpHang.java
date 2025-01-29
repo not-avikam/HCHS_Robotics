@@ -197,10 +197,10 @@ import pedroPathing.constants.LConstants;
                 }
 
                 if (gamepad2.right_trigger != 0) {
-                    targetDistance = 5;
+                    //targetDistance = 5;
                     vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
                 } else if (gamepad2.left_trigger != 0) {
-                    targetDistance = -5;
+                    //targetDistance = -5;
                     vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
                 } else if (vSlideUpReader.wasJustReleased()) {
                     vSlides.set(0);
@@ -232,14 +232,13 @@ import pedroPathing.constants.LConstants;
                     intakeRight.setPower(-1);
                     intakeRotateLeft.setPosition(.1);
                     intakeRotateRight.setPosition(.1);
-                } else if (result.closestSwatch == PredominantColorProcessor.Swatch.YELLOW) {
+                } else if (result.closestSwatch == PredominantColorProcessor.Swatch.YELLOW && gamepad1.x) {
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
                     telemetry.addLine("Intake on");
                     clawAdjust.setPosition(.12 - .0277);
-                    claw.setPosition(1);
                     telemetry.addLine("Adjusting claw automatically");
-                } else if (result.closestSwatch == PredominantColorProcessor.Swatch.RED) {
+                } else if (result.closestSwatch == PredominantColorProcessor.Swatch.RED && gamepad1.x) {
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
                     telemetry.addLine("Intake on");
@@ -261,18 +260,11 @@ import pedroPathing.constants.LConstants;
                 if (follower.getPose().getX() > (observationZone.getX()) && follower.getPose().getY() > (observationZone.getY())) {
                     clawRotateLeft.setPosition(.09);
                     clawRotateRight.setPosition(.09);
-                    clawAdjust.setPosition(0.5);
-                    targetDistance = 1;
-                    telemetry.addLine("Specimen pickup");
                 }
 
                 if (follower.getPose().getX() > (basket.getX()) && follower.getPose().getY() < (basket.getY())) {
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
-                    clawAdjust.setPosition(.75);
-                    telemetry.addLine("Sample scoring");
-                    targetDistance = 5;
-                    telemetry.addLine("Adjusting viper slides automatically");
                 }
 
                 if (hangModeRight.wasJustReleased() && hangModeLeft.wasJustReleased()) {
