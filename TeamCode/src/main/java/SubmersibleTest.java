@@ -141,23 +141,22 @@ public class SubmersibleTest extends OpMode{
         ServoEx intakeRotateRight = new SimpleServo(hardwareMap, "iRR", 0, 300, AngleUnit.DEGREES);
         CRServo linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
         CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
+        MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
+        MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
 
         //TODO: Adjust the vSlides parameters
         vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
         vSlides.setRunMode(Motor.RunMode.PositionControl);
-        vSlides.setPositionCoefficient(0.05);
-        vSlides.setDistancePerPulse(0.015);
+        vSlides.encoder.setDistancePerPulse(0.00102);
         vSlides.stopAndResetEncoder();
 
-        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-
-        intakeRotateRight.setInverted(true);
         linSlideLeft.setDirection(CRServo.Direction.REVERSE);
         intakeLeft.setDirection(CRServo.Direction.REVERSE);
-        clawRotateLeft.setInverted(false);
-        clawRotateRight.setInverted(true);
+        intakeRotateLeft.setInverted(true);
+        clawRotateLeft.setInverted(true);
         claw.setInverted(true);
-        vSlideRight.setInverted(true);
+        vSlides.setInverted(true);
+        vSlideRight.setInverted(false);
 
         double targetDistance = 0;
 
@@ -166,8 +165,6 @@ public class SubmersibleTest extends OpMode{
                 setPathState(1);
                 intakeLeft.setPower(1);
                 intakeRight.setPower(1);
-                intakeRotateRight.setPosition(0);
-                intakeRotateLeft.setPosition(0);
                 follower.followPath(scorePreLoad, true);
                 telemetry.addLine("pathState 0");
                 break;
@@ -184,10 +181,9 @@ public class SubmersibleTest extends OpMode{
                     intakeRotateLeft.setPosition(0);
                     intakeRotateRight.setPosition(0);
                     actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .3) {
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(1);
                     }
-                    claw.setPosition(1);
                     follower.followPath(pickUp1, true);
                     telemetry.addLine("pathState 1");
                 }
@@ -206,7 +202,7 @@ public class SubmersibleTest extends OpMode{
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
                     actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == 1) {
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(0);
                     }
                     follower.followPath(score1, true);
@@ -217,16 +213,18 @@ public class SubmersibleTest extends OpMode{
             case 3:
                 if (!follower.isBusy()) {
                     // targetDistance = 5;
-                    intakeRotateLeft.setPosition(.05);
-                    intakeRotateRight.setPosition(.05);
-                    intakeLeft.setPower(-1);
-                    intakeRight.setPower(-1);
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
                     actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(1);
+                    }
+                    if (actionTimer.getElapsedTimeSeconds() >= .2) {
+                        intakeRotateLeft.setPosition(.05);
+                        intakeRotateRight.setPosition(.05);
+                        intakeLeft.setPower(-1);
+                        intakeRight.setPower(-1);
                     }
                     follower.followPath(pickUp2, true);
                     setPathState(4);
@@ -247,7 +245,7 @@ public class SubmersibleTest extends OpMode{
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
                     actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == 1) {
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(0);
                     }
                     follower.followPath(score2, true);
@@ -258,20 +256,22 @@ public class SubmersibleTest extends OpMode{
             case 5:
                 if (!follower.isBusy()) {
                     // targetDistance = 5;
-                    intakeRotateLeft.setPosition(.05);
-                    intakeRotateRight.setPosition(.05);
-                    intakeLeft.setPower(-1);
-                    intakeRight.setPower(-1);
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
                     actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(1);
                     }
+                    if (actionTimer.getElapsedTimeSeconds() >= .2) {
+                        intakeRotateLeft.setPosition(.05);
+                        intakeRotateRight.setPosition(.05);
+                        intakeLeft.setPower(-1);
+                        intakeRight.setPower(-1);
+                    }
                     follower.followPath(pushPickUp, true);
-                    setPathState(6);
                     telemetry.addLine("pathState 5");
+                    setPathState(6);
                 }
                 break;
             case 6:
@@ -287,8 +287,12 @@ public class SubmersibleTest extends OpMode{
                     linSlideRight.setPower(-1);
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
-                    follower.followPath(pushScore, true);
+                    actionTimer.resetTimer();
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
+                        claw.setPosition(0);
+                    }
                     setPathState(7);
+                    follower.followPath(pushScore, true);
                     telemetry.addLine("pathState 6");
                 }
                 break;
@@ -333,11 +337,6 @@ public class SubmersibleTest extends OpMode{
 
             case 9:
                 if (opmodeTimer.getElapsedTimeSeconds() > 27) {
-                    hang = follower.pathBuilder()
-                            .addPath(new BezierLine(new Point(follower.getPose()), new Point(hangPose)))
-                            .setLinearHeadingInterpolation(pushScorePose.getHeading(), hangPose.getHeading())
-                            .build();
-                    follower.followPath(hang, true);
                     setPathState(10);
                 } else if (!follower.isBusy() && opmodeTimer.getElapsedTimeSeconds() < 27) {
                     intakeRotateLeft.setPosition(.05);
@@ -355,6 +354,10 @@ public class SubmersibleTest extends OpMode{
                 } break;
 
             case 10:
+                hang = follower.pathBuilder()
+                        .addPath(new BezierLine(new Point(follower.getPose()), new Point(hangPose)))
+                        .setLinearHeadingInterpolation(pushScorePose.getHeading(), hangPose.getHeading())
+                        .build();
                 intakeLeft.setPower(1);
                 intakeRight.setPower(1);
                 intakeRotateLeft.setPosition(.025);
@@ -366,18 +369,61 @@ public class SubmersibleTest extends OpMode{
                 if (actionTimer.getElapsedTimeSeconds() == 1) {
                     claw.setPosition(0);
                 }
-                setPathState(11);
+                follower.followPath(hang, true);
+                setPathState(12);
+                break;
+
+            case 11:
+                if (result.closestSwatch == PredominantColorProcessor.Swatch.BLUE && pathState == 9) {
+                    intakeRotateLeft.setPosition(.025);
+                    intakeRotateRight.setPosition(.17);
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
+                    clawRotateLeft.setPosition(0);
+                    clawRotateRight.setPosition(0);
+                    clawAdjust.setPosition(.12-.0277);
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    claw.setPosition(0);
+                    scoreInBasket = follower.pathBuilder()
+                            .addPath(new BezierLine(new Point(follower.getPose()), new Point(scorePose)))
+                            .setLinearHeadingInterpolation(follower.getPose().getHeading(), scorePose.getHeading())
+                            .build();
+                    follower.followPath(scoreInBasket, true);
+                    setPathState(9);
+                } else if (result.closestSwatch == PredominantColorProcessor.Swatch.YELLOW && pathState == 9) {
+                    intakeRotateLeft.setPosition(.025);
+                    intakeRotateRight.setPosition(.17);
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
+                    clawRotateLeft.setPosition(0);
+                    clawRotateRight.setPosition(0);
+                    clawAdjust.setPosition(.12 - .0277);
+                    intakeLeft.setPower(1);
+                    intakeRight.setPower(1);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
+                    claw.setPosition(0);
+                    scoreInBasket = follower.pathBuilder()
+                            .addPath(new BezierLine(new Point(follower.getPose()), new Point(scorePose)))
+                            .setLinearHeadingInterpolation(follower.getPose().getHeading(), scorePose.getHeading())
+                            .build();
+                    follower.followPath(scoreInBasket, true);
+                    setPathState(9);
+                }
                 break;
         }
         PIDFController pidf = new PIDFController(0, 0, 0, 0);
         pidf.setSetPoint(targetDistance);
         while (!pidf.atSetPoint()) {
             double outputLeft = pidf.calculate(
-                    vSlideLeft.getCurrentPosition()
+                    vSlideLeft.encoder.getPosition()
             );
 
             double outputRight = pidf.calculate(
-                    vSlideRight.getCurrentPosition()
+                    vSlideRight.encoder.getPosition()
             );
 
             vSlideLeft.setVelocity(outputLeft);
@@ -400,66 +446,6 @@ public class SubmersibleTest extends OpMode{
         //dashboardPoseTracker.update();
         autonomousPathUpdate();
 
-        if (result.closestSwatch == PredominantColorProcessor.Swatch.BLUE && pathState == 9) {
-            CRServo intakeLeft = hardwareMap.get(CRServo.class, "iL");
-            CRServo intakeRight = hardwareMap.get(CRServo.class, "iR");
-            ServoEx claw = new SimpleServo(hardwareMap, "claw", 0, 180, AngleUnit.DEGREES);
-            ServoEx clawAdjust = new SimpleServo(hardwareMap, "cA", 0, 180, AngleUnit.DEGREES);
-            ServoEx clawRotateLeft = new SimpleServo(hardwareMap, "cRL", 0, 270, AngleUnit.DEGREES);
-            ServoEx clawRotateRight = new SimpleServo(hardwareMap, "cRR", 0, 270, AngleUnit.DEGREES);
-            ServoEx intakeRotateLeft = new SimpleServo(hardwareMap, "iRL", 0, 300, AngleUnit.DEGREES);
-            ServoEx intakeRotateRight = new SimpleServo(hardwareMap, "iRR", 0, 300);
-            CRServo linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
-            CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
-            intakeRotateLeft.setPosition(.025);
-            intakeRotateRight.setPosition(.17);
-            intakeLeft.setPower(1);
-            intakeRight.setPower(1);
-            clawRotateLeft.setPosition(0);
-            clawRotateRight.setPosition(0);
-            clawAdjust.setPosition(.12-.0277);
-            intakeLeft.setPower(1);
-            intakeRight.setPower(1);
-            linSlideLeft.setPower(-1);
-            linSlideRight.setPower(-1);
-            claw.setPosition(0);
-            scoreInBasket = follower.pathBuilder()
-                    .addPath(new BezierLine(new Point(follower.getPose()), new Point(scorePose)))
-                    .setLinearHeadingInterpolation(follower.getPose().getHeading(), scorePose.getHeading())
-                    .build();
-            follower.followPath(scoreInBasket, true);
-            setPathState(9);
-        } else if (result.closestSwatch == PredominantColorProcessor.Swatch.YELLOW && pathState == 9) {
-            CRServo intakeLeft = hardwareMap.get(CRServo.class, "iL");
-            CRServo intakeRight = hardwareMap.get(CRServo.class, "iR");
-            ServoEx claw = new SimpleServo(hardwareMap, "claw", 0, 180, AngleUnit.DEGREES);
-            ServoEx clawAdjust = new SimpleServo(hardwareMap, "cA", 0, 180, AngleUnit.DEGREES);
-            ServoEx clawRotateLeft = new SimpleServo(hardwareMap, "cRL", 0, 270, AngleUnit.DEGREES);
-            ServoEx clawRotateRight = new SimpleServo(hardwareMap, "cRR", 0, 270, AngleUnit.DEGREES);
-            ServoEx intakeRotateLeft = new SimpleServo(hardwareMap, "iRL", 0, 300, AngleUnit.DEGREES);
-            ServoEx intakeRotateRight = new SimpleServo(hardwareMap, "iRR", 0, 300);
-            CRServo linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
-            CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
-            intakeRotateLeft.setPosition(.025);
-            intakeRotateRight.setPosition(.17);
-            intakeLeft.setPower(1);
-            intakeRight.setPower(1);
-            clawRotateLeft.setPosition(0);
-            clawRotateRight.setPosition(0);
-            clawAdjust.setPosition(.12 - .0277);
-            intakeLeft.setPower(1);
-            intakeRight.setPower(1);
-            linSlideLeft.setPower(-1);
-            linSlideRight.setPower(-1);
-            claw.setPosition(0);
-            scoreInBasket = follower.pathBuilder()
-                    .addPath(new BezierLine(new Point(follower.getPose()), new Point(scorePose)))
-                    .setLinearHeadingInterpolation(follower.getPose().getHeading(), scorePose.getHeading())
-                    .build();
-            follower.followPath(scoreInBasket, true);
-            setPathState(9);
-        }
-
         if (opmodeTimer.getElapsedTimeSeconds() > 27) {
             setPathState(9);
         }
@@ -478,6 +464,7 @@ public class SubmersibleTest extends OpMode{
     public void init() {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
+        actionTimer = new Timer();
         opmodeTimer.resetTimer();
 
         Constants.setConstants(FConstants.class, LConstants.class);
