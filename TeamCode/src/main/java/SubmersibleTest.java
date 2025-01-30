@@ -170,7 +170,7 @@ public class SubmersibleTest extends OpMode{
                 break;
             case 1:
                 if (!follower.isBusy()) {
-                    targetDistance = 3.58333333;
+                    targetDistance = 3.58333333-1.19500;
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
@@ -212,7 +212,7 @@ public class SubmersibleTest extends OpMode{
                 break;
             case 3:
                 if (!follower.isBusy()) {
-                    targetDistance = 3.58333333;
+                    targetDistance = 3.58333333-1.19500;
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
@@ -255,7 +255,7 @@ public class SubmersibleTest extends OpMode{
                 break;
             case 5:
                 if (!follower.isBusy()) {
-                    targetDistance = 5;
+                    targetDistance = 3.58333333-1.19500;
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
@@ -362,7 +362,7 @@ public class SubmersibleTest extends OpMode{
                 intakeRight.setPower(1);
                 intakeRotateLeft.setPosition(.025);
                 intakeRotateRight.setPosition(.17);
-                targetDistance = 3.58333333;
+                targetDistance = 3.58333333-1.19500;
                 clawRotateLeft.setPosition(.833);
                 clawRotateRight.setPosition(.833);
                 clawAdjust.setPosition(.75);

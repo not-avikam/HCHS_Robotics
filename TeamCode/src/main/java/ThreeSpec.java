@@ -135,7 +135,7 @@ public class ThreeSpec extends OpMode{
             case 1:
                 if (!follower.isBusy()) {
                     //TODO: subtract retracted height
-                    targetDistance = 2.16667;
+                    targetDistance = 2.16667-1.19500;
                     clawRotateRight.setPosition(.833);
                     clawRotateLeft.setPosition(.833);
                     intakeRotateRight.setPosition(0);
@@ -188,7 +188,7 @@ public class ThreeSpec extends OpMode{
             case 5:
                 if (!follower.isBusy()) {
                     //TODO: subtract distance of retracted slides
-                    targetDistance = 2.16667;
+                    targetDistance = 2.16667-1.19500;
                     clawRotateRight.setPosition(.833);
                     clawRotateLeft.setPosition(.833);
                     intakeRotateRight.setPosition(0);
@@ -221,7 +221,7 @@ public class ThreeSpec extends OpMode{
             case 7:
                 if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 25) {
                     //TODO: subtract distance of retracted slides
-                    targetDistance = 2.16667;
+                    targetDistance = 2.16667-1.19500;
                     clawRotateRight.setPosition(.833);
                     clawRotateLeft.setPosition(.833);
                     intakeRotateRight.setPosition(0);
