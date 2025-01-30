@@ -128,6 +128,8 @@ public class ThreeSpec extends OpMode{
         switch (pathState) {
             case 0:
                 setPathState(1);
+                intakeRotateRight.setPosition(0);
+                intakeRotateLeft.setPosition(0);
                 follower.followPath(scorePreload, true);
                 break;
             case 1:
@@ -136,6 +138,8 @@ public class ThreeSpec extends OpMode{
                     targetDistance = 2.16667;
                     clawRotateRight.setPosition(.833);
                     clawRotateLeft.setPosition(.833);
+                    intakeRotateRight.setPosition(0);
+                    intakeRotateLeft.setPosition(0);
                     clawAdjust.setPosition(.75);
                     actionTimer.resetTimer();
                     if (actionTimer.getElapsedTimeSeconds() == .5) {
@@ -151,12 +155,16 @@ public class ThreeSpec extends OpMode{
                     clawRotateRight.setPosition(0);
                     clawRotateLeft.setPosition(0);
                     clawAdjust.setPosition(.12 - .0277);
+                    intakeRotateRight.setPosition(0);
+                    intakeRotateLeft.setPosition(0);
                     follower.followPath(dropOffSample1, true);
                     setPathState(3);
                 }
                 break;
             case 3:
                 if (!follower.isBusy()) {
+                    intakeRotateRight.setPosition(0);
+                    intakeRotateLeft.setPosition(0);
                     follower.followPath(pickupSpecimen1, true);
                     setPathState(4);
                 }
@@ -165,6 +173,8 @@ public class ThreeSpec extends OpMode{
                 if (!follower.isBusy()) {
                     clawRotateLeft.setPosition(.09);
                     clawRotateRight.setPosition(.09);
+                    intakeRotateRight.setPosition(0);
+                    intakeRotateLeft.setPosition(0);
                     clawAdjust.setPosition(0.5);
                     actionTimer.resetTimer();
                     if (actionTimer.getElapsedTimeSeconds() == .5) {
@@ -181,6 +191,8 @@ public class ThreeSpec extends OpMode{
                     targetDistance = 2.16667;
                     clawRotateRight.setPosition(.833);
                     clawRotateLeft.setPosition(.833);
+                    intakeRotateRight.setPosition(0);
+                    intakeRotateLeft.setPosition(0);
                     clawAdjust.setPosition(.75);
                     actionTimer.resetTimer();
                     if (actionTimer.getElapsedTimeSeconds() == .5) {
@@ -194,6 +206,8 @@ public class ThreeSpec extends OpMode{
                 if (!follower.isBusy()) {
                     clawRotateLeft.setPosition(.09);
                     clawRotateRight.setPosition(.09);
+                    intakeRotateRight.setPosition(0);
+                    intakeRotateLeft.setPosition(0);
                     clawAdjust.setPosition(0.5);
                     actionTimer.resetTimer();
                     if (actionTimer.getElapsedTimeSeconds() == .5) {
@@ -210,6 +224,8 @@ public class ThreeSpec extends OpMode{
                     targetDistance = 2.16667;
                     clawRotateRight.setPosition(.833);
                     clawRotateLeft.setPosition(.833);
+                    intakeRotateRight.setPosition(0);
+                    intakeRotateLeft.setPosition(0);
                     clawAdjust.setPosition(.75);
                     actionTimer.resetTimer();
                     if (actionTimer.getElapsedTimeSeconds() == .5) {
@@ -251,7 +267,6 @@ public class ThreeSpec extends OpMode{
 
         // These loop the movements of the robot
         follower.update();
-        //dashboardPoseTracker.update();
         autonomousPathUpdate();
 
 

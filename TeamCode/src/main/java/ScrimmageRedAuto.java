@@ -181,7 +181,6 @@ public class ScrimmageRedAuto extends OpMode{
 
         switch (pathState) {
             case 0:
-                setPathState(1);
                 follower.followPath(park, true);
                 break;
             case 1:

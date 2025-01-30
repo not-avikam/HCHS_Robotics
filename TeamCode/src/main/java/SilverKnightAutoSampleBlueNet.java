@@ -137,7 +137,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                     intakeRotateLeft.setPosition(0);
                     intakeRotateRight.setPosition(0);
                     actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(1);
                     }
                     follower.followPath(pickUp1, true);
@@ -158,7 +158,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
                     actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == 1) {
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(0);
                     }
                     follower.followPath(score1, true);
@@ -173,7 +173,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
                     actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(1);
                     }
                     if (actionTimer.getElapsedTimeSeconds() >= .2) {
@@ -201,7 +201,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
                     actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == 1) {
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(0);
                     }
                     follower.followPath(score2, true);
@@ -216,7 +216,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
                     actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(1);
                     }
                     if (actionTimer.getElapsedTimeSeconds() >= .2) {
@@ -244,7 +244,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
                     actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == 1) {
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(0);
                     }
                     setPathState(7);
@@ -264,7 +264,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                     clawRotateRight.setPosition(0);
                     clawAdjust.setPosition(.75);
                     actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == 1) {
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(0);
                     }
                     follower.followPath(hang, true);
@@ -287,13 +287,19 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
         PIDFController pidf = new PIDFController(0, 0, 0, 0);
         pidf.setSetPoint(targetDistance);
         while (!pidf.atSetPoint()) {
-            double output = pidf.calculate(
-                    vSlides.getCurrentPosition()
+            double outputLeft = pidf.calculate(
+                    vSlideLeft.encoder.getPosition()
             );
-            vSlideLeft.setVelocity(output);
-            vSlideRight.setVelocity(output);
+
+            double outputRight = pidf.calculate(
+                    vSlideRight.encoder.getPosition()
+            );
+
+            vSlideLeft.setVelocity(outputLeft);
+            vSlideRight.setVelocity(outputRight);
         }
-        vSlides.stopMotor();
+        vSlideLeft.stopMotor();
+        vSlideRight.stopMotor();
     }
 
     public void setPathState(int pState) {
@@ -306,7 +312,6 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
 
         // These loop the movements of the robot
         follower.update();
-        //dashboardPoseTracker.update();
         autonomousPathUpdate();
 
 
