@@ -39,8 +39,6 @@ public class SilverKnightTeleOp extends LinearOpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     private final String soundPath = "/FIRST/blocks/sounds";
     private final File Alert  = new File( soundPath + "/alert.wav");
-
-    //TODO: Make this correct
     private final Pose startPose = new Pose(135, 133, Math.toRadians(0));
     private final Pose observationZone = new Pose(120, 120);
     private final Pose basket = new Pose(120, 25);
