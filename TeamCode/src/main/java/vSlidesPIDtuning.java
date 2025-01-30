@@ -46,24 +46,26 @@ public class vSlidesPIDtuning extends OpMode {
     public static double f = 0;
     public static int target;
     private final double ticks_in_degree = 384.5/360;
-    MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
-    MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
+    MotorEx vSlideLeft;
+    MotorEx vSlideRight;
 
     @Override
     public void init() {
+
+        vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
+        vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
+
         controller = new PIDController(p, i, d);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
+        target = 0;
+
         vSlideRight.setInverted(true);
 
-        vSlideRight.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
         vSlideRight.setRunMode(Motor.RunMode.PositionControl);
-        vSlideRight.encoder.setDistancePerPulse(0.00102);
         vSlideRight.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
 
-        vSlideLeft.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
         vSlideLeft.setRunMode(Motor.RunMode.PositionControl);
-        vSlideLeft.encoder.setDistancePerPulse(0.00102);
         vSlideLeft.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
     }
 
@@ -81,8 +83,8 @@ public class vSlidesPIDtuning extends OpMode {
         vSlideLeft.set(power);
         vSlideRight.set(power);
 
-        telemetry.addData("pos ", vSlideLeftPos);
-        telemetry.addData("pos", vSlideRightPos);
+        telemetry.addData("Left pos ", vSlideLeftPos);
+        telemetry.addData("Right pos ", vSlideRightPos);
         telemetry.addData("target", target);
         telemetry.update();
     }
