@@ -30,6 +30,8 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -44,40 +46,40 @@ public class vSlidesPIDtuning extends OpMode {
     public static double f = 0;
     public static int target;
     private final double ticks_in_degree = 384.5/360;
-    private DcMotorEx vSlideLeft;
-    private DcMotorEx vSlideRight;
+    MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
+    MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
 
     @Override
     public void init() {
         controller = new PIDController(p, i, d);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        vSlideLeft = hardwareMap.get(DcMotorEx.class, "VSL");
-        vSlideRight = hardwareMap.get(DcMotorEx.class, "VSR");
-        vSlideLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        vSlideRight.setInverted(true);
 
-        vSlideLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        vSlideLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        vSlideLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        vSlideRight.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+        vSlideRight.setRunMode(Motor.RunMode.PositionControl);
+        vSlideRight.encoder.setDistancePerPulse(0.00102);
+        vSlideRight.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
 
-        vSlideRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        vSlideRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        vSlideRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        vSlideLeft.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+        vSlideLeft.setRunMode(Motor.RunMode.PositionControl);
+        vSlideLeft.encoder.setDistancePerPulse(0.00102);
+        vSlideLeft.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
     }
 
     @Override
     public void loop() {
         controller.setPID(p, i, d);
-        int vSlideLeftPos = vSlideLeft.getCurrentPosition();
-        int vSlideRightPos = vSlideRight.getCurrentPosition();
+        int vSlideLeftPos = vSlideLeft.encoder.getPosition();
+        int vSlideRightPos = vSlideRight.encoder.getPosition();
         int vSlidePos = (vSlideLeftPos + vSlideRightPos) / 2; // Average the positions
         double pid = controller.calculate(vSlidePos, target);
         double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
 
         double power = pid + ff;
 
-        vSlideLeft.setPower(power);
-        vSlideRight.setPower(power);
+        vSlideLeft.set(power);
+        vSlideRight.set(power);
 
         telemetry.addData("pos ", vSlideLeftPos);
         telemetry.addData("pos", vSlideRightPos);
