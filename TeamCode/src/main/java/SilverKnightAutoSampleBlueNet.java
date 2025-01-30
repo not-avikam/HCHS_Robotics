@@ -101,8 +101,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
         //TODO: Adjust the vSlides parameters
         vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
         vSlides.setRunMode(Motor.RunMode.PositionControl);
-        vSlides.setPositionCoefficient(0.05);
-        vSlides.setDistancePerPulse(0.015);
+        vSlides.encoder.setDistancePerPulse(0.00102);
         vSlides.stopAndResetEncoder();
 
         vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
@@ -126,7 +125,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                 break;
             case 1:
                 if (!follower.isBusy()) {
-                    //targetDistance = 5;
+                    targetDistance = 3.58333333;
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
@@ -146,7 +145,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                 break;
             case 2:
                 if (!follower.isBusy()) {
-                    //targetDistance = 0;
+                    targetDistance = 0;
                     clawRotateLeft.setPosition(0);
                     clawRotateRight.setPosition(0);
                     //clawAdjust.setPosition(O.25)
@@ -168,7 +167,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                 break;
             case 3:
                 if (!follower.isBusy()) {
-                   // targetDistance = 5;
+                    targetDistance = 3.58333333;
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
@@ -189,7 +188,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                 break;
             case 4:
                 if (!follower.isBusy()) {
-                    //targetDistance = 0;
+                    targetDistance = 0;
                     clawRotateLeft.setPosition(0);
                     clawRotateRight.setPosition(0);
                     //clawAdjust.setPosition(O.25)
@@ -211,7 +210,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                 break;
             case 5:
                 if (!follower.isBusy()) {
-                    // targetDistance = 5;
+                    targetDistance = 3.58333333;
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
@@ -232,7 +231,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                 break;
             case 6:
                 if (!follower.isBusy()) {
-                    //targetDistance = 0;
+                    targetDistance = 0;
                     clawRotateLeft.setPosition(0);
                     clawRotateRight.setPosition(0);
                     //clawAdjust.setPosition(O.25)
@@ -255,7 +254,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
 
             case 7:
                 if (!follower.isBusy()) {
-                    // targetDistance = 0;
+                    targetDistance = 0;
                     intakeRotateLeft.setPosition(.05);
                     intakeRotateRight.setPosition(.05);
                     intakeLeft.setPower(-1);
