@@ -67,6 +67,9 @@ public class vSlidesPIDtuning extends OpMode {
 
         vSlideLeft.setRunMode(Motor.RunMode.PositionControl);
         vSlideLeft.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+
+        vSlideLeft.resetEncoder();
+        vSlideRight.resetEncoder();
     }
 
     @Override
