@@ -125,7 +125,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                 break;
             case 1:
                 if (!follower.isBusy()) {
-                    targetDistance = 3.58333333-1.19500;
+                    targetDistance = 2.16667-1.19500;
                     clawRotateLeft.setPosition(.833);
                     clawRotateRight.setPosition(.833);
                     clawAdjust.setPosition(.75);
@@ -135,7 +135,6 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                     linSlideRight.setPower(-1);
                     intakeRotateLeft.setPosition(0);
                     intakeRotateRight.setPosition(0);
-                    actionTimer.resetTimer();
                     if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(1);
                     }
@@ -157,7 +156,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
                     actionTimer.resetTimer();
-                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
+                    if (clawRotateLeft.getPosition() == 0 && clawRotateRight.getPosition() == 0) {
                         claw.setPosition(0);
                     }
                     follower.followPath(score1, true);
@@ -200,7 +199,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                     intakeRotateLeft.setPosition(.025);
                     intakeRotateRight.setPosition(.17);
                     actionTimer.resetTimer();
-                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
+                    if (clawRotateLeft.getPosition() == 0 && clawRotateRight.getPosition() == 0) {
                         claw.setPosition(0);
                     }
                     follower.followPath(score2, true);
@@ -257,6 +256,8 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                     targetDistance = 0;
                     intakeRotateLeft.setPosition(.05);
                     intakeRotateRight.setPosition(.05);
+                    linSlideLeft.setPower(-1);
+                    linSlideRight.setPower(-1);
                     intakeLeft.setPower(-1);
                     intakeRight.setPower(-1);
                     clawRotateLeft.setPosition(0);
@@ -268,7 +269,7 @@ public class SilverKnightAutoSampleBlueNet extends OpMode{
                     }
                     follower.followPath(hang, true);
                     telemetry.addLine("pathState 7");
-                    setPathState(6);
+                    setPathState(8);
                 }
                 break;
             case 8:

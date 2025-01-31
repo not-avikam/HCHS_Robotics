@@ -15,6 +15,7 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 
@@ -24,8 +25,9 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
+@Disabled
 @Autonomous(name = "Blue Autonomous Observation with Intake - Silver Knight", group = "Silver Knight")
-public class ObservationWithIntake extends OpMode{
+public class ObservationWithIntakeBlue extends OpMode{
     private Timer pathTimer, actionTimer, opmodeTimer;
     private Follower follower;
     private int pathState;
