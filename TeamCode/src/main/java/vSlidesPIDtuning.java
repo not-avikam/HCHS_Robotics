@@ -29,6 +29,7 @@ Encoder Type Relative, Quadrature Encoder Sensor Type Magnetic (Hall Effect) Enc
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.controller.PController;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -36,7 +37,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @Config
 @TeleOp
@@ -44,51 +44,52 @@ public class vSlidesPIDtuning extends OpMode {
     private PIDController controller;
     public static double p = 0, i = 0, d = 0;
     public static double f = 0;
-    public static int target;
-    private final double ticks_in_degree = 384.5/360;
-    MotorEx vSlideLeft;
-    MotorEx vSlideRight;
+    public static int target = 0;
+    private final double ticks_in_degree = 383.6/360;
+    DcMotorEx vSlideLeft;
+    DcMotorEx vSlideRight;
 
     @Override
     public void init() {
-
-        vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
-        vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
-
         controller = new PIDController(p, i, d);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        target = 0;
+        vSlideLeft = hardwareMap.get(DcMotorEx.class, "VSL");
+        vSlideRight = hardwareMap.get(DcMotorEx.class, "VSR");
 
-        vSlideRight.setInverted(true);
+        vSlideLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        vSlideRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
-        vSlideRight.setRunMode(Motor.RunMode.PositionControl);
-        vSlideRight.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+        vSlideLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        vSlideRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-        vSlideLeft.setRunMode(Motor.RunMode.PositionControl);
-        vSlideLeft.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-
-        vSlideLeft.resetEncoder();
-        vSlideRight.resetEncoder();
+        vSlideRight.setDirection(DcMotorEx.Direction.REVERSE);
     }
 
     @Override
     public void loop() {
         controller.setPID(p, i, d);
-        int vSlideLeftPos = vSlideLeft.encoder.getPosition();
-        int vSlideRightPos = vSlideRight.encoder.getPosition();
-        int vSlidePos = (vSlideLeftPos + vSlideRightPos) / 2; // Average the positions
-        double pid = controller.calculate(vSlidePos, target);
-        double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
+        int vSlideLeftPos = vSlideLeft.getCurrentPosition();
+        int vSlideRightPos = vSlideRight.getCurrentPosition();
+        double pidLeft = controller.calculate(vSlideLeftPos, target);
+        double pidRight = controller.calculate(vSlideRightPos, target);
+        double ff  = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
 
-        double power = pid + ff;
+        double powerLeft = pidLeft + ff;
+        double powerRight = pidRight + ff;
 
-        vSlideLeft.set(power);
-        vSlideRight.set(power);
+        vSlideLeft.setPower(powerLeft);
+        vSlideRight.setPower(powerRight);
 
         telemetry.addData("Left pos ", vSlideLeftPos);
         telemetry.addData("Right pos ", vSlideRightPos);
         telemetry.addData("target", target);
+        telemetry.addData("PID Left", pidLeft);
+        telemetry.addData("PID Right", pidRight);
+        telemetry.addData("Feedforward", ff);
+        telemetry.addData("Power Left", powerLeft);
+        telemetry.addData("Power Right", powerRight);
+        telemetry.update();
         telemetry.update();
     }
 }

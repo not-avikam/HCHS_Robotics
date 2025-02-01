@@ -28,9 +28,11 @@ import pedroPathing.constants.LConstants;
 public class ThreeSpecRedObservation extends OpMode{
     //private PoseUpdater poseUpdater;
     //private DashboardPoseTracker dashboardPoseTracker;
-    PIDFController pidf = new PIDFController(0, 0, 0, 0);
-    //hardware
-    //auto stuff
+    PIDFController pidf = new PIDFController(0, 0, 0, .005);
+    private MotorEx vSlideLeft;
+    private MotorEx vSlideRight;
+    private MotorGroup vSlides;
+    private double targetDistance;
     private Timer pathTimer, actionTimer, opmodeTimer;
     private Follower follower;
     private int pathState;
@@ -105,15 +107,12 @@ public class ThreeSpecRedObservation extends OpMode{
         GamepadEx driverOp = new GamepadEx(gamepad1);
         GamepadEx clawOp = new GamepadEx(gamepad2);
         RevIMU imu = new RevIMU(hardwareMap, "imu");
-        MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
-        MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
-
-        MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
 
         //TODO: Adjust the vSlides parameters
         vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
         vSlides.setRunMode(Motor.RunMode.PositionControl);
-        vSlides.encoder.setDistancePerPulse(0.00102);
+        vSlideLeft.encoder.setDistancePerPulse(0.00102);
+        vSlideRight.encoder.setDistancePerPulse(0.00102);
         vSlides.stopAndResetEncoder();
 
         linSlideLeft.setDirection(CRServo.Direction.REVERSE);
@@ -124,12 +123,11 @@ public class ThreeSpecRedObservation extends OpMode{
         vSlides.setInverted(true);
         vSlideRight.setInverted(false);
 
-        double targetDistance = 0;
         switch (pathState) {
             case 0:
-                setPathState(1);
                 intakeRotateRight.setPosition(0);
                 intakeRotateLeft.setPosition(0);
+                setPathState(1);
                 follower.followPath(scorePreload, true);
                 break;
             case 1:
@@ -238,23 +236,6 @@ public class ThreeSpecRedObservation extends OpMode{
                 }
                 break;
         }
-
-        PIDFController pidf = new PIDFController(0, 0, 0, 0);
-        pidf.setSetPoint(targetDistance);
-        while (!pidf.atSetPoint()) {
-            double outputLeft = pidf.calculate(
-                    vSlideLeft.encoder.getPosition()
-            );
-
-            double outputRight = pidf.calculate(
-                    vSlideRight.encoder.getPosition()
-            );
-
-            vSlideLeft.setVelocity(outputLeft);
-            vSlideRight.setVelocity(outputRight);
-        }
-        vSlideLeft.stopMotor();
-        vSlideRight.stopMotor();
     }
 
     public void setPathState(int pState) {
@@ -264,6 +245,24 @@ public class ThreeSpecRedObservation extends OpMode{
 
     @Override
     public void loop() {
+
+        pidf.setSetPoint(targetDistance);
+        if (!pidf.atSetPoint()) {
+            double outputLeft = pidf.calculate(
+                    vSlideLeft.encoder.getPosition()
+            );
+
+            double outputRight = pidf.calculate(
+                    vSlideRight.encoder.getPosition()
+            );
+
+            follower.update();
+
+            vSlideLeft.setVelocity(outputLeft);
+            vSlideRight.setVelocity(outputRight);
+        }
+        vSlideLeft.stopMotor();
+        vSlideRight.stopMotor();
 
         // These loop the movements of the robot
         follower.update();
@@ -284,6 +283,18 @@ public class ThreeSpecRedObservation extends OpMode{
         opmodeTimer = new Timer();
         actionTimer = new Timer();
         opmodeTimer.resetTimer();
+
+        vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
+        vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
+
+        vSlides = new MotorGroup(vSlideLeft, vSlideRight);
+
+        //TODO: Adjust the vSlides parameters
+        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+        vSlides.setRunMode(Motor.RunMode.PositionControl);
+        vSlideLeft.encoder.setDistancePerPulse(0.00102);
+        vSlideRight.encoder.setDistancePerPulse(0.00102);
+        vSlides.stopAndResetEncoder();
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);

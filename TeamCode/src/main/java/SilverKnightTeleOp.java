@@ -97,6 +97,7 @@ public class SilverKnightTeleOp extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
+            /*
             if (gamepad1.right_stick_button) {
                 follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
                 follower.update();
@@ -110,6 +111,11 @@ public class SilverKnightTeleOp extends LinearOpMode {
                 follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
                 follower.update();
             }
+
+             */
+
+            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
+            follower.update();
 
             telemetry.addLine("To use field centric mode, press left stick.");
 

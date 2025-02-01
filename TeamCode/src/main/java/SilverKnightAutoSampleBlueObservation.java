@@ -284,7 +284,7 @@ public class SilverKnightAutoSampleBlueObservation extends OpMode{
                 }
                 break;
         }
-        PIDFController pidf = new PIDFController(0, 0, 0, 0);
+        PIDFController pidf = new PIDFController(0, 0, 0, .005);
         pidf.setSetPoint(targetDistance);
         while (!pidf.atSetPoint()) {
             double outputLeft = pidf.calculate(

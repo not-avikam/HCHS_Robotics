@@ -35,7 +35,7 @@ import pedroPathing.constants.LConstants;
 
 @TeleOp(name="Red Park TeleOp", group="Silver Knight")
 public class RedTeleOpPark extends LinearOpMode {
-    PIDFController pidf = new PIDFController(0, 0, 0, 0);
+    PIDFController pidf = new PIDFController(0, 0, 0, .04);
     private final ElapsedTime runtime = new ElapsedTime();
     private final String soundPath = "/FIRST/blocks/sounds";
     private final File Alert  = new File( soundPath + "/alert.wav");
