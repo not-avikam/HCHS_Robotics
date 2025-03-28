@@ -25,35 +25,31 @@ import pedroPathing.constants.LConstants;
 
 
 @Autonomous(name = "Observation Zone debug help", group = "Silver Knight")
-public class test extends OpMode{
+public class test extends OpMode {
     //private PoseUpdater poseUpdater;
     //private DashboardPoseTracker dashboardPoseTracker;
-    PIDFController pidf = new PIDFController(0, 0, 0, 0);
-    //hardware
-    //auto stuff
+    PIDFController pidf = new PIDFController(0, 0, 0, .005);
+
+    double targetDistance = 0;
     private Timer pathTimer, actionTimer, opmodeTimer;
     private Follower follower;
     private int pathState;
-    private final Pose startPose = new Pose(8, 56, Math.toRadians(0));  // Starting position
-    private final Pose scorePose1 = new Pose(38, 70, Math.toRadians(180));
-    private final Pose pickupPose1 = new Pose(57, 25, Math.toRadians(90));
-    private final Pose pickupPose1ControlPose1 = new Pose(0.5, 77, Math.toRadians(90));
-    private final Pose pickupPose1ControlPose2 = new Pose(82, .8, Math.toRadians(90));
-    private final Pose pickupPose1ControlPose3 = new Pose(57, 39, Math.toRadians(90));
-    private final Pose dropOff1 = new Pose(13, 27, Math.toRadians(90));
-    private final Pose pickUpPose2 = new Pose(51, 17, Math.toRadians(90));
-    private final Pose pickUpPose2ControlPose1 = new Pose(90, 27, Math.toRadians(90));
-    private final Pose dropOff2 = new Pose(15, 19, Math.toRadians(90));
-    private final Pose dropOff3 = new Pose(16, 10.6, Math.toRadians(90));
-    private final Pose dropOff3ControlPose1 = new Pose(140, 7);
-
-    private final Pose pickupSpecimenPose = new Pose(10, 28, Math.toRadians(180)); // First sample pickup
-    private final Pose scorePose2 = new Pose(38, 76, Math.toRadians(0)); // Third sample pickup
-    private final Pose scorePose3 = new Pose(38, 74, Math.toRadians(0));
-    private final Pose scorePose4 = new Pose(38, 72, Math.toRadians(0));
-    private final Pose scorePose5 = new Pose(38, 68, Math.toRadians(0));
+    private MotorEx vSlideLeft;
+    private MotorEx vSlideRight;
+    private MotorGroup vSlides;
+    private final Pose startPose = new Pose(9.5, 56, Math.toRadians(0));  // Starting position
+    private final Pose scorePose1 = new Pose(38, 68, Math.toRadians(180));
+    private final Pose pickupPose1 = new Pose(67, 22, Math.toRadians(90));
+    private final Pose pickupPose1ControlPose1 = new Pose(3, 38);
+    private final Pose pickupPose1ControlPose2 = new Pose(105, 5);
+    private final Pose pickupPose1ControlPose3 = new Pose(38, 47);
+    private final Pose dropOff1 = new Pose(19, 22, Math.toRadians(90));
+    private final Pose pickupSpecimenPose = new Pose(9, 28, Math.toRadians(180)); // First sample pickup
+    private final Pose scorePose2 = new Pose(38, 64, Math.toRadians(180)); // Third sample pickup
+    private final Pose scorePose3 = new Pose(38, 72, Math.toRadians(180));
     private final Pose parkPose = new Pose(18, 24, Math.toRadians(0));
-    private PathChain park, score2return, score3return, score4return, score2, score3, score4, score5, pickupSpecimen, scorePreload, pickup1, pickUpSample3, dropOffSample1, dropOffSample2, pickUpSample2;
+    private PathChain park, score2, score3, scorePreload, pickup1, dropOffSample1, pickupSpecimen1, pickupSpecimen2;
+
     public void buildPaths() {
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(scorePose1)))
@@ -70,24 +66,9 @@ public class test extends OpMode{
                 .setLinearHeadingInterpolation(pickupPose1.getHeading(), dropOff1.getHeading())
                 .build();
 
-        pickUpSample2 = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(dropOff1), new Point(pickUpPose2ControlPose1), new Point(pickUpPose2)))
-                .setLinearHeadingInterpolation(dropOff1.getHeading(), pickUpPose2.getHeading())
-                .build();
-
-        dropOffSample2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickUpPose2), new Point(dropOff2)))
-                .setLinearHeadingInterpolation(pickUpPose2.getHeading(), dropOff2.getHeading())
-                .build();
-
-        pickUpSample3 = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(dropOff2),new Point(dropOff3ControlPose1), new Point(dropOff3)))
-                .setLinearHeadingInterpolation(dropOff2.getHeading(), dropOff3.getHeading())
-                .build();
-
-        pickupSpecimen = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(dropOff3), new Point(pickupSpecimenPose)))
-                .setLinearHeadingInterpolation(dropOff3.getHeading(), pickupSpecimenPose.getHeading())
+        pickupSpecimen1 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(dropOff1), new Point(pickupSpecimenPose)))
+                .setLinearHeadingInterpolation(dropOff1.getHeading(), pickupSpecimenPose.getHeading())
                 .build();
 
         score2 = follower.pathBuilder()
@@ -95,8 +76,8 @@ public class test extends OpMode{
                 .setLinearHeadingInterpolation(pickupSpecimenPose.getHeading(), scorePose2.getHeading())
                 .build();
 
-        score2return = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose2), new Point(pickupSpecimenPose)))
+        pickupSpecimen2 = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(scorePose2), new Point(pickupSpecimenPose)))
                 .setLinearHeadingInterpolation(scorePose2.getHeading(), pickupSpecimenPose.getHeading())
                 .build();
 
@@ -105,29 +86,9 @@ public class test extends OpMode{
                 .setLinearHeadingInterpolation(pickupSpecimenPose.getHeading(), scorePose3.getHeading())
                 .build();
 
-        score3return = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose3), new Point(pickupSpecimenPose)))
-                .setLinearHeadingInterpolation(scorePose3.getHeading(), pickupSpecimenPose.getHeading())
-                .build();
-
-        score4 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickupSpecimenPose), new Point(scorePose4)))
-                .setLinearHeadingInterpolation(pickupSpecimenPose.getHeading(), scorePose4.getHeading())
-                .build();
-
-        score4return = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose4), new Point(pickupSpecimenPose)))
-                .setLinearHeadingInterpolation(scorePose4.getHeading(), pickupSpecimenPose.getHeading())
-                .build();
-
-        score5 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickupSpecimenPose), new Point(scorePose5)))
-                .setLinearHeadingInterpolation(pickupSpecimenPose.getHeading(), scorePose5.getHeading())
-                .build();
-
         park = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose5), new Point(parkPose)))
-                .setConstantHeadingInterpolation(parkPose.getHeading())
+                .addPath(new BezierLine(new Point(scorePose3), new Point(parkPose)))
+                .setLinearHeadingInterpolation(scorePose3.getHeading(), parkPose.getHeading())
                 .build();
     }
 
@@ -169,19 +130,26 @@ public class test extends OpMode{
         double targetDistance = 0;
         switch (pathState) {
             case 0:
+                intakeRotateRight.setPosition(0);
+                intakeRotateLeft.setPosition(0);
                 setPathState(1);
                 follower.followPath(scorePreload, true);
                 break;
             case 1:
                 if (!follower.isBusy()) {
-                    //targetDistance = 5;
+                    //TODO: targetDistance = 2.16667-1.19500;
                     clawRotateRight.setPosition(.833);
                     clawRotateLeft.setPosition(.833);
+                    intakeRotateRight.setPosition(0);
+                    intakeRotateLeft.setPosition(0);
+                    linSlideLeft.setPower(-.4);
+                    linSlideRight.setPower(-.4);
                     clawAdjust.setPosition(.75);
-                    actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                    /*
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(1);
                     }
+                     */
                     follower.followPath(pickup1, true);
                     setPathState(2);
                 }
@@ -192,151 +160,94 @@ public class test extends OpMode{
                     clawRotateRight.setPosition(0);
                     clawRotateLeft.setPosition(0);
                     clawAdjust.setPosition(.12 - .0277);
+                    linSlideLeft.setPower(-.4);
+                    linSlideRight.setPower(-.4);
+                    intakeRotateRight.setPosition(0);
+                    intakeRotateLeft.setPosition(0);
                     follower.followPath(dropOffSample1, true);
                     setPathState(3);
                 }
                 break;
             case 3:
                 if (!follower.isBusy()) {
-                    follower.followPath(pickUpSample2, true);
+                    intakeRotateRight.setPosition(0);
+                    intakeRotateLeft.setPosition(0);
+                    linSlideLeft.setPower(-.4);
+                    linSlideRight.setPower(-.4);
+                    follower.followPath(pickupSpecimen1, true);
                     setPathState(4);
                 }
                 break;
             case 4:
                 if (!follower.isBusy()) {
-                    follower.followPath(dropOffSample2, true);
-                    setPathState(5);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    intakeRotateRight.setPosition(0);
+                    intakeRotateLeft.setPosition(0);
+                    clawAdjust.setPosition(0.5);
+                    //targetDistance = 0;
+                    if (pathTimer.getElapsedTimeSeconds() > 2) {
+                        claw.setPosition(0);
+                        follower.followPath(score2, true);
+                        setPathState(5);
+                    }
                 }
                 break;
             case 5:
                 if (!follower.isBusy()) {
-                    follower.followPath(pickUpSample3, true);
+                    //TODO
+                    //targetDistance = 2.16667-1.19500;
+                    clawRotateRight.setPosition(.833);
+                    clawRotateLeft.setPosition(.833);
+                    intakeRotateRight.setPosition(0);
+                    intakeRotateLeft.setPosition(0);
+                    clawAdjust.setPosition(.75);
+                    /*
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
+                        claw.setPosition(1);
+                    }
+                     */
+                    follower.followPath(pickupSpecimen2, true);
                     setPathState(6);
                 }
                 break;
             case 6:
                 if (!follower.isBusy()) {
-                    follower.followPath(pickupSpecimen, true);
-                    setPathState(7);
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    intakeRotateRight.setPosition(0);
+                    intakeRotateLeft.setPosition(0);
+                    clawAdjust.setPosition(0.5);
+                    //TODO
+                    //targetDistance = 0;
+                    if (pathTimer.getElapsedTimeSeconds() > 2) {
+                        claw.setPosition(0);
+                        follower.followPath(score3, true);
+                        setPathState(7);
+                    }
                 }
                 break;
             case 7:
                 if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
-                    clawAdjust.setPosition(0.5);
-                    //targetDistance = 0;
-                    follower.followPath(score2,true);
-                    setPathState(8);
-                }
-                break;
-            case 8:
-                if (!follower.isBusy()) {
-                    //targetDistance = 5;
+                    //TODO
+                    //targetDistance = 2.16667-1.19500;
                     clawRotateRight.setPosition(.833);
                     clawRotateLeft.setPosition(.833);
+                    intakeRotateRight.setPosition(0);
+                    intakeRotateLeft.setPosition(0);
                     clawAdjust.setPosition(.75);
-                    actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
+                    /*
+                    if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(1);
                     }
-                    follower.followPath(score2return, true);
-                    setPathState(9);
-                }
-                break;
-            case 9:
-                if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
-                    clawAdjust.setPosition(0.5);
-                    //targetDistance = 0;
-                    follower.followPath(score3,true);
-                    setPathState(10);
-                }
-                break;
-            case 10:
-                if (!follower.isBusy()) {
-                    //targetDistance = 5;
-                    clawRotateRight.setPosition(.833);
-                    clawRotateLeft.setPosition(.833);
-                    clawAdjust.setPosition(.75);
-                    actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
-                        claw.setPosition(1);
-                    }
-                    follower.followPath(score3return,true);
-                    setPathState(11);
-                }
-                break;
-            case 11:
-                if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
-                    clawAdjust.setPosition(0.5);
-                    //targetDistance = 0;
-                    follower.followPath(score4,true);
-                    setPathState(12);
-                }
-                break;
-            case 12:
-                if (!follower.isBusy()) {
-                    //targetDistance = 5;
-                    clawRotateRight.setPosition(.833);
-                    clawRotateLeft.setPosition(.833);
-                    clawAdjust.setPosition(.75);
-                    actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
-                        claw.setPosition(1);
-                    }
-                    follower.followPath(score4return, true);
-                    setPathState(13);
-                }
-                break;
-
-            case 13:
-                if (!follower.isBusy()) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
-                    clawAdjust.setPosition(0.5);
-                    //targetDistance = 0;
-                    follower.followPath(score5,true);
-                    setPathState(14);
-                }
-                break;
-            case 14:
-                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 25) {
-                    //targetDistance = 5;
-                    clawRotateRight.setPosition(.833);
-                    clawRotateLeft.setPosition(.833);
-                    clawAdjust.setPosition(.75);
-                    actionTimer.resetTimer();
-                    if (actionTimer.getElapsedTimeSeconds() == .5) {
-                        claw.setPosition(1);
-                    }
+                     */
                     follower.followPath(park, true);
                     //Sets to a non existent pathstate so that it doesn't keep running
                     //-Avikam ;)
-                    setPathState(15);
+                    setPathState(8);
                 }
                 break;
         }
-
-        PIDFController pidf = new PIDFController(0, 0, 0, 0);
-        pidf.setSetPoint(targetDistance);
-        while (!pidf.atSetPoint()) {
-            double outputLeft = pidf.calculate(
-                    vSlideLeft.getCurrentPosition()
-            );
-
-            double outputRight = pidf.calculate(
-                    vSlideRight.getCurrentPosition()
-            );
-
-            vSlideLeft.setVelocity(outputLeft);
-            vSlideRight.setVelocity(outputRight);
-        }
-        vSlideLeft.stopMotor();
-        vSlideRight.stopMotor();
     }
 
     public void setPathState(int pState) {
@@ -352,6 +263,23 @@ public class test extends OpMode{
         //dashboardPoseTracker.update();
         autonomousPathUpdate();
 
+        pidf.setSetPoint(targetDistance);
+        if (!pidf.atSetPoint()) {
+            double outputLeft = pidf.calculate(
+                    vSlideLeft.encoder.getPosition()
+            );
+
+            double outputRight = pidf.calculate(
+                    vSlideRight.encoder.getPosition()
+            );
+
+            follower.update();
+
+            vSlideLeft.setVelocity(outputLeft);
+            vSlideRight.setVelocity(outputRight);
+        }
+        vSlideLeft.stopMotor();
+        vSlideRight.stopMotor();
 
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());

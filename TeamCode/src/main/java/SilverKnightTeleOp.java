@@ -80,7 +80,7 @@ public class SilverKnightTeleOp extends LinearOpMode {
         intakeRotateRight.setDirection(ServoImplEx.Direction.REVERSE);
         linSlideLeft.setDirection(CRServo.Direction.REVERSE);
         intakeLeft.setDirection(CRServo.Direction.REVERSE);
-        clawRotateLeft.setInverted(false);
+        clawRotateLeft.setInverted(true);
         clawRotateRight.setInverted(true);
         claw.setDirection(ServoImplEx.Direction.REVERSE);
         vSlideRight.setInverted(true);
@@ -139,7 +139,7 @@ public class SilverKnightTeleOp extends LinearOpMode {
             //double power = pidf.calculate(vSlides.getCurrentPosition());  // Adjust power based on how fast you want to move
 
             if (gamepad2.dpad_up) {
-                clawRotateLeft.setPosition(.833);
+                clawRotateLeft.setPosition(0.555);
                 clawRotateRight.setPosition(.833);
                 clawAdjust.setPosition(.75);
                 telemetry.addLine("Sample scoring");
@@ -152,7 +152,7 @@ public class SilverKnightTeleOp extends LinearOpMode {
                 clawAdjust.setPosition(.12 - .0277);
                 telemetry.addLine("Resetting claw to intake");
             } else if (gamepad2.dpad_left) {
-                clawRotateLeft.setPosition(.09);
+                clawRotateLeft.setPosition(.06);
                 clawRotateRight.setPosition(.09);
                 clawAdjust.setPosition(0.5);
                 telemetry.addLine("Specimen pickup");
