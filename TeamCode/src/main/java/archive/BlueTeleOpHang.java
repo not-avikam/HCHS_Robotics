@@ -1,50 +1,45 @@
-    import static java.lang.Math.abs;
+package archive;
 
-    import android.graphics.Color;
-    import android.util.Size;
+import android.graphics.Color;
+import android.util.Size;
 
-    import com.arcrobotics.ftclib.controller.PIDFController;
-    import com.arcrobotics.ftclib.drivebase.MecanumDrive;
-    import com.arcrobotics.ftclib.gamepad.ButtonReader;
-    import com.arcrobotics.ftclib.gamepad.GamepadEx;
-    import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-    import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
-    import com.arcrobotics.ftclib.gamepad.TriggerReader;
-    import com.arcrobotics.ftclib.hardware.ServoEx;
-    import com.arcrobotics.ftclib.hardware.SimpleServo;
-    import com.arcrobotics.ftclib.hardware.motors.Motor;
-    import com.arcrobotics.ftclib.hardware.motors.MotorEx;
-    import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
-    import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-    import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-    import com.qualcomm.robotcore.hardware.CRServo;
-    import com.qualcomm.robotcore.hardware.ServoImplEx;
-    import com.qualcomm.robotcore.util.ElapsedTime;
+import com.arcrobotics.ftclib.controller.PIDFController;
+import com.arcrobotics.ftclib.drivebase.MecanumDrive;
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.arcrobotics.ftclib.hardware.SimpleServo;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.util.Constants;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-    import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-    import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-    import org.firstinspires.ftc.vision.VisionPortal;
-    import org.firstinspires.ftc.vision.opencv.ImageRegion;
-    import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.opencv.ImageRegion;
+import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 
-    import com.pedropathing.follower.Follower;
-    import com.pedropathing.localization.Pose;
-    import com.pedropathing.util.Constants;
+import java.io.File;
 
-    import pedroPathing.constants.FConstants;
-    import pedroPathing.constants.LConstants;
+import pedroPathing.constants.FConstants;
+import pedroPathing.constants.LConstants;
 
-    import java.io.File;
-
-    @TeleOp(name="Blue Park TeleOp", group="Silver Knight")
-    public class BlueTeleOpPark extends LinearOpMode {
+    @TeleOp(name="Blue Hang TeleOp", group="Silver Knight")
+    public class BlueTeleOpHang extends LinearOpMode {
         PIDFController pidf = new PIDFController(0, 0, 0, .04);
         private final ElapsedTime runtime = new ElapsedTime();
         private final String soundPath = "/FIRST/blocks/sounds";
         private final File Alert  = new File( soundPath + "/alert.wav");
 
         //TODO: Make this correct
-        private final Pose startPose = new Pose(18, 24, Math.toRadians(180));
+        private final Pose startPose = new Pose(59, 96, Math.toRadians(90));
         private final Pose observationZone = new Pose(0, 0);
         private final Pose basket = new Pose(0, 144);
 
@@ -122,35 +117,13 @@
             // run until the end of the match (driver presses STOP)
             while (opModeIsActive()) {
 
-                ToggleButtonReader robotCentricReader = new ToggleButtonReader(
-                        driverOp, GamepadKeys.Button.LEFT_STICK_BUTTON
-                );
-
-                ToggleButtonReader hangModeRight = new ToggleButtonReader(
-                        clawOp, GamepadKeys.Button.RIGHT_STICK_BUTTON
-                );
-
-                ToggleButtonReader hangModeLeft = new ToggleButtonReader(
-                        clawOp, GamepadKeys.Button.LEFT_STICK_BUTTON
-                );
-
-                TriggerReader vSlideUpReader = new TriggerReader(
-                        clawOp, GamepadKeys.Trigger.RIGHT_TRIGGER
-                );
-
-                TriggerReader vSlideDownReader = new TriggerReader(
-                        clawOp, GamepadKeys.Trigger.LEFT_TRIGGER
-                );
-
-                //follower.setStartingPose(follower.getPose());
-
-                if (robotCentricReader.getState()) {
+                if (gamepad1.right_stick_button) {
                     follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
                     follower.update();
                 } else if (gamepad1.left_bumper) {
                     follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), false);
                     follower.update();
-                } else if (robotCentricReader.wasJustPressed() && gamepad1.left_bumper) {
+                } else if (gamepad1.right_stick_button && gamepad1.left_bumper) {
                     follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), true);
                     follower.update();
                 } else {
@@ -205,9 +178,9 @@
                 } else if (gamepad2.left_trigger != 0) {
                     //targetDistance = -5;
                     vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
-                } else if (vSlideUpReader.wasJustReleased()) {
+                } else if (gamepad2.right_trigger == 0) {
                     vSlides.set(0);
-                } else if (vSlideDownReader.wasJustReleased()) {
+                } else if (gamepad2.left_trigger == 0) {
                     vSlides.set(0);
                 }
 
@@ -238,6 +211,18 @@
                 //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
                 //double distanceRemaining = targetDistance - currentDistance;
                 pidf.setSetPoint(targetDistance);
+
+                if (follower.getPose().getX() < (observationZone.getX() + 25) && follower.getPose().getY() < (observationZone.getY() + 31)) {
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                    telemetry.addLine("Specimen pickup");
+                }
+
+                if (follower.getPose().getX() < (basket.getX() + 24) && follower.getPose().getY() > (basket.getY()) - 24) {
+                    clawRotateLeft.setPosition(.833);
+                    clawRotateRight.setPosition(.833);
+                }
+
 
                 PredominantColorProcessor.Result result = colorSensor.getAnalysis();
 
@@ -281,16 +266,6 @@
                     telemetry.addLine("In position for claw pickup");
                 }
 
-                if (follower.getPose().getX() < (observationZone.getX() + 25) && follower.getPose().getY() < (observationZone.getY() + 31)) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
-                    telemetry.addLine("Specimen pickup");
-                }
-
-                if (follower.getPose().getX() < (basket.getX() + 24) && follower.getPose().getY() > (basket.getY()) - 24) {
-                    clawRotateLeft.setPosition(.833);
-                    clawRotateRight.setPosition(.833);
-                }
 
                 //telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
                 //telemetry.addData("Vslides distance", "%.2f", vSlides.getDistance());

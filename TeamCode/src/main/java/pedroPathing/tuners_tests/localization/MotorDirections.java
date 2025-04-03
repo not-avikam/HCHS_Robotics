@@ -62,7 +62,7 @@ public class MotorDirections extends OpMode {
         }
 
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
-        telemetryA.addLine("This will allow you to test the directions of your motors. You can change the directions in FTCDashboard -> FollowerConstants.");
+        telemetryA.addLine("This will allow you to archive.test the directions of your motors. You can change the directions in FTCDashboard -> FollowerConstants.");
         telemetryA.update();
     }
 

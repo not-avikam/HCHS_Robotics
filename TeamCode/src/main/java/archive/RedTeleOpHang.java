@@ -1,13 +1,11 @@
+package archive;
+
 import android.graphics.Color;
 import android.util.Size;
 
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
-import com.arcrobotics.ftclib.gamepad.ButtonReader;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
-import com.arcrobotics.ftclib.gamepad.TriggerReader;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -33,17 +31,17 @@ import java.io.File;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-    @TeleOp(name="Blue Hang TeleOp", group="Silver Knight")
-    public class BlueTeleOpHang extends LinearOpMode {
+    @TeleOp(name="Red Hang TeleOp", group="Silver Knight")
+    public class RedTeleOpHang extends LinearOpMode {
         PIDFController pidf = new PIDFController(0, 0, 0, .04);
         private final ElapsedTime runtime = new ElapsedTime();
         private final String soundPath = "/FIRST/blocks/sounds";
         private final File Alert  = new File( soundPath + "/alert.wav");
 
         //TODO: Make this correct
-        private final Pose startPose = new Pose(59, 96, Math.toRadians(90));
-        private final Pose observationZone = new Pose(0, 0);
-        private final Pose basket = new Pose(0, 144);
+        private final Pose startPose = new Pose(85, 48, Math.toRadians(-90));
+        private final Pose observationZone = new Pose(120, 120);
+        private final Pose basket = new Pose(120, 25);
 
         @Override
         public void runOpMode() {
@@ -214,18 +212,6 @@ import pedroPathing.constants.LConstants;
                 //double distanceRemaining = targetDistance - currentDistance;
                 pidf.setSetPoint(targetDistance);
 
-                if (follower.getPose().getX() < (observationZone.getX() + 25) && follower.getPose().getY() < (observationZone.getY() + 31)) {
-                    clawRotateLeft.setPosition(.09);
-                    clawRotateRight.setPosition(.09);
-                    telemetry.addLine("Specimen pickup");
-                }
-
-                if (follower.getPose().getX() < (basket.getX() + 24) && follower.getPose().getY() > (basket.getY()) - 24) {
-                    clawRotateLeft.setPosition(.833);
-                    clawRotateRight.setPosition(.833);
-                }
-
-
                 PredominantColorProcessor.Result result = colorSensor.getAnalysis();
 
 
@@ -247,16 +233,15 @@ import pedroPathing.constants.LConstants;
                     intakeRight.setPower(1);
                     telemetry.addLine("Intake on");
                     clawAdjust.setPosition(.12 - .0277);
-                    claw.setPosition(1);
                     telemetry.addLine("Adjusting claw automatically");
-                } else if (result.closestSwatch == PredominantColorProcessor.Swatch.BLUE && gamepad1.x) {
+                } else if (result.closestSwatch == PredominantColorProcessor.Swatch.RED && gamepad1.x) {
                     intakeLeft.setPower(1);
                     intakeRight.setPower(1);
                     telemetry.addLine("Intake on");
                     clawAdjust.setPosition(.25);
                     claw.setPosition(1);
                     telemetry.addLine("Adjusting claw automatically");
-                } else if (result.closestSwatch == PredominantColorProcessor.Swatch.RED) {
+                } else if (result.closestSwatch == PredominantColorProcessor.Swatch.BLUE) {
                     telemetry.addLine("WRONG COLOR!");
                     gamepad1.rumbleBlips(3);
                     gamepad2.rumbleBlips(3);
@@ -268,6 +253,15 @@ import pedroPathing.constants.LConstants;
                     telemetry.addLine("In position for claw pickup");
                 }
 
+                if (follower.getPose().getX() > (observationZone.getX()) && follower.getPose().getY() > (observationZone.getY())) {
+                    clawRotateLeft.setPosition(.09);
+                    clawRotateRight.setPosition(.09);
+                }
+
+                if (follower.getPose().getX() > (basket.getX()) && follower.getPose().getY() < (basket.getY())) {
+                    clawRotateLeft.setPosition(.833);
+                    clawRotateRight.setPosition(.833);
+                }
 
                 //telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
                 //telemetry.addData("Vslides distance", "%.2f", vSlides.getDistance());

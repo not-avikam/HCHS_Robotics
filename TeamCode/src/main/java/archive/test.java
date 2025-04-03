@@ -1,3 +1,5 @@
+package archive;
+
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.hardware.RevIMU;
@@ -24,13 +26,10 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@Autonomous(name = "3+0 Blue Observation", group = "Silver Knight")
-public class ThreeSpecBlueObservation extends OpMode{
+@Autonomous(name = "Observation Zone debug help", group = "Silver Knight")
+public class test extends OpMode {
     //private PoseUpdater poseUpdater;
     //private DashboardPoseTracker dashboardPoseTracker;
-    //hardware
-    //auto stuff
-
     PIDFController pidf = new PIDFController(0, 0, 0, .005);
 
     double targetDistance = 0;
@@ -52,8 +51,8 @@ public class ThreeSpecBlueObservation extends OpMode{
     private final Pose scorePose3 = new Pose(38, 72, Math.toRadians(180));
     private final Pose parkPose = new Pose(18, 24, Math.toRadians(0));
     private PathChain park, score2, score3, scorePreload, pickup1, dropOffSample1, pickupSpecimen1, pickupSpecimen2;
-    public void buildPaths() {
 
+    public void buildPaths() {
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(scorePose1)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose1.getHeading())
@@ -80,7 +79,7 @@ public class ThreeSpecBlueObservation extends OpMode{
                 .build();
 
         pickupSpecimen2 = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(scorePose2),new Point(pickupSpecimenPose)))
+                .addPath(new BezierCurve(new Point(scorePose2), new Point(pickupSpecimenPose)))
                 .setLinearHeadingInterpolation(scorePose2.getHeading(), pickupSpecimenPose.getHeading())
                 .build();
 
@@ -111,13 +110,16 @@ public class ThreeSpecBlueObservation extends OpMode{
         GamepadEx driverOp = new GamepadEx(gamepad1);
         GamepadEx clawOp = new GamepadEx(gamepad2);
         RevIMU imu = new RevIMU(hardwareMap, "imu");
+        MotorEx vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
+        MotorEx vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
+        MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
 
         //TODO: Adjust the vSlides parameters
-        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-        vSlides.setRunMode(Motor.RunMode.PositionControl);
-        vSlideLeft.encoder.setDistancePerPulse(0.00102);
-        vSlideRight.encoder.setDistancePerPulse(0.00102);
-        vSlides.stopAndResetEncoder();
+//        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+//        vSlides.setRunMode(Motor.RunMode.PositionControl);
+//        vSlides.setPositionCoefficient(0.05);
+//        vSlides.setDistancePerPulse(0.015);
+//        vSlides.stopAndResetEncoder();
 
         linSlideLeft.setDirection(CRServo.Direction.REVERSE);
         intakeLeft.setDirection(CRServo.Direction.REVERSE);
@@ -127,6 +129,7 @@ public class ThreeSpecBlueObservation extends OpMode{
         vSlides.setInverted(true);
         vSlideRight.setInverted(false);
 
+        double targetDistance = 0;
         switch (pathState) {
             case 0:
                 intakeRotateRight.setPosition(0);
@@ -136,7 +139,7 @@ public class ThreeSpecBlueObservation extends OpMode{
                 break;
             case 1:
                 if (!follower.isBusy()) {
-                    targetDistance = 2.16667-1.19500;
+                    //TODO: targetDistance = 2.16667-1.19500;
                     clawRotateRight.setPosition(.833);
                     clawRotateLeft.setPosition(.833);
                     intakeRotateRight.setPosition(0);
@@ -144,16 +147,18 @@ public class ThreeSpecBlueObservation extends OpMode{
                     linSlideLeft.setPower(-.4);
                     linSlideRight.setPower(-.4);
                     clawAdjust.setPosition(.75);
+                    /*
                     if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(1);
                     }
+                     */
                     follower.followPath(pickup1, true);
                     setPathState(2);
                 }
                 break;
             case 2:
                 if (!follower.isBusy()) {
-                    targetDistance = 0;
+                    //targetDistance = 0;
                     clawRotateRight.setPosition(0);
                     clawRotateLeft.setPosition(0);
                     clawAdjust.setPosition(.12 - .0277);
@@ -182,26 +187,28 @@ public class ThreeSpecBlueObservation extends OpMode{
                     intakeRotateRight.setPosition(0);
                     intakeRotateLeft.setPosition(0);
                     clawAdjust.setPosition(0.5);
-                    targetDistance = 0;
+                    //targetDistance = 0;
                     if (pathTimer.getElapsedTimeSeconds() > 2) {
                         claw.setPosition(0);
-                        follower.followPath(score2,true);
+                        follower.followPath(score2, true);
                         setPathState(5);
                     }
                 }
                 break;
             case 5:
                 if (!follower.isBusy()) {
-                    //TODO: subtract distance of retracted slides
-                    targetDistance = 2.16667-1.19500;
+                    //TODO
+                    //targetDistance = 2.16667-1.19500;
                     clawRotateRight.setPosition(.833);
                     clawRotateLeft.setPosition(.833);
                     intakeRotateRight.setPosition(0);
                     intakeRotateLeft.setPosition(0);
                     clawAdjust.setPosition(.75);
+                    /*
                     if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(1);
                     }
+                     */
                     follower.followPath(pickupSpecimen2, true);
                     setPathState(6);
                 }
@@ -213,26 +220,29 @@ public class ThreeSpecBlueObservation extends OpMode{
                     intakeRotateRight.setPosition(0);
                     intakeRotateLeft.setPosition(0);
                     clawAdjust.setPosition(0.5);
-                    targetDistance = 0;
+                    //TODO
+                    //targetDistance = 0;
                     if (pathTimer.getElapsedTimeSeconds() > 2) {
                         claw.setPosition(0);
-                        follower.followPath(score3,true);
+                        follower.followPath(score3, true);
                         setPathState(7);
                     }
                 }
                 break;
             case 7:
-                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 25) {
-                    targetDistance = 2.16667-1.19500;
+                if (!follower.isBusy()) {
+                    //TODO
+                    //targetDistance = 2.16667-1.19500;
                     clawRotateRight.setPosition(.833);
                     clawRotateLeft.setPosition(.833);
                     intakeRotateRight.setPosition(0);
                     intakeRotateLeft.setPosition(0);
                     clawAdjust.setPosition(.75);
-                    actionTimer.resetTimer();
+                    /*
                     if (vSlideLeft.atTargetPosition() && vSlideRight.atTargetPosition()) {
                         claw.setPosition(1);
                     }
+                     */
                     follower.followPath(park, true);
                     //Sets to a non existent pathstate so that it doesn't keep running
                     //-Avikam ;)
@@ -249,6 +259,11 @@ public class ThreeSpecBlueObservation extends OpMode{
 
     @Override
     public void loop() {
+
+        // These loop the movements of the robot
+        follower.update();
+        //dashboardPoseTracker.update();
+        autonomousPathUpdate();
 
         pidf.setSetPoint(targetDistance);
         if (!pidf.atSetPoint()) {
@@ -268,11 +283,6 @@ public class ThreeSpecBlueObservation extends OpMode{
         vSlideLeft.stopMotor();
         vSlideRight.stopMotor();
 
-        // These loop the movements of the robot
-        follower.update();
-        autonomousPathUpdate();
-
-
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
@@ -288,25 +298,13 @@ public class ThreeSpecBlueObservation extends OpMode{
         actionTimer = new Timer();
         opmodeTimer.resetTimer();
 
-        vSlideLeft = new MotorEx(hardwareMap, "VSL", Motor.GoBILDA.RPM_435);
-        vSlideRight = new MotorEx(hardwareMap, "VSR", Motor.GoBILDA.RPM_435);
-
-        vSlides = new MotorGroup(vSlideLeft, vSlideRight);
-
-        //TODO: Adjust the vSlides parameters
-        vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-        vSlides.setRunMode(Motor.RunMode.PositionControl);
-        vSlideLeft.encoder.setDistancePerPulse(0.00102);
-        vSlideRight.encoder.setDistancePerPulse(0.00102);
-        vSlides.stopAndResetEncoder();
-
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
         buildPaths();
 
         telemetry.addLine("Align on the field tile next to the observation zone, with the edge of the robot aligned with the edge of the field tile facing the observation zone");
-        telemetry.addLine("There should be 3 tile to the left of the robot and 2 to the right");
+        telemetry.addLine("There should be 3 tiles to the left of the robot and 2 to the right");
         telemetry.update();
     }
 
@@ -320,5 +318,6 @@ public class ThreeSpecBlueObservation extends OpMode{
     }
 
     @Override
-    public void stop() {}
+    public void stop() {
+    }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 FIRST. All rights reserved.
+package archive;/* Copyright (c) 2021 FIRST. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted (subject to the limitations in the disclaimer below) provided that
@@ -166,9 +166,9 @@ public class LM3_Working extends LinearOpMode {
                 clawVerticalPower /= max;
             }
 
-            // This is test code:
+            // This is archive.test code:
             //
-            // Uncomment the following code to test your motor directions.
+            // Uncomment the following code to archive.test your motor directions.
             // Each button should make the corresponding motor run FORWARD.
             //   1) First get all the motors to take to correct positions on the robot
             //      by adjusting your Robot Configuration if necessary.

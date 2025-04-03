@@ -1,13 +1,7 @@
-import android.graphics.Color;
 import android.util.Size;
 
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
-import com.arcrobotics.ftclib.gamepad.ButtonReader;
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
-import com.arcrobotics.ftclib.gamepad.TriggerReader;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -22,23 +16,26 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
+import org.firstinspires.ftc.vision.opencv.ColorRange;
 import org.firstinspires.ftc.vision.opencv.ImageRegion;
-import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
+import org.opencv.core.Point;
+import org.opencv.core.RotatedRect;
 
 import java.io.File;
+import java.util.List;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@TeleOp(name="Silver Knight TeleOp", group="Silver Knight")
-public class SilverKnightTeleOp extends LinearOpMode {
+@TeleOp(name="Cocked", group="Buc Days")
+public class BucDays extends LinearOpMode {
     PIDFController pidf = new PIDFController(0, 0, 0, 0);
     private final ElapsedTime runtime = new ElapsedTime();
-    private final String soundPath = "/FIRST/blocks/sounds";
-    private final File Alert  = new File( soundPath + "/alert.wav");
     private final Pose startPose = new Pose(135, 133, Math.toRadians(0));
     private final Pose observationZone = new Pose(120, 120);
     private final Pose basket = new Pose(120, 25);
@@ -48,6 +45,14 @@ public class SilverKnightTeleOp extends LinearOpMode {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
+        ColorBlobLocatorProcessor colorLocator = new ColorBlobLocatorProcessor.Builder()
+                .setTargetColorRange(ColorRange.BLUE)
+                .setTargetColorRange(ColorRange.YELLOW)// use a predefined color match
+                .setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)    // exclude blobs inside blobs
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.5, 0.5, 0.5, -0.5))  // search central 1/4 of camera view
+                .setDrawContours(true)                        // Show contours on the Stream Preview
+                .setBlurSize(5)                               // Smooth the transitions between different colors in image
+                .build();
         Constants.setConstants(FConstants.class, LConstants.class);
         Follower follower = new Follower(hardwareMap);
         follower.startTeleopDrive();
@@ -63,27 +68,31 @@ public class SilverKnightTeleOp extends LinearOpMode {
         MotorGroup vSlides = new MotorGroup(vSlideLeft, vSlideRight);
         CRServo linSlideLeft = hardwareMap.get(CRServo.class, "LSL");
         CRServo linSlideRight = hardwareMap.get(CRServo.class, "LSR");
-        CRServo intakeLeft = hardwareMap.get(CRServo.class, "iL");
-        CRServo intakeRight = hardwareMap.get(CRServo.class, "iR");
         ServoImplEx claw = hardwareMap.get(ServoImplEx.class, "claw");
         ServoImplEx clawAdjust = hardwareMap.get(ServoImplEx.class, "cA");
         ServoEx clawRotateLeft = new SimpleServo(hardwareMap, "cRL", 0, 300, AngleUnit.DEGREES);
         ServoEx clawRotateRight = new SimpleServo(hardwareMap, "cRR", 0, 300, AngleUnit.DEGREES);
-        ServoImplEx intakeRotateLeft = hardwareMap.get(ServoImplEx.class, "iRL");
-        ServoImplEx intakeRotateRight = hardwareMap.get(ServoImplEx.class, "iRR");
+        ServoEx intakeRotate = new SimpleServo(hardwareMap, "iR", 0, 300, AngleUnit.DEGREES);
+        ServoEx intakeWrist = new SimpleServo(hardwareMap, "iC", 0, 180, AngleUnit.DEGREES);
+        ServoEx intakeClaw = new SimpleServo(hardwareMap, "iC", 0, 180, AngleUnit.DEGREES);
         //BNO055IMUNew imu = hardwareMap.get(BNO055IMUNew.class, "imu");
-        boolean AlertFound   = Alert.exists();
-        telemetry.addData("Alert sound",   AlertFound ?   "Found" : "NOT Found \nCopy alert.wav to " + soundPath  );
 
         vSlides.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
 
-        intakeRotateRight.setDirection(ServoImplEx.Direction.REVERSE);
         linSlideLeft.setDirection(CRServo.Direction.REVERSE);
-        intakeLeft.setDirection(CRServo.Direction.REVERSE);
         clawRotateLeft.setInverted(true);
         clawRotateRight.setInverted(true);
         claw.setDirection(ServoImplEx.Direction.REVERSE);
         vSlideRight.setInverted(true);
+
+        VisionPortal portal = new VisionPortal.Builder()
+                .addProcessor(colorLocator)
+                .setCameraResolution(new Size(320, 240))
+                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                .build();
+
+       // telemetry.setMsTransmissionInterval(50);   // Speed up telemetry updates, Just use for debugging.
+        telemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -97,29 +106,22 @@ public class SilverKnightTeleOp extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            /*
-            if (gamepad1.right_stick_button) {
-                follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
-                follower.update();
-            } else if (gamepad1.left_bumper) {
-                follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), false);
-                follower.update();
-            } else if (gamepad1.right_stick_button && gamepad1.left_bumper) {
-                follower.setTeleOpMovementVectors((-gamepad1.left_stick_y * .5), (-gamepad1.left_stick_x * .5), (-gamepad1.right_stick_x * .5), true);
+            telemetry.addData("preview on/off", "... Camera Stream\n");
+            List<ColorBlobLocatorProcessor.Blob> blobs = colorLocator.getBlobs();
+
+            ColorBlobLocatorProcessor.Util.filterByArea(50, 20000, blobs);// filter out very small blobs.
+
+            double slow_forwardbackward = (-gamepad1.left_stick_y*.5);
+            double slow_strafe = (-gamepad1.left_stick_x*.5);
+            double slow_rotate = (-gamepad1.right_stick_x*.5);
+
+            if (gamepad1.right_bumper) {
+                follower.setTeleOpMovementVectors(slow_forwardbackward, slow_strafe, slow_rotate, false);
                 follower.update();
             } else {
                 follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
                 follower.update();
             }
-
-             */
-
-            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
-            follower.update();
-
-            telemetry.addLine("To use field centric mode, press left stick.");
-
-            follower.update();
 
             if (gamepad1.right_trigger != 0) {
                 linSlideLeft.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
@@ -135,21 +137,17 @@ public class SilverKnightTeleOp extends LinearOpMode {
                 linSlideRight.setPower(0);
             }
 
-            double targetDistance = 0;
-            //double power = pidf.calculate(vSlides.getCurrentPosition());  // Adjust power based on how fast you want to move
-
             if (gamepad2.dpad_up) {
                 clawRotateLeft.setPosition(0.555);
                 clawRotateRight.setPosition(.833);
                 clawAdjust.setPosition(.75);
                 telemetry.addLine("Sample scoring");
-                targetDistance = 5;
-                //vSlides.set(power);
-                telemetry.addLine("Adjusting viper slides automatically");
+                intakeWrist.setPosition(1);
             } else if (gamepad2.dpad_down) {
                 clawRotateLeft.setPosition(0);
                 clawRotateRight.setPosition(0);
                 clawAdjust.setPosition(.12 - .0277);
+                intakeWrist.setPosition(0);
                 telemetry.addLine("Resetting claw to intake");
             } else if (gamepad2.dpad_left) {
                 clawRotateLeft.setPosition(.06);
@@ -159,10 +157,8 @@ public class SilverKnightTeleOp extends LinearOpMode {
             }
 
             if (gamepad2.right_trigger != 0) {
-                //targetDistance = 5;
                 vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
             } else if (gamepad2.left_trigger != 0) {
-                //targetDistance = -5;
                 vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
             } else if (gamepad2.right_trigger == 0) {
                 vSlides.set(0);
@@ -170,15 +166,31 @@ public class SilverKnightTeleOp extends LinearOpMode {
                 vSlides.set(0);
             }
 
+
             if (gamepad2.y) {
                 claw.setPosition(1);
-                telemetry.addLine("Claw opened all the way | MANUAL OPERATION OF CLAW");
             } else if (gamepad2.b) {
                 claw.setPosition(0);
-                telemetry.addLine("Claw closed | MANUAL OPERATION OF CLAW");
             }
 
-            if (gamepad2.right_stick_button && gamepad2.left_stick_button) {
+            org.opencv.core.Size myBoxFitSize;
+            for(ColorBlobLocatorProcessor.Blob b : blobs)
+            {
+                RotatedRect boxFit = b.getBoxFit();
+                myBoxFitSize = boxFit.size;
+                telemetry.addData("width", myBoxFitSize.width);
+                telemetry.addData("height", myBoxFitSize.height);
+                telemetry.addData("angle", boxFit.angle);
+                intakeRotate.turnToAngle(boxFit.angle);
+            }
+
+            if (gamepad1.x) {
+                intakeClaw.setPosition(1);
+            }  else if (gamepad1.a){
+                intakeClaw.setPosition(0);
+            }
+
+            if (gamepad2.right_stick_button) {
                 vSlides.setRunMode(Motor.RunMode.RawPower);
                 vSlides.set(gamepad2.right_trigger - gamepad2.left_trigger);
                 linSlideLeft.setPower(-1 * ((Math.abs(6/1.79)/2)/100));
@@ -187,44 +199,20 @@ public class SilverKnightTeleOp extends LinearOpMode {
                 clawRotateLeft.disable();
                 clawRotateRight.disable();
                 clawAdjust.setPwmDisable();
-                intakeLeft.setPower(0);
-                intakeRight.setPower(0);
-                intakeRotateLeft.setPwmDisable();
-                intakeRotateRight.setPwmDisable();
+                intakeClaw.disable();
+                intakeRotate.disable();
+                intakeWrist.disable();
                 telemetry.addLine("Hang mode");
-            }
-
-            //double currentDistance = vSlides.getCurrentPosition() /* *number for .setDistancePerPulse*/;
-            //double distanceRemaining = targetDistance - currentDistance;
-            pidf.setSetPoint(targetDistance);
-
-            if (gamepad1.x) {
-                intakeRotateLeft.setPosition(.025);
-                intakeRotateRight.setPosition(.17);
-                intakeLeft.setPower(1);
-                intakeRight.setPower(1);
-            } else if (gamepad1.a) {
-                intakeLeft.setPower(-1);
-                intakeRight.setPower(-1);
-                intakeRotateLeft.setPosition(.1);
-                intakeRotateRight.setPosition(.1);
-            }  else {
-                intakeLeft.setPower(0);
-                intakeRight.setPower(0);
-                intakeRotateLeft.setPosition(0);
-                intakeRotateRight.setPosition(0);
-                telemetry.addLine("In position for claw pickup");
             }
 
             //telemetry.addData("Vslides position", "%.2f", vSlides.getCurrentPosition());
             //telemetry.addData("Vslides distance", "%.2f", vSlides.getDistance());
+            telemetry.addLine(" Area Density Aspect  Center");
+            telemetry.update();
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("preview on/off", "... Camera Stream\n");
             telemetry.addData("x", follower.getPose().getX());
             telemetry.addData("y", follower.getPose().getY());
-            telemetry.addData("velocity", follower.getVelocity());
-            telemetry.addData("velocity magnitude", follower.getVelocityMagnitude());
-            telemetry.addData("heading", follower.getPose().getHeading());
             telemetry.update();
             follower.update();
         }

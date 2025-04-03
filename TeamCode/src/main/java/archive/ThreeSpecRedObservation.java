@@ -1,3 +1,5 @@
+package archive;
+
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.hardware.RevIMU;
@@ -24,12 +26,10 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@Autonomous(name = "3+0 Blue Net", group = "Silver Knight")
-public class ThreeSpecBlueNet extends OpMode{
+@Autonomous(name = "3+0 Red Observation", group = "Silver Knight")
+public class ThreeSpecRedObservation extends OpMode{
     //private PoseUpdater poseUpdater;
     //private DashboardPoseTracker dashboardPoseTracker;
-    //hardware
-    //auto stuff
     PIDFController pidf = new PIDFController(0, 0, 0, .005);
     private MotorEx vSlideLeft;
     private MotorEx vSlideRight;
@@ -38,17 +38,17 @@ public class ThreeSpecBlueNet extends OpMode{
     private Timer pathTimer, actionTimer, opmodeTimer;
     private Follower follower;
     private int pathState;
-    private final Pose startPose = new Pose(10, 104, Math.toRadians(0));  // Starting position
-    private final Pose scorePose1 = new Pose(38, 68, Math.toRadians(180));
-    private final Pose pickupPose1 = new Pose(67, 22, Math.toRadians(90));
-    private final Pose pickupPose1ControlPose1 = new Pose(3, 38);
-    private final Pose pickupPose1ControlPose2 = new Pose(105, 5);
-    private final Pose pickupPose1ControlPose3 = new Pose(38, 47);
-    private final Pose dropOff1 = new Pose(19, 22, Math.toRadians(90));
-    private final Pose pickupSpecimenPose = new Pose(9, 28, Math.toRadians(180)); // First sample pickup
-    private final Pose scorePose2 = new Pose(38, 64, Math.toRadians(180)); // Third sample pickup
-    private final Pose scorePose3 = new Pose(38, 72, Math.toRadians(180));
-    private final Pose parkPose = new Pose(18, 24, Math.toRadians(0));
+    private final Pose startPose = new Pose(134, 80, Math.toRadians(180));  // Starting position
+    private final Pose scorePose1 = new Pose(106, 77, Math.toRadians(0));
+    private final Pose pickupPose1 = new Pose(82, 122, Math.toRadians(90));
+    private final Pose pickupPose1ControlPose1 = new Pose(121, 95);
+    private final Pose pickupPose1ControlPose2 = new Pose(110, 109);
+    private final Pose pickupPose1ControlPose3 = new Pose(85, 108);
+    private final Pose dropOff1 = new Pose(130, 122, Math.toRadians(90));
+    private final Pose pickupSpecimenPose = new Pose(135, 115.5, Math.toRadians(0)); // First sample pickup
+    private final Pose scorePose2 = new Pose(106, 72, Math.toRadians(0)); // Third sample pickup
+    private final Pose scorePose3 = new Pose(106, 67, Math.toRadians(0));
+    private final Pose parkPose = new Pose(135, 133, Math.toRadians(0));
     private PathChain park, score2, score3, scorePreload, pickup1, dropOffSample1, pickupSpecimen1, pickupSpecimen2;
     public void buildPaths() {
 
@@ -303,8 +303,8 @@ public class ThreeSpecBlueNet extends OpMode{
         follower.setStartingPose(startPose);
         buildPaths();
 
-        telemetry.addLine("Align on the field tile next to the basket, with the edge of the robot aligned with the edge of the field tile facing the observation zone");
-        telemetry.addLine("There should be 1 tile to the left of the robot and 4 to the right");
+        telemetry.addLine("Align on the field tile next to the observation zone, with the edge of the robot aligned with the edge of the field tile facing the net");
+        telemetry.addLine("There should be 3 tiles to the left of the robot and 2 to the right");
         telemetry.update();
     }
 
